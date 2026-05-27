@@ -58,6 +58,26 @@ def home():
             content="width=device-width,
             initial-scale=1">
 
+            <link
+            rel="manifest"
+            href="/static/manifest.json">
+
+            <meta
+            name="theme-color"
+            content="#0ea5e9">
+
+            <meta
+            name="mobile-web-app-capable"
+            content="yes">
+
+            <meta
+            name="apple-mobile-web-app-capable"
+            content="yes">
+
+            <meta
+            name="apple-mobile-web-app-status-bar-style"
+            content="black-translucent">
+
             <style>
 
                 * {{
@@ -516,6 +536,18 @@ def home():
             <div class="footer">
                 INDODAX AI BOT • Railway Live Server
             </div>
+
+            <script>
+
+            if ('serviceWorker' in navigator) {
+
+                navigator.serviceWorker.register(
+                    '/static/sw.js'
+                )
+
+            }
+
+            </script>
 
         </body>
         </html>
