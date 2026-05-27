@@ -1,5 +1,3 @@
-# trader.py
-
 import threading
 import time
 import ccxt
@@ -109,6 +107,51 @@ def get_idr_balance():
         return 0
 
 
+def get_best_prices(symbol):
+
+    try:
+
+        orderbook = exchange.fetch_order_book(
+            symbol
+        )
+
+        best_ask = None
+        best_bid = None
+
+        if orderbook['asks']:
+
+            best_ask = orderbook[
+                'asks'
+            ][0][0]
+
+        if orderbook['bids']:
+
+            best_bid = orderbook[
+                'bids'
+            ][0][0]
+
+        print(
+            "BEST ASK:",
+            best_ask
+        )
+
+        print(
+            "BEST BID:",
+            best_bid
+        )
+
+        return best_ask, best_bid
+
+    except Exception as e:
+
+        print(
+            "ORDERBOOK ERROR:",
+            str(e)
+        )
+
+        return None, None
+
+
 def wait_order_filled(
     order_id,
     symbol
@@ -199,7 +242,7 @@ def wait_order_filled(
         return False
 
 
-def buy_coin(symbol, buy_price):
+def buy_coin(symbol):
 
     try:
 
@@ -219,20 +262,33 @@ def buy_coin(symbol, buy_price):
 
             return None
 
-        amount = (
-            config.BASE_TRADE_AMOUNT
-            / buy_price
+        best_ask, best_bid = get_best_prices(
+            symbol
         )
 
-        amount = round(amount, 8)
+        if not best_ask:
 
-        buy_price = buy_price * (
+            print("NO BEST ASK")
+
+            return None
+
+        buy_price = best_ask * (
             1 +
             config.BUY_SLIPPAGE
         )
 
         buy_price = round(
             buy_price,
+            8
+        )
+
+        amount = (
+            config.BASE_TRADE_AMOUNT
+            / buy_price
+        )
+
+        amount = round(
+            amount,
             8
         )
 
@@ -285,24 +341,33 @@ def buy_coin(symbol, buy_price):
 
 def sell_coin(
     symbol,
-    amount,
-    sell_price
+    amount
 ):
 
     try:
 
-        amount = round(
-            amount,
-            8
+        best_ask, best_bid = get_best_prices(
+            symbol
         )
 
-        sell_price = sell_price * (
+        if not best_bid:
+
+            print("NO BEST BID")
+
+            return None
+
+        sell_price = best_bid * (
             1 -
             config.SELL_SLIPPAGE
         )
 
         sell_price = round(
             sell_price,
+            8
+        )
+
+        amount = round(
+            amount,
             8
         )
 
@@ -390,18 +455,13 @@ def trader_loop():
                     ]:
                         continue
 
-                    buy_price = float(
-                        coin["price"]
-                    )
-
                     print(
                         "TRY BUY:",
                         coin["symbol"]
                     )
 
                     buy_result = buy_coin(
-                        coin["symbol"],
-                        buy_price
+                        coin["symbol"]
                     )
 
                     if buy_result:
@@ -595,8 +655,7 @@ def trader_loop():
                             ],
                             active_trade[
                                 "amount"
-                            ],
-                            current_price
+                            ]
                         )
 
                         if sell_result:
@@ -644,8 +703,7 @@ def trader_loop():
                             ],
                             active_trade[
                                 "amount"
-                            ],
-                            current_price
+                            ]
                         )
 
                         if sell_result:
@@ -701,8 +759,7 @@ def trader_loop():
                             ],
                             active_trade[
                                 "amount"
-                            ],
-                            current_price
+                            ]
                         )
 
                         if sell_result:
