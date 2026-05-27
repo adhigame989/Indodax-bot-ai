@@ -111,6 +111,59 @@ def get_idr_balance():
         return 0
 
 
+def get_trade_amount():
+
+    try:
+
+        balance = exchange.fetch_balance()
+
+        idr = float(
+            balance['total'].get(
+                'IDR',
+                0
+            )
+        )
+
+        compound_amount = (
+            idr *
+            config.COMPOUND_PERCENT
+        ) / 100
+
+        if (
+            compound_amount <
+            config.BASE_TRADE_AMOUNT
+        ):
+
+            compound_amount = (
+                config.BASE_TRADE_AMOUNT
+            )
+
+        if (
+            compound_amount >
+            config.MAX_TRADE_AMOUNT
+        ):
+
+            compound_amount = (
+                config.MAX_TRADE_AMOUNT
+            )
+
+        print(
+            "COMPOUND TRADE AMOUNT:",
+            compound_amount
+        )
+
+        return compound_amount
+
+    except Exception as e:
+
+        print(
+            "COMPOUND ERROR:",
+            str(e)
+        )
+
+        return config.BASE_TRADE_AMOUNT
+
+
 def get_best_prices(symbol):
 
     try:
@@ -247,10 +300,9 @@ def buy_coin(symbol):
             idr_balance
         )
 
-        if (
-            idr_balance <
-            config.BASE_TRADE_AMOUNT
-        ):
+        trade_amount = get_trade_amount()
+
+        if idr_balance < trade_amount:
 
             print("NOT ENOUGH IDR")
 
@@ -277,7 +329,7 @@ def buy_coin(symbol):
         )
 
         amount = (
-            config.BASE_TRADE_AMOUNT
+            trade_amount
             / buy_price
         )
 
@@ -315,7 +367,10 @@ def buy_coin(symbol):
             order,
 
             "buy_price":
-            buy_price
+            buy_price,
+
+            "trade_amount":
+            trade_amount
 
         }
 
@@ -507,6 +562,10 @@ def trader_loop():
                             buy_result["buy_price"]
                         )
 
+                        trade_amount = (
+                            buy_result["trade_amount"]
+                        )
+
                         tp_price = (
                             real_buy_price
                             *
@@ -553,6 +612,9 @@ def trader_loop():
                             "amount":
                             amount,
 
+                            "trade_amount":
+                            trade_amount,
+
                             "status":
                             "OPEN"
 
@@ -570,7 +632,8 @@ def trader_loop():
                         send_telegram(
                             f"🟢 BUY\n\n"
                             f"{coin['symbol']}\n"
-                            f"Buy: {real_buy_price}"
+                            f"Buy: {real_buy_price}\n"
+                            f"Modal: Rp {trade_amount:,.0f}"
                         )
 
                         break
@@ -661,10 +724,6 @@ def trader_loop():
                         ]
                     ):
 
-                        print(
-                            "TAKE PROFIT HIT"
-                        )
-
                         sell_result = sell_coin(
                             active_trade[
                                 "symbol"
@@ -695,7 +754,9 @@ def trader_loop():
                                 f"🎯 TAKE PROFIT\n\n"
                                 f"{active_trade['symbol']}\n"
                                 f"Profit: "
-                                f"{active_trade['profit_percent']}%"
+                                f"{active_trade['profit_percent']}%\n"
+                                f"Modal: Rp "
+                                f"{active_trade['trade_amount']:,.0f}"
                             )
 
                             clear_trade()
@@ -710,10 +771,6 @@ def trader_loop():
                             "sl_price"
                         ]
                     ):
-
-                        print(
-                            "STOP LOSS HIT"
-                        )
 
                         sell_result = sell_coin(
                             active_trade[
@@ -767,7 +824,9 @@ def trader_loop():
                                 f"🔴 STOP LOSS\n\n"
                                 f"{active_trade['symbol']}\n"
                                 f"Loss: "
-                                f"{active_trade['profit_percent']}%"
+                                f"{active_trade['profit_percent']}%\n"
+                                f"Modal: Rp "
+                                f"{active_trade['trade_amount']:,.0f}"
                             )
 
                             clear_trade()
@@ -790,10 +849,6 @@ def trader_loop():
                         profit > 0
 
                     ):
-
-                        print(
-                            "TRAILING STOP HIT"
-                        )
 
                         sell_result = sell_coin(
                             active_trade[
@@ -825,7 +880,9 @@ def trader_loop():
                                 f"🚀 TRAILING STOP\n\n"
                                 f"{active_trade['symbol']}\n"
                                 f"Profit: "
-                                f"{active_trade['profit_percent']}%"
+                                f"{active_trade['profit_percent']}%\n"
+                                f"Modal: Rp "
+                                f"{active_trade['trade_amount']:,.0f}"
                             )
 
                             clear_trade()
