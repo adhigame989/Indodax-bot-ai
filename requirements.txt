@@ -1,0 +1,7 @@
+ccxt==4.4.85
+flask
+pandas
+numpy
+ta
+gunicorn
+requests
