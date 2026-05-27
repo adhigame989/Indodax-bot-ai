@@ -1,6 +1,14 @@
-API_KEY = "ISI_API_KEY"
+import os
 
-SECRET_KEY = "ISI_SECRET_KEY"
+API_KEY = os.environ.get(
+    "API_KEY",
+    ""
+)
+
+SECRET_KEY = os.environ.get(
+    "SECRET_KEY",
+    ""
+)
 
 BASE_TRADE_AMOUNT = 100000
 
