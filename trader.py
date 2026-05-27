@@ -1,3 +1,5 @@
+# trader.py
+
 import threading
 import time
 import ccxt
@@ -12,6 +14,10 @@ from storage import (
 
 from telegram_bot import (
     send_telegram
+)
+
+from history import (
+    add_trade_history
 )
 
 exchange = ccxt.indodax({
@@ -595,15 +601,24 @@ def trader_loop():
 
                         if sell_result:
 
+                            add_trade_history(
+
+                                active_trade["symbol"],
+                                "TP",
+
+                                active_trade["buy_price"],
+
+                                current_price,
+
+                                active_trade["profit_percent"]
+
+                            )
+
                             send_telegram(
                                 f"🎯 TAKE PROFIT\n\n"
                                 f"{active_trade['symbol']}\n"
                                 f"Profit: "
                                 f"{active_trade['profit_percent']}%"
-                            )
-
-                            print(
-                                "TP SELL SUCCESS"
                             )
 
                             clear_trade()
@@ -635,15 +650,24 @@ def trader_loop():
 
                         if sell_result:
 
+                            add_trade_history(
+
+                                active_trade["symbol"],
+                                "SL",
+
+                                active_trade["buy_price"],
+
+                                current_price,
+
+                                active_trade["profit_percent"]
+
+                            )
+
                             send_telegram(
                                 f"🔴 STOP LOSS\n\n"
                                 f"{active_trade['symbol']}\n"
                                 f"Loss: "
                                 f"{active_trade['profit_percent']}%"
-                            )
-
-                            print(
-                                "SL SELL SUCCESS"
                             )
 
                             clear_trade()
@@ -683,15 +707,24 @@ def trader_loop():
 
                         if sell_result:
 
+                            add_trade_history(
+
+                                active_trade["symbol"],
+                                "TRAILING",
+
+                                active_trade["buy_price"],
+
+                                current_price,
+
+                                active_trade["profit_percent"]
+
+                            )
+
                             send_telegram(
                                 f"🚀 TRAILING STOP\n\n"
                                 f"{active_trade['symbol']}\n"
                                 f"Profit: "
                                 f"{active_trade['profit_percent']}%"
-                            )
-
-                            print(
-                                "TRAILING SELL SUCCESS"
                             )
 
                             clear_trade()
