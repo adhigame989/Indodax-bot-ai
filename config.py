@@ -1,19 +1,40 @@
-API_KEY = JXBUJKXO-OZWHSLHV-0VGZS3W1-5RBS9E6D-I3VTXDS7
-SECRET_KEY = 8930805942eeb2257c13e94ffd6c29b98d7003a92d3d470cdc8f5a33973257b6ec200e0cfc7d616f
+from flask import Flask
+import ccxt
+import config
 
-BASE_TRADE_AMOUNT = 100000
+app = Flask(__name__)
 
-MAX_ACTIVE_TRADES = 8
+@app.route("/")
+def home():
 
-TAKE_PROFIT = 8
-STOP_LOSS = 5
+    try:
 
-TRAILING_STOP = True
-TRAILING_GAP = 2
+        exchange = ccxt.indodax({
+            'apiKey': config.API_KEY,
+            'secret': config.SECRET_KEY,
+            'enableRateLimit': True
+        })
 
-TIMEFRAME = "15m"
+        balance = exchange.fetch_balance()
 
-SCAN_LIMIT = 25
+        idr = balance['total'].get('IDR', 0)
 
-ENABLE_BTC_FILTER = True
-ENABLE_SPREAD_FILTER = True
+        return f"""
+        <h1>INDODAX AI BOT</h1>
+
+        <h2>Status: ONLINE</h2>
+
+        <h3>Saldo IDR:</h3>
+
+        <p>Rp {idr:,.0f}</p>
+        """
+
+    except Exception as e:
+
+        return f"""
+        <h1>BOT ERROR</h1>
+        <pre>{str(e)}</pre>
+        """
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000)
