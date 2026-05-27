@@ -73,6 +73,8 @@ def trader_loop():
             if active_trade is None:
 
                 for coin in market_data:
+                    
+                    print("CHECKING:", coin)
 
                     if coin["signal"] != "STRONG BUY":
                         continue
