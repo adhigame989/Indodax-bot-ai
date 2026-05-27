@@ -1,3 +1,5 @@
+# scanner.py
+
 import ccxt
 import threading
 import time
@@ -10,6 +12,91 @@ exchange = ccxt.indodax({
 })
 
 market_data = []
+
+
+def check_btc_market():
+
+    try:
+
+        ohlcv = exchange.fetch_ohlcv(
+            "BTC/IDR",
+            timeframe=config.TIMEFRAME,
+            limit=100
+        )
+
+        if not ohlcv:
+
+            return True
+
+        df = pd.DataFrame(
+            ohlcv,
+            columns=[
+                'time',
+                'open',
+                'high',
+                'low',
+                'close',
+                'volume'
+            ]
+        )
+
+        close = df['close']
+
+        latest_price = close.iloc[-1]
+
+        latest_open = df['open'].iloc[-1]
+
+        btc_rsi = ta.momentum.RSIIndicator(
+            close
+        ).rsi().iloc[-1]
+
+        btc_dump = (
+            (
+                latest_price -
+                latest_open
+            )
+            /
+            latest_open
+        ) * 100
+
+        print(
+            "BTC RSI:",
+            round(btc_rsi, 2)
+        )
+
+        print(
+            "BTC CANDLE:",
+            round(btc_dump, 2),
+            "%"
+        )
+
+        # PANIC FILTER
+        if btc_dump <= -3:
+
+            print(
+                "BTC PANIC SELL"
+            )
+
+            return False
+
+        if btc_rsi < 35:
+
+            print(
+                "BTC RSI WEAK"
+            )
+
+            return False
+
+        return True
+
+    except Exception as e:
+
+        print(
+            "BTC FILTER ERROR:",
+            str(e)
+        )
+
+        return True
 
 
 def scan_market():
@@ -28,6 +115,13 @@ def scan_market():
 
             count = 0
 
+            btc_safe = check_btc_market()
+
+            print(
+                "BTC SAFE:",
+                btc_safe
+            )
+
             print("SCANNING MARKET...")
 
             for symbol in tickers:
@@ -35,6 +129,10 @@ def scan_market():
                 try:
 
                     if "/IDR" not in symbol:
+                        continue
+
+                    # skip BTC sendiri
+                    if symbol == "BTC/IDR":
                         continue
 
                     print("CHECK:", symbol)
@@ -88,7 +186,10 @@ def scan_market():
                     ):
                         continue
 
-                    print("FETCHING:", symbol)
+                    print(
+                        "FETCHING:",
+                        symbol
+                    )
 
                     ohlcv = exchange.fetch_ohlcv(
                         symbol,
@@ -112,6 +213,7 @@ def scan_market():
                     )
 
                     close = df['close']
+
                     volume_data = df['volume']
 
                     rsi = ta.momentum.RSIIndicator(
@@ -150,9 +252,22 @@ def scan_market():
 
                     signal = "WAIT"
 
-                    # =================================
+                    # =========================
+                    # BTC PANIC FILTER
+                    # =========================
+
+                    if not btc_safe:
+
+                        print(
+                            "SKIP BTC PANIC:",
+                            symbol
+                        )
+
+                        continue
+
+                    # =========================
                     # ANTI FOMO FILTER
-                    # =================================
+                    # =========================
 
                     candle_pump = (
                         (
@@ -163,7 +278,6 @@ def scan_market():
                         latest_open
                     ) * 100
 
-                    # skip candle pump
                     if candle_pump > 8:
 
                         print(
@@ -173,7 +287,6 @@ def scan_market():
 
                         continue
 
-                    # skip RSI panas
                     if latest_rsi > 80:
 
                         print(
@@ -183,7 +296,6 @@ def scan_market():
 
                         continue
 
-                    # skip jauh dari EMA20
                     ema_distance = (
                         (
                             latest_price -
@@ -202,7 +314,6 @@ def scan_market():
 
                         continue
 
-                    # skip volume abnormal
                     if latest_volume > (
                         avg_volume * 5
                     ):
@@ -214,9 +325,9 @@ def scan_market():
 
                         continue
 
-                    # =================================
+                    # =========================
                     # SCORING
-                    # =================================
+                    # =========================
 
                     if latest_ema20 > latest_ema50:
                         score += 40
@@ -227,12 +338,14 @@ def scan_market():
                     if 40 <= latest_rsi <= 75:
                         score += 30
 
-                    # volume bagus
                     if latest_volume > avg_volume:
                         score += 10
 
-                    # bullish candle
                     if latest_price > latest_open:
+                        score += 10
+
+                    # market sehat bonus
+                    if btc_safe:
                         score += 10
 
                     if score >= 70:
