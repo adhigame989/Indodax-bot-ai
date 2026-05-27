@@ -35,14 +35,14 @@ def buy_coin(symbol, buy_price):
 
     try:
 
-        # cek saldo
+        # cek saldo IDR
         idr_balance = get_idr_balance()
 
         print("IDR BALANCE:", idr_balance)
 
         if idr_balance < config.BASE_TRADE_AMOUNT:
 
-            print("NOT ENOUGH BALANCE")
+            print("NOT ENOUGH IDR")
 
             return None
 
@@ -55,6 +55,14 @@ def buy_coin(symbol, buy_price):
         # precision aman
         amount = round(amount, 8)
 
+        # slippage buy
+        buy_price = buy_price * (
+            1 + config.BUY_SLIPPAGE
+        )
+
+        # rounding
+        buy_price = round(buy_price, 8)
+
         print(
             "BUY ORDER:",
             symbol,
@@ -62,10 +70,10 @@ def buy_coin(symbol, buy_price):
             buy_price
         )
 
-        # create order INDODAX
+        # LIMIT BUY
         order = exchange.create_order(
             symbol=symbol,
-            type="market",
+            type="limit",
             side="buy",
             amount=amount,
             price=buy_price
@@ -75,7 +83,8 @@ def buy_coin(symbol, buy_price):
 
         return {
             "amount": amount,
-            "order": order
+            "order": order,
+            "buy_price": buy_price
         }
 
     except Exception as e:
@@ -89,7 +98,16 @@ def sell_coin(symbol, amount, sell_price):
 
     try:
 
+        # precision aman
         amount = round(amount, 8)
+
+        # slippage sell
+        sell_price = sell_price * (
+            1 - config.SELL_SLIPPAGE
+        )
+
+        # rounding
+        sell_price = round(sell_price, 8)
 
         print(
             "SELL ORDER:",
@@ -98,9 +116,10 @@ def sell_coin(symbol, amount, sell_price):
             sell_price
         )
 
+        # LIMIT SELL
         order = exchange.create_order(
             symbol=symbol,
-            type="market",
+            type="limit",
             side="sell",
             amount=amount,
             price=sell_price
@@ -134,9 +153,9 @@ def trader_loop():
                 len(market_data)
             )
 
-            # ====================================
+            # ===================================
             # ENTRY
-            # ====================================
+            # ===================================
 
             if active_trade is None:
 
@@ -172,17 +191,21 @@ def trader_loop():
                         buy_price
                     )
 
-                    # kalau buy sukses
+                    # BUY SUCCESS
                     if buy_result:
 
                         amount = buy_result["amount"]
 
-                        tp_price = buy_price * (
+                        real_buy_price = (
+                            buy_result["buy_price"]
+                        )
+
+                        tp_price = real_buy_price * (
                             1 +
                             config.TAKE_PROFIT / 100
                         )
 
-                        sl_price = buy_price * (
+                        sl_price = real_buy_price * (
                             1 -
                             config.STOP_LOSS / 100
                         )
@@ -193,10 +216,10 @@ def trader_loop():
                             coin["symbol"],
 
                             "buy_price":
-                            buy_price,
+                            real_buy_price,
 
                             "current_price":
-                            buy_price,
+                            real_buy_price,
 
                             "tp_price":
                             tp_price,
@@ -205,7 +228,7 @@ def trader_loop():
                             sl_price,
 
                             "highest_price":
-                            buy_price,
+                            real_buy_price,
 
                             "profit_percent":
                             0,
@@ -225,9 +248,9 @@ def trader_loop():
 
                         break
 
-            # ====================================
+            # ===================================
             # MONITOR POSITION
-            # ====================================
+            # ===================================
 
             else:
 
@@ -238,7 +261,10 @@ def trader_loop():
 
                 for coin in market_data:
 
-                    if coin["symbol"] != active_trade["symbol"]:
+                    if (
+                        coin["symbol"] !=
+                        active_trade["symbol"]
+                    ):
                         continue
 
                     current_price = float(
@@ -249,7 +275,7 @@ def trader_loop():
                         "current_price"
                     ] = current_price
 
-                    # profit %
+                    # PROFIT %
                     profit = (
                         (
                             current_price -
@@ -273,7 +299,7 @@ def trader_loop():
                         ]
                     )
 
-                    # update highest
+                    # UPDATE HIGHEST
                     if (
                         current_price >
                         active_trade["highest_price"]
@@ -283,7 +309,7 @@ def trader_loop():
                             "highest_price"
                         ] = current_price
 
-                    # trailing price
+                    # TRAILING PRICE
                     trailing_price = (
                         active_trade["highest_price"]
                         *
@@ -293,16 +319,18 @@ def trader_loop():
                         )
                     )
 
-                    # ====================================
+                    # ===================================
                     # TAKE PROFIT
-                    # ====================================
+                    # ===================================
 
                     if (
                         current_price >=
                         active_trade["tp_price"]
                     ):
 
-                        print("TAKE PROFIT HIT")
+                        print(
+                            "TAKE PROFIT HIT"
+                        )
 
                         sell_result = sell_coin(
                             active_trade["symbol"],
@@ -320,16 +348,18 @@ def trader_loop():
 
                         break
 
-                    # ====================================
+                    # ===================================
                     # STOP LOSS
-                    # ====================================
+                    # ===================================
 
                     elif (
                         current_price <=
                         active_trade["sl_price"]
                     ):
 
-                        print("STOP LOSS HIT")
+                        print(
+                            "STOP LOSS HIT"
+                        )
 
                         sell_result = sell_coin(
                             active_trade["symbol"],
@@ -347,9 +377,9 @@ def trader_loop():
 
                         break
 
-                    # ====================================
+                    # ===================================
                     # TRAILING STOP
-                    # ====================================
+                    # ===================================
 
                     elif (
 
