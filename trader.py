@@ -10,6 +10,10 @@ from storage import (
     clear_trade
 )
 
+from telegram_bot import (
+    send_telegram
+)
+
 exchange = ccxt.indodax({
     'apiKey': config.API_KEY,
     'secret': config.SECRET_KEY,
@@ -266,6 +270,10 @@ def buy_coin(symbol, buy_price):
             str(e)
         )
 
+        send_telegram(
+            f"❌ BUY ERROR\n\n{str(e)}"
+        )
+
         return None
 
 
@@ -321,6 +329,10 @@ def sell_coin(
             str(e)
         )
 
+        send_telegram(
+            f"❌ SELL ERROR\n\n{str(e)}"
+        )
+
         return None
 
 
@@ -329,6 +341,10 @@ def trader_loop():
     global active_trade
 
     print("TRADER STARTED")
+
+    send_telegram(
+        "🤖 INDODAX BOT STARTED"
+    )
 
     cancel_all_orders()
 
@@ -469,6 +485,12 @@ def trader_loop():
                             active_trade
                         )
 
+                        send_telegram(
+                            f"🟢 BUY\n\n"
+                            f"{coin['symbol']}\n"
+                            f"Buy: {real_buy_price}"
+                        )
+
                         break
 
             else:
@@ -573,6 +595,13 @@ def trader_loop():
 
                         if sell_result:
 
+                            send_telegram(
+                                f"🎯 TAKE PROFIT\n\n"
+                                f"{active_trade['symbol']}\n"
+                                f"Profit: "
+                                f"{active_trade['profit_percent']}%"
+                            )
+
                             print(
                                 "TP SELL SUCCESS"
                             )
@@ -605,6 +634,13 @@ def trader_loop():
                         )
 
                         if sell_result:
+
+                            send_telegram(
+                                f"🔴 STOP LOSS\n\n"
+                                f"{active_trade['symbol']}\n"
+                                f"Loss: "
+                                f"{active_trade['profit_percent']}%"
+                            )
 
                             print(
                                 "SL SELL SUCCESS"
@@ -647,6 +683,13 @@ def trader_loop():
 
                         if sell_result:
 
+                            send_telegram(
+                                f"🚀 TRAILING STOP\n\n"
+                                f"{active_trade['symbol']}\n"
+                                f"Profit: "
+                                f"{active_trade['profit_percent']}%"
+                            )
+
                             print(
                                 "TRAILING SELL SUCCESS"
                             )
@@ -662,6 +705,10 @@ def trader_loop():
             print(
                 "TRADER ERROR:",
                 str(e)
+            )
+
+            send_telegram(
+                f"❌ TRADER ERROR\n\n{str(e)}"
             )
 
         time.sleep(
