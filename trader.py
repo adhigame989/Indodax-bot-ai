@@ -4,15 +4,93 @@ import ccxt
 import config
 import scanner
 
+from storage import (
+    save_trade,
+    load_trade,
+    clear_trade
+)
+
 exchange = ccxt.indodax({
     'apiKey': config.API_KEY,
     'secret': config.SECRET_KEY,
     'enableRateLimit': True
 })
 
-# ACTIVE POSITION
-active_trade = None
+# LOAD TRADE SAAT STARTUP
+active_trade = load_trade()
 
+
+# =========================================
+# WALLET SYNC
+# =========================================
+
+def sync_wallet():
+
+    try:
+
+        balance = exchange.fetch_balance()
+
+        print("WALLET SYNC SUCCESS")
+
+        return balance
+
+    except Exception as e:
+
+        print(
+            "SYNC ERROR:",
+            str(e)
+        )
+
+        return None
+
+
+# =========================================
+# CANCEL ALL OPEN ORDERS
+# =========================================
+
+def cancel_all_orders():
+
+    try:
+
+        orders = exchange.fetch_open_orders()
+
+        print(
+            "OPEN ORDERS:",
+            len(orders)
+        )
+
+        for order in orders:
+
+            try:
+
+                exchange.cancel_order(
+                    order['id'],
+                    order['symbol']
+                )
+
+                print(
+                    "ORDER CANCELLED:",
+                    order['id']
+                )
+
+            except Exception as e:
+
+                print(
+                    "CANCEL ERROR:",
+                    str(e)
+                )
+
+    except Exception as e:
+
+        print(
+            "FETCH ORDER ERROR:",
+            str(e)
+        )
+
+
+# =========================================
+# GET IDR BALANCE
+# =========================================
 
 def get_idr_balance():
 
@@ -20,29 +98,47 @@ def get_idr_balance():
 
         balance = exchange.fetch_balance()
 
-        idr = balance['total'].get('IDR', 0)
+        idr = balance['total'].get(
+            'IDR',
+            0
+        )
 
         return float(idr)
 
     except Exception as e:
 
-        print("BALANCE ERROR:", str(e))
+        print(
+            "BALANCE ERROR:",
+            str(e)
+        )
 
         return 0
 
+
+# =========================================
+# BUY COIN
+# =========================================
 
 def buy_coin(symbol, buy_price):
 
     try:
 
-        # cek saldo IDR
+        # cek saldo
         idr_balance = get_idr_balance()
 
-        print("IDR BALANCE:", idr_balance)
+        print(
+            "IDR BALANCE:",
+            idr_balance
+        )
 
-        if idr_balance < config.BASE_TRADE_AMOUNT:
+        if (
+            idr_balance <
+            config.BASE_TRADE_AMOUNT
+        ):
 
-            print("NOT ENOUGH IDR")
+            print(
+                "NOT ENOUGH IDR"
+            )
 
             return None
 
@@ -52,16 +148,21 @@ def buy_coin(symbol, buy_price):
             / buy_price
         )
 
-        # precision aman
-        amount = round(amount, 8)
+        amount = round(
+            amount,
+            8
+        )
 
         # slippage buy
         buy_price = buy_price * (
-            1 + config.BUY_SLIPPAGE
+            1 +
+            config.BUY_SLIPPAGE
         )
 
-        # rounding
-        buy_price = round(buy_price, 8)
+        buy_price = round(
+            buy_price,
+            8
+        )
 
         print(
             "BUY ORDER:",
@@ -79,35 +180,61 @@ def buy_coin(symbol, buy_price):
             price=buy_price
         )
 
-        print("BUY SUCCESS:", order)
+        print(
+            "BUY SUCCESS:",
+            order
+        )
 
         return {
-            "amount": amount,
-            "order": order,
-            "buy_price": buy_price
+
+            "amount":
+            amount,
+
+            "order":
+            order,
+
+            "buy_price":
+            buy_price
+
         }
 
     except Exception as e:
 
-        print("BUY ERROR:", str(e))
+        print(
+            "BUY ERROR:",
+            str(e)
+        )
 
         return None
 
 
-def sell_coin(symbol, amount, sell_price):
+# =========================================
+# SELL COIN
+# =========================================
+
+def sell_coin(
+    symbol,
+    amount,
+    sell_price
+):
 
     try:
 
-        # precision aman
-        amount = round(amount, 8)
+        amount = round(
+            amount,
+            8
+        )
 
         # slippage sell
         sell_price = sell_price * (
-            1 - config.SELL_SLIPPAGE
+            1 -
+            config.SELL_SLIPPAGE
         )
 
-        # rounding
-        sell_price = round(sell_price, 8)
+        sell_price = round(
+            sell_price,
+            8
+        )
 
         print(
             "SELL ORDER:",
@@ -125,16 +252,26 @@ def sell_coin(symbol, amount, sell_price):
             price=sell_price
         )
 
-        print("SELL SUCCESS:", order)
+        print(
+            "SELL SUCCESS:",
+            order
+        )
 
         return order
 
     except Exception as e:
 
-        print("SELL ERROR:", str(e))
+        print(
+            "SELL ERROR:",
+            str(e)
+        )
 
         return None
 
+
+# =========================================
+# TRADER LOOP
+# =========================================
 
 def trader_loop():
 
@@ -142,24 +279,33 @@ def trader_loop():
 
     print("TRADER STARTED")
 
+    # startup sync
+    cancel_all_orders()
+
+    sync_wallet()
+
     while True:
 
         try:
 
-            market_data = scanner.market_data
+            market_data = (
+                scanner.market_data
+            )
 
             print(
                 "MARKET DATA LENGTH:",
                 len(market_data)
             )
 
-            # ===================================
+            # =================================
             # ENTRY
-            # ===================================
+            # =================================
 
             if active_trade is None:
 
-                print("SEARCHING ENTRY...")
+                print(
+                    "SEARCHING ENTRY..."
+                )
 
                 for coin in market_data:
 
@@ -170,7 +316,7 @@ def trader_loop():
                         coin["score"]
                     )
 
-                    # hanya BUY
+                    # hanya buy
                     if coin["signal"] not in [
                         "STRONG BUY",
                         "BUY"
@@ -194,20 +340,32 @@ def trader_loop():
                     # BUY SUCCESS
                     if buy_result:
 
-                        amount = buy_result["amount"]
+                        amount = (
+                            buy_result["amount"]
+                        )
 
                         real_buy_price = (
                             buy_result["buy_price"]
                         )
 
-                        tp_price = real_buy_price * (
-                            1 +
-                            config.TAKE_PROFIT / 100
+                        tp_price = (
+                            real_buy_price
+                            *
+                            (
+                                1 +
+                                config.TAKE_PROFIT
+                                / 100
+                            )
                         )
 
-                        sl_price = real_buy_price * (
-                            1 -
-                            config.STOP_LOSS / 100
+                        sl_price = (
+                            real_buy_price
+                            *
+                            (
+                                1 -
+                                config.STOP_LOSS
+                                / 100
+                            )
                         )
 
                         active_trade = {
@@ -241,6 +399,11 @@ def trader_loop():
 
                         }
 
+                        # SAVE TRADE
+                        save_trade(
+                            active_trade
+                        )
+
                         print(
                             "ACTIVE TRADE:",
                             active_trade
@@ -248,9 +411,9 @@ def trader_loop():
 
                         break
 
-            # ===================================
+            # =================================
             # MONITOR POSITION
-            # ===================================
+            # =================================
 
             else:
 
@@ -262,7 +425,8 @@ def trader_loop():
                 for coin in market_data:
 
                     if (
-                        coin["symbol"] !=
+                        coin["symbol"]
+                        !=
                         active_trade["symbol"]
                     ):
                         continue
@@ -275,14 +439,19 @@ def trader_loop():
                         "current_price"
                     ] = current_price
 
-                    # PROFIT %
+                    # profit %
                     profit = (
                         (
-                            current_price -
-                            active_trade["buy_price"]
+                            current_price
+                            -
+                            active_trade[
+                                "buy_price"
+                            ]
                         )
                         /
-                        active_trade["buy_price"]
+                        active_trade[
+                            "buy_price"
+                        ]
                     ) * 100
 
                     active_trade[
@@ -299,33 +468,44 @@ def trader_loop():
                         ]
                     )
 
-                    # UPDATE HIGHEST
+                    # update highest
                     if (
                         current_price >
-                        active_trade["highest_price"]
+                        active_trade[
+                            "highest_price"
+                        ]
                     ):
 
                         active_trade[
                             "highest_price"
                         ] = current_price
 
-                    # TRAILING PRICE
+                        save_trade(
+                            active_trade
+                        )
+
+                    # trailing price
                     trailing_price = (
-                        active_trade["highest_price"]
+                        active_trade[
+                            "highest_price"
+                        ]
                         *
                         (
                             1 -
-                            config.TRAILING_GAP / 100
+                            config.TRAILING_GAP
+                            / 100
                         )
                     )
 
-                    # ===================================
+                    # =============================
                     # TAKE PROFIT
-                    # ===================================
+                    # =============================
 
                     if (
                         current_price >=
-                        active_trade["tp_price"]
+                        active_trade[
+                            "tp_price"
+                        ]
                     ):
 
                         print(
@@ -333,8 +513,12 @@ def trader_loop():
                         )
 
                         sell_result = sell_coin(
-                            active_trade["symbol"],
-                            active_trade["amount"],
+                            active_trade[
+                                "symbol"
+                            ],
+                            active_trade[
+                                "amount"
+                            ],
                             current_price
                         )
 
@@ -344,17 +528,21 @@ def trader_loop():
                                 "TP SELL SUCCESS"
                             )
 
+                            clear_trade()
+
                             active_trade = None
 
                         break
 
-                    # ===================================
+                    # =============================
                     # STOP LOSS
-                    # ===================================
+                    # =============================
 
                     elif (
                         current_price <=
-                        active_trade["sl_price"]
+                        active_trade[
+                            "sl_price"
+                        ]
                     ):
 
                         print(
@@ -362,8 +550,12 @@ def trader_loop():
                         )
 
                         sell_result = sell_coin(
-                            active_trade["symbol"],
-                            active_trade["amount"],
+                            active_trade[
+                                "symbol"
+                            ],
+                            active_trade[
+                                "amount"
+                            ],
                             current_price
                         )
 
@@ -373,13 +565,15 @@ def trader_loop():
                                 "SL SELL SUCCESS"
                             )
 
+                            clear_trade()
+
                             active_trade = None
 
                         break
 
-                    # ===================================
+                    # =============================
                     # TRAILING STOP
-                    # ===================================
+                    # =============================
 
                     elif (
 
@@ -401,8 +595,12 @@ def trader_loop():
                         )
 
                         sell_result = sell_coin(
-                            active_trade["symbol"],
-                            active_trade["amount"],
+                            active_trade[
+                                "symbol"
+                            ],
+                            active_trade[
+                                "amount"
+                            ],
                             current_price
                         )
 
@@ -411,6 +609,8 @@ def trader_loop():
                             print(
                                 "TRAILING SELL SUCCESS"
                             )
+
+                            clear_trade()
 
                             active_trade = None
 
@@ -423,12 +623,20 @@ def trader_loop():
                 str(e)
             )
 
-        time.sleep(15)
+        time.sleep(
+            config.TRADER_INTERVAL
+        )
 
+
+# =========================================
+# START THREAD
+# =========================================
 
 def start_trader():
 
-    print("STARTING TRADER THREAD")
+    print(
+        "STARTING TRADER THREAD"
+    )
 
     thread = threading.Thread(
         target=trader_loop
