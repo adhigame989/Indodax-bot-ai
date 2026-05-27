@@ -10,7 +10,111 @@ exchange = ccxt.indodax({
     'enableRateLimit': True
 })
 
+# ACTIVE POSITION
 active_trade = None
+
+
+def get_idr_balance():
+
+    try:
+
+        balance = exchange.fetch_balance()
+
+        idr = balance['total'].get('IDR', 0)
+
+        return float(idr)
+
+    except Exception as e:
+
+        print("BALANCE ERROR:", str(e))
+
+        return 0
+
+
+def buy_coin(symbol, buy_price):
+
+    try:
+
+        # cek saldo
+        idr_balance = get_idr_balance()
+
+        print("IDR BALANCE:", idr_balance)
+
+        if idr_balance < config.BASE_TRADE_AMOUNT:
+
+            print("NOT ENOUGH BALANCE")
+
+            return None
+
+        # jumlah coin
+        amount = (
+            config.BASE_TRADE_AMOUNT
+            / buy_price
+        )
+
+        # precision aman
+        amount = round(amount, 8)
+
+        print(
+            "BUY ORDER:",
+            symbol,
+            amount,
+            buy_price
+        )
+
+        # create order INDODAX
+        order = exchange.create_order(
+            symbol=symbol,
+            type="market",
+            side="buy",
+            amount=amount,
+            price=buy_price
+        )
+
+        print("BUY SUCCESS:", order)
+
+        return {
+            "amount": amount,
+            "order": order
+        }
+
+    except Exception as e:
+
+        print("BUY ERROR:", str(e))
+
+        return None
+
+
+def sell_coin(symbol, amount, sell_price):
+
+    try:
+
+        amount = round(amount, 8)
+
+        print(
+            "SELL ORDER:",
+            symbol,
+            amount,
+            sell_price
+        )
+
+        order = exchange.create_order(
+            symbol=symbol,
+            type="market",
+            side="sell",
+            amount=amount,
+            price=sell_price
+        )
+
+        print("SELL SUCCESS:", order)
+
+        return order
+
+    except Exception as e:
+
+        print("SELL ERROR:", str(e))
+
+        return None
 
 
 def trader_loop():
@@ -23,34 +127,39 @@ def trader_loop():
 
         try:
 
-            print("TRADER LOOP RUNNING")
-
             market_data = scanner.market_data
 
-            print("MARKET DATA LENGTH:", len(market_data))
+            print(
+                "MARKET DATA LENGTH:",
+                len(market_data)
+            )
 
-            # BELUM ADA POSISI
+            # ====================================
+            # ENTRY
+            # ====================================
+
             if active_trade is None:
+
+                print("SEARCHING ENTRY...")
 
                 for coin in market_data:
 
-                    print("CHECK COIN:", coin["symbol"])
+                    print(
+                        "CHECK:",
+                        coin["symbol"],
+                        coin["signal"],
+                        coin["score"]
+                    )
 
-                    print("SIGNAL:", coin["signal"])
-
-                    # ENTRY BUY
+                    # hanya BUY
                     if coin["signal"] not in [
                         "STRONG BUY",
                         "BUY"
                     ]:
                         continue
 
-                    buy_price = coin["price"]
-
-                    amount = round(
-                        config.BASE_TRADE_AMOUNT
-                        / buy_price,
-                        8
+                    buy_price = float(
+                        coin["price"]
                     )
 
                     print(
@@ -58,17 +167,15 @@ def trader_loop():
                         coin["symbol"]
                     )
 
-                    try:
+                    buy_result = buy_coin(
+                        coin["symbol"],
+                        buy_price
+                    )
 
-                        order = exchange.create_market_buy_order(
-                            coin["symbol"],
-                            amount
-                        )
+                    # kalau buy sukses
+                    if buy_result:
 
-                        print(
-                            "BUY SUCCESS:",
-                            order
-                        )
+                        amount = buy_result["amount"]
 
                         tp_price = buy_price * (
                             1 +
@@ -81,30 +188,51 @@ def trader_loop():
                         )
 
                         active_trade = {
-                            "symbol": coin["symbol"],
-                            "buy_price": buy_price,
-                            "current_price": buy_price,
-                            "tp_price": tp_price,
-                            "sl_price": sl_price,
-                            "highest_price": buy_price,
-                            "profit_percent": 0,
-                            "amount": amount
+
+                            "symbol":
+                            coin["symbol"],
+
+                            "buy_price":
+                            buy_price,
+
+                            "current_price":
+                            buy_price,
+
+                            "tp_price":
+                            tp_price,
+
+                            "sl_price":
+                            sl_price,
+
+                            "highest_price":
+                            buy_price,
+
+                            "profit_percent":
+                            0,
+
+                            "amount":
+                            amount,
+
+                            "status":
+                            "OPEN"
+
                         }
+
+                        print(
+                            "ACTIVE TRADE:",
+                            active_trade
+                        )
 
                         break
 
-                    except Exception as e:
+            # ====================================
+            # MONITOR POSITION
+            # ====================================
 
-                        print(
-                            "BUY ERROR:",
-                            str(e)
-                        )
-
-            # ADA POSISI
             else:
 
                 print(
-                    "ACTIVE POSITION:",
+                    "MONITORING:",
                     active_trade["symbol"]
                 )
 
@@ -113,10 +241,15 @@ def trader_loop():
                     if coin["symbol"] != active_trade["symbol"]:
                         continue
 
-                    current_price = coin["price"]
+                    current_price = float(
+                        coin["price"]
+                    )
 
-                    active_trade["current_price"] = current_price
+                    active_trade[
+                        "current_price"
+                    ] = current_price
 
+                    # profit %
                     profit = (
                         (
                             current_price -
@@ -126,16 +259,31 @@ def trader_loop():
                         active_trade["buy_price"]
                     ) * 100
 
-                    active_trade["profit_percent"] = round(
+                    active_trade[
+                        "profit_percent"
+                    ] = round(
                         profit,
                         2
                     )
 
-                    # highest update
-                    if current_price > active_trade["highest_price"]:
+                    print(
+                        "CURRENT PROFIT:",
+                        active_trade[
+                            "profit_percent"
+                        ]
+                    )
 
-                        active_trade["highest_price"] = current_price
+                    # update highest
+                    if (
+                        current_price >
+                        active_trade["highest_price"]
+                    ):
 
+                        active_trade[
+                            "highest_price"
+                        ] = current_price
+
+                    # trailing price
                     trailing_price = (
                         active_trade["highest_price"]
                         *
@@ -145,57 +293,105 @@ def trader_loop():
                         )
                     )
 
+                    # ====================================
                     # TAKE PROFIT
-                    if current_price >= active_trade["tp_price"]:
+                    # ====================================
 
-                        print("TAKE PROFIT SELL")
-
-                        exchange.create_market_sell_order(
-                            active_trade["symbol"],
-                            active_trade["amount"]
-                        )
-
-                        active_trade = None
-
-                        break
-
-                    # STOP LOSS
-                    elif current_price <= active_trade["sl_price"]:
-
-                        print("STOP LOSS SELL")
-
-                        exchange.create_market_sell_order(
-                            active_trade["symbol"],
-                            active_trade["amount"]
-                        )
-
-                        active_trade = None
-
-                        break
-
-                    # TRAILING STOP
-                    elif (
-                        config.TRAILING_STOP
-                        and
-                        current_price <= trailing_price
-                        and
-                        profit > 0
+                    if (
+                        current_price >=
+                        active_trade["tp_price"]
                     ):
 
-                        print("TRAILING STOP SELL")
+                        print("TAKE PROFIT HIT")
 
-                        exchange.create_market_sell_order(
+                        sell_result = sell_coin(
                             active_trade["symbol"],
-                            active_trade["amount"]
+                            active_trade["amount"],
+                            current_price
                         )
 
-                        active_trade = None
+                        if sell_result:
+
+                            print(
+                                "TP SELL SUCCESS"
+                            )
+
+                            active_trade = None
+
+                        break
+
+                    # ====================================
+                    # STOP LOSS
+                    # ====================================
+
+                    elif (
+                        current_price <=
+                        active_trade["sl_price"]
+                    ):
+
+                        print("STOP LOSS HIT")
+
+                        sell_result = sell_coin(
+                            active_trade["symbol"],
+                            active_trade["amount"],
+                            current_price
+                        )
+
+                        if sell_result:
+
+                            print(
+                                "SL SELL SUCCESS"
+                            )
+
+                            active_trade = None
+
+                        break
+
+                    # ====================================
+                    # TRAILING STOP
+                    # ====================================
+
+                    elif (
+
+                        config.TRAILING_STOP
+
+                        and
+
+                        current_price <=
+                        trailing_price
+
+                        and
+
+                        profit > 0
+
+                    ):
+
+                        print(
+                            "TRAILING STOP HIT"
+                        )
+
+                        sell_result = sell_coin(
+                            active_trade["symbol"],
+                            active_trade["amount"],
+                            current_price
+                        )
+
+                        if sell_result:
+
+                            print(
+                                "TRAILING SELL SUCCESS"
+                            )
+
+                            active_trade = None
 
                         break
 
         except Exception as e:
 
-            print("TRADER ERROR:", str(e))
+            print(
+                "TRADER ERROR:",
+                str(e)
+            )
 
         time.sleep(15)
 
