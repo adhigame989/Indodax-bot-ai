@@ -99,6 +99,96 @@ def get_idr_balance():
         return 0
 
 
+def wait_order_filled(
+    order_id,
+    symbol
+):
+
+    try:
+
+        print(
+            "WAITING ORDER FILLED:",
+            order_id
+        )
+
+        for i in range(20):
+
+            try:
+
+                orders = exchange.fetch_open_orders(
+                    symbol
+                )
+
+                still_open = False
+
+                for order in orders:
+
+                    if (
+                        str(order['id'])
+                        ==
+                        str(order_id)
+                    ):
+
+                        still_open = True
+                        break
+
+                if not still_open:
+
+                    print(
+                        "ORDER FILLED:",
+                        order_id
+                    )
+
+                    return True
+
+                print(
+                    "ORDER STILL OPEN:",
+                    order_id
+                )
+
+            except Exception as e:
+
+                print(
+                    "CHECK ORDER ERROR:",
+                    str(e)
+                )
+
+            time.sleep(3)
+
+        try:
+
+            exchange.cancel_order(
+                order_id,
+                symbol,
+                {
+                    'side': 'buy'
+                }
+            )
+
+            print(
+                "ORDER TIMEOUT CANCELLED:",
+                order_id
+            )
+
+        except Exception as e:
+
+            print(
+                "CANCEL TIMEOUT ERROR:",
+                str(e)
+            )
+
+        return False
+
+    except Exception as e:
+
+        print(
+            "WAIT FILLED ERROR:",
+            str(e)
+        )
+
+        return False
+
+
 def buy_coin(symbol, buy_price):
 
     try:
@@ -151,7 +241,10 @@ def buy_coin(symbol, buy_price):
             price=buy_price
         )
 
-        print("BUY SUCCESS:", order)
+        print(
+            "BUY SUCCESS:",
+            order
+        )
 
         return {
 
@@ -184,7 +277,10 @@ def sell_coin(
 
     try:
 
-        amount = round(amount, 8)
+        amount = round(
+            amount,
+            8
+        )
 
         sell_price = sell_price * (
             1 -
@@ -287,6 +383,23 @@ def trader_loop():
                     )
 
                     if buy_result:
+
+                        order_id = (
+                            buy_result["order"]["id"]
+                        )
+
+                        filled = wait_order_filled(
+                            order_id,
+                            coin["symbol"]
+                        )
+
+                        if not filled:
+
+                            print(
+                                "ORDER NOT FILLED"
+                            )
+
+                            continue
 
                         amount = (
                             buy_result["amount"]
