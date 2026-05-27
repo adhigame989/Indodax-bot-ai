@@ -1,5 +1,3 @@
-# scanner.py
-
 import ccxt
 import threading
 import time
@@ -12,6 +10,100 @@ exchange = ccxt.indodax({
 })
 
 market_data = []
+
+
+def get_multi_tf_signal(symbol):
+
+    try:
+
+        timeframes = [
+            "15m",
+            "1h",
+            "4h"
+        ]
+
+        total_score = 0
+
+        for tf in timeframes:
+
+            ohlcv = exchange.fetch_ohlcv(
+                symbol,
+                timeframe=tf,
+                limit=100
+            )
+
+            if not ohlcv:
+                continue
+
+            df = pd.DataFrame(
+                ohlcv,
+                columns=[
+                    'time',
+                    'open',
+                    'high',
+                    'low',
+                    'close',
+                    'volume'
+                ]
+            )
+
+            close = df['close']
+
+            rsi = ta.momentum.RSIIndicator(
+                close
+            ).rsi()
+
+            ema20 = ta.trend.EMAIndicator(
+                close,
+                window=20
+            ).ema_indicator()
+
+            ema50 = ta.trend.EMAIndicator(
+                close,
+                window=50
+            ).ema_indicator()
+
+            latest_rsi = rsi.iloc[-1]
+
+            latest_ema20 = ema20.iloc[-1]
+
+            latest_ema50 = ema50.iloc[-1]
+
+            latest_price = close.iloc[-1]
+
+            score = 0
+
+            if latest_ema20 > latest_ema50:
+                score += 40
+
+            if latest_price > latest_ema20:
+                score += 30
+
+            if 40 <= latest_rsi <= 75:
+                score += 30
+
+            total_score += score
+
+            print(
+                symbol,
+                tf,
+                "SCORE:",
+                score
+            )
+
+        final_score = total_score / 3
+
+        return round(final_score, 2)
+
+    except Exception as e:
+
+        print(
+            "MULTI TF ERROR:",
+            symbol,
+            str(e)
+        )
+
+        return 0
 
 
 def check_btc_market():
@@ -70,7 +162,6 @@ def check_btc_market():
             "%"
         )
 
-        # PANIC FILTER
         if btc_dump <= -3:
 
             print(
@@ -131,7 +222,6 @@ def scan_market():
                     if "/IDR" not in symbol:
                         continue
 
-                    # skip BTC sendiri
                     if symbol == "BTC/IDR":
                         continue
 
@@ -186,6 +276,15 @@ def scan_market():
                     ):
                         continue
 
+                    if not btc_safe:
+
+                        print(
+                            "SKIP BTC PANIC:",
+                            symbol
+                        )
+
+                        continue
+
                     print(
                         "FETCHING:",
                         symbol
@@ -225,16 +324,9 @@ def scan_market():
                         window=20
                     ).ema_indicator()
 
-                    ema50 = ta.trend.EMAIndicator(
-                        close,
-                        window=50
-                    ).ema_indicator()
-
                     latest_rsi = rsi.iloc[-1]
 
                     latest_ema20 = ema20.iloc[-1]
-
-                    latest_ema50 = ema50.iloc[-1]
 
                     latest_price = close.iloc[-1]
 
@@ -247,27 +339,6 @@ def scan_market():
                     avg_volume = (
                         volume_data.tail(20).mean()
                     )
-
-                    score = 0
-
-                    signal = "WAIT"
-
-                    # =========================
-                    # BTC PANIC FILTER
-                    # =========================
-
-                    if not btc_safe:
-
-                        print(
-                            "SKIP BTC PANIC:",
-                            symbol
-                        )
-
-                        continue
-
-                    # =========================
-                    # ANTI FOMO FILTER
-                    # =========================
 
                     candle_pump = (
                         (
@@ -325,46 +396,31 @@ def scan_market():
 
                         continue
 
-                    # =========================
-                    # SCORING
-                    # =========================
+                    multi_tf_score = (
+                        get_multi_tf_signal(
+                            symbol
+                        )
+                    )
 
-                    if latest_ema20 > latest_ema50:
-                        score += 40
+                    signal = "WAIT"
 
-                    if latest_price > latest_ema20:
-                        score += 30
-
-                    if 40 <= latest_rsi <= 75:
-                        score += 30
-
-                    if latest_volume > avg_volume:
-                        score += 10
-
-                    if latest_price > latest_open:
-                        score += 10
-
-                    # market sehat bonus
-                    if btc_safe:
-                        score += 10
-
-                    if score >= 70:
+                    if multi_tf_score >= 75:
 
                         signal = "STRONG BUY"
 
-                    elif score >= 50:
+                    elif multi_tf_score >= 55:
 
                         signal = "BUY"
 
-                    elif score >= 30:
+                    elif multi_tf_score >= 35:
 
                         signal = "WATCH"
 
                     print(
-                        "COIN PASSED:",
+                        "MULTI TF:",
                         symbol,
                         signal,
-                        score
+                        multi_tf_score
                     )
 
                     results.append({
@@ -385,7 +441,10 @@ def scan_market():
                         signal,
 
                         "score":
-                        score,
+                        round(
+                            multi_tf_score,
+                            2
+                        ),
 
                         "rsi":
                         round(
