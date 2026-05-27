@@ -26,6 +26,10 @@ exchange = ccxt.indodax({
 
 active_trade = load_trade()
 
+cooldown_until = 0
+
+loss_streak = 0
+
 
 def sync_wallet():
 
@@ -129,16 +133,6 @@ def get_best_prices(symbol):
             best_bid = orderbook[
                 'bids'
             ][0][0]
-
-        print(
-            "BEST ASK:",
-            best_ask
-        )
-
-        print(
-            "BEST BID:",
-            best_bid
-        )
 
         return best_ask, best_bid
 
@@ -410,6 +404,8 @@ def sell_coin(
 def trader_loop():
 
     global active_trade
+    global cooldown_until
+    global loss_streak
 
     print("TRADER STARTED")
 
@@ -425,6 +421,8 @@ def trader_loop():
 
         try:
 
+            now = time.time()
+
             market_data = (
                 scanner.market_data
             )
@@ -433,6 +431,24 @@ def trader_loop():
                 "MARKET DATA LENGTH:",
                 len(market_data)
             )
+
+            if now < cooldown_until:
+
+                remain = int(
+                    cooldown_until - now
+                )
+
+                print(
+                    "COOLDOWN ACTIVE:",
+                    remain,
+                    "seconds"
+                )
+
+                time.sleep(
+                    config.TRADER_INTERVAL
+                )
+
+                continue
 
             if active_trade is None:
 
@@ -660,6 +676,8 @@ def trader_loop():
 
                         if sell_result:
 
+                            loss_streak = 0
+
                             add_trade_history(
 
                                 active_trade["symbol"],
@@ -707,6 +725,30 @@ def trader_loop():
                         )
 
                         if sell_result:
+
+                            loss_streak += 1
+
+                            if loss_streak >= 2:
+
+                                cooldown_until = (
+                                    time.time()
+                                    + 3600
+                                )
+
+                                send_telegram(
+                                    "🧊 BOT COOLDOWN 1 HOUR"
+                                )
+
+                            else:
+
+                                cooldown_until = (
+                                    time.time()
+                                    + 1800
+                                )
+
+                                send_telegram(
+                                    "🧊 BOT COOLDOWN 30 MIN"
+                                )
 
                             add_trade_history(
 
@@ -763,6 +805,8 @@ def trader_loop():
                         )
 
                         if sell_result:
+
+                            loss_streak = 0
 
                             add_trade_history(
 
