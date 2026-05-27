@@ -2,8 +2,7 @@ import threading
 import time
 import ccxt
 import config
-
-from scanner import market_data
+import scanner
 
 exchange = ccxt.indodax({
     'apiKey': config.API_KEY,
@@ -14,84 +13,61 @@ exchange = ccxt.indodax({
 active_trade = None
 
 
-def buy_coin(symbol, price):
-
-    try:
-
-        # hitung jumlah coin
-        amount = (
-            config.BASE_TRADE_AMOUNT
-            / price
-        )
-
-        # market buy
-        order = exchange.create_market_buy_order(
-            symbol,
-            amount
-        )
-
-        print("BUY SUCCESS:", symbol)
-
-        return order
-
-    except Exception as e:
-
-        print("BUY ERROR:", e)
-
-        return None
-
-
-def sell_coin(symbol, amount):
-
-    try:
-
-        order = exchange.create_market_sell_order(
-            symbol,
-            amount
-        )
-
-        print("SELL SUCCESS:", symbol)
-
-        return order
-
-    except Exception as e:
-
-        print("SELL ERROR:", e)
-
-        return None
-
-
 def trader_loop():
 
     global active_trade
+
+    print("TRADER STARTED")
 
     while True:
 
         try:
 
-            # ENTRY
+            print("TRADER LOOP RUNNING")
+
+            market_data = scanner.market_data
+
+            print("MARKET DATA LENGTH:", len(market_data))
+
+            # BELUM ADA POSISI
             if active_trade is None:
 
                 for coin in market_data:
-                    
-                    print("CHECKING:", coin)
 
-                    if coin["signal"] != "STRONG BUY":
+                    print("CHECK COIN:", coin["symbol"])
+
+                    print("SIGNAL:", coin["signal"])
+
+                    # ENTRY BUY
+                    if coin["signal"] not in [
+                        "STRONG BUY",
+                        "BUY"
+                    ]:
                         continue
 
                     buy_price = coin["price"]
 
-                    # REAL BUY
-                    order = buy_coin(
-                        coin["symbol"],
-                        buy_price
+                    amount = round(
+                        config.BASE_TRADE_AMOUNT
+                        / buy_price,
+                        8
                     )
 
-                    if order:
+                    print(
+                        "TRY BUY:",
+                        coin["symbol"]
+                    )
 
-                        amount = (
-                            config.BASE_TRADE_AMOUNT
-                            / buy_price
+                    try:
+
+                        order = exchange.create_market_buy_order(
+                            coin["symbol"],
+                            amount
+                        )
+
+                        print(
+                            "BUY SUCCESS:",
+                            order
                         )
 
                         tp_price = buy_price * (
@@ -112,19 +88,25 @@ def trader_loop():
                             "sl_price": sl_price,
                             "highest_price": buy_price,
                             "profit_percent": 0,
-                            "amount": amount,
-                            "status": "OPEN"
+                            "amount": amount
                         }
-
-                        print(
-                            "ACTIVE TRADE:",
-                            active_trade
-                        )
 
                         break
 
-            # MONITOR POSITION
+                    except Exception as e:
+
+                        print(
+                            "BUY ERROR:",
+                            str(e)
+                        )
+
+            # ADA POSISI
             else:
+
+                print(
+                    "ACTIVE POSITION:",
+                    active_trade["symbol"]
+                )
 
                 for coin in market_data:
 
@@ -135,7 +117,6 @@ def trader_loop():
 
                     active_trade["current_price"] = current_price
 
-                    # profit %
                     profit = (
                         (
                             current_price -
@@ -150,12 +131,11 @@ def trader_loop():
                         2
                     )
 
-                    # highest
+                    # highest update
                     if current_price > active_trade["highest_price"]:
 
                         active_trade["highest_price"] = current_price
 
-                    # trailing price
                     trailing_price = (
                         active_trade["highest_price"]
                         *
@@ -168,12 +148,12 @@ def trader_loop():
                     # TAKE PROFIT
                     if current_price >= active_trade["tp_price"]:
 
-                        sell_coin(
+                        print("TAKE PROFIT SELL")
+
+                        exchange.create_market_sell_order(
                             active_trade["symbol"],
                             active_trade["amount"]
                         )
-
-                        print("TAKE PROFIT")
 
                         active_trade = None
 
@@ -182,12 +162,12 @@ def trader_loop():
                     # STOP LOSS
                     elif current_price <= active_trade["sl_price"]:
 
-                        sell_coin(
+                        print("STOP LOSS SELL")
+
+                        exchange.create_market_sell_order(
                             active_trade["symbol"],
                             active_trade["amount"]
                         )
-
-                        print("STOP LOSS")
 
                         active_trade = None
 
@@ -202,12 +182,12 @@ def trader_loop():
                         profit > 0
                     ):
 
-                        sell_coin(
+                        print("TRAILING STOP SELL")
+
+                        exchange.create_market_sell_order(
                             active_trade["symbol"],
                             active_trade["amount"]
                         )
-
-                        print("TRAILING STOP")
 
                         active_trade = None
 
@@ -215,12 +195,14 @@ def trader_loop():
 
         except Exception as e:
 
-            print("TRADER ERROR:", e)
+            print("TRADER ERROR:", str(e))
 
         time.sleep(15)
 
 
 def start_trader():
+
+    print("STARTING TRADER THREAD")
 
     thread = threading.Thread(
         target=trader_loop
