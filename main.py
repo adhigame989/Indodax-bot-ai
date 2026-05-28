@@ -81,86 +81,136 @@ def home():
             <style>
 
                 * {{
+                    margin:0;
+                    padding:0;
                     box-sizing:border-box;
                 }}
 
                 body {{
 
-                    margin:0;
-                    padding:20px;
-                    background:#020617;
-                    color:white;
-                    font-family:Arial;
-
-                }}
-
-                .header {{
-
-                    background:linear-gradient(
-                        135deg,
-                        #0f172a,
-                        #1e293b
+                    background:
+                    linear-gradient(
+                        180deg,
+                        #020617,
+                        #020b1d
                     );
 
-                    padding:25px;
-                    border-radius:25px;
-                    margin-bottom:20px;
-                    border:1px solid #334155;
-                    box-shadow:
-                    0 0 20px rgba(0,0,0,0.4);
+                    color:white;
+
+                    font-family:
+                    Arial,
+                    sans-serif;
+
+                    padding:18px;
 
                 }}
 
-                .title {{
+                .topbar {{
+
+                    background:
+                    linear-gradient(
+                        135deg,
+                        #0f172a,
+                        #111827
+                    );
+
+                    border:
+                    1px solid #1e293b;
+
+                    border-radius:24px;
+
+                    padding:22px;
+
+                    margin-bottom:20px;
+
+                    box-shadow:
+                    0 0 30px rgba(
+                        14,
+                        165,
+                        233,
+                        0.15
+                    );
+
+                }}
+
+                .logo {{
 
                     font-size:34px;
+
                     font-weight:bold;
+
                     color:#38bdf8;
+
+                    margin-bottom:8px;
 
                 }}
 
                 .subtitle {{
 
                     color:#94a3b8;
-                    margin-top:8px;
-                    font-size:15px;
+
+                    font-size:14px;
 
                 }}
 
-                .grid {{
+                .stats-grid {{
 
                     display:grid;
+
                     grid-template-columns:
-                    repeat(auto-fit,minmax(220px,1fr));
-                    gap:15px;
-                    margin-bottom:20px;
+                    repeat(
+                        auto-fit,
+                        minmax(160px,1fr)
+                    );
+
+                    gap:14px;
+
+                    margin-bottom:22px;
 
                 }}
 
                 .card {{
 
-                    background:#0f172a;
-                    border:1px solid #1e293b;
+                    background:
+                    linear-gradient(
+                        145deg,
+                        #0f172a,
+                        #111827
+                    );
+
+                    border:
+                    1px solid #1e293b;
+
                     border-radius:22px;
+
                     padding:18px;
+
                     box-shadow:
-                    0 0 15px rgba(0,0,0,0.25);
+                    0 0 20px rgba(
+                        0,
+                        0,
+                        0,
+                        0.25
+                    );
 
                 }}
 
                 .card-title {{
 
-                    color:#38bdf8;
-                    font-size:16px;
+                    color:#94a3b8;
+
+                    font-size:13px;
+
                     margin-bottom:10px;
-                    font-weight:bold;
+
                     letter-spacing:1px;
 
                 }}
 
-                .big-number {{
+                .card-value {{
 
-                    font-size:28px;
+                    font-size:30px;
+
                     font-weight:bold;
 
                 }}
@@ -177,86 +227,164 @@ def home():
                     color:#facc15;
                 }}
 
-                .gray {{
-                    color:#94a3b8;
+                .blue {{
+                    color:#38bdf8;
                 }}
 
                 .section-title {{
 
                     font-size:22px;
+
                     font-weight:bold;
-                    margin-top:25px;
-                    margin-bottom:15px;
+
                     color:#38bdf8;
+
+                    margin-top:25px;
+
+                    margin-bottom:14px;
 
                 }}
 
-                .trade-card {{
+                .trade-box {{
 
-                    background:#111827;
-                    border-radius:20px;
-                    padding:18px;
-                    margin-bottom:15px;
-                    border:1px solid #1f2937;
+                    background:
+                    linear-gradient(
+                        145deg,
+                        #111827,
+                        #0f172a
+                    );
+
+                    border:
+                    1px solid #1f2937;
+
+                    border-radius:24px;
+
+                    padding:22px;
+
+                    margin-bottom:20px;
+
+                    box-shadow:
+                    0 0 25px rgba(
+                        0,
+                        0,
+                        0,
+                        0.35
+                    );
 
                 }}
 
                 .trade-symbol {{
 
-                    font-size:24px;
+                    font-size:30px;
+
                     font-weight:bold;
-                    margin-bottom:12px;
+
+                    margin-bottom:16px;
+
+                    color:#38bdf8;
 
                 }}
 
-                .trade-profit {{
+                .row {{
 
-                    font-size:24px;
+                    display:flex;
+
+                    justify-content:
+                    space-between;
+
+                    align-items:center;
+
+                    margin-bottom:12px;
+
+                    color:#cbd5e1;
+
+                    font-size:15px;
+
+                }}
+
+                .profit-big {{
+
+                    font-size:34px;
+
                     font-weight:bold;
-                    margin-top:10px;
+
+                    margin-top:12px;
 
                 }}
 
                 .scanner-grid {{
 
                     display:grid;
+
                     grid-template-columns:
-                    repeat(auto-fit,minmax(260px,1fr));
+                    repeat(
+                        auto-fit,
+                        minmax(240px,1fr)
+                    );
+
                     gap:15px;
 
                 }}
 
                 .coin-card {{
 
-                    background:#0f172a;
-                    border-radius:20px;
+                    background:
+                    linear-gradient(
+                        145deg,
+                        #0f172a,
+                        #111827
+                    );
+
+                    border:
+                    1px solid #1e293b;
+
+                    border-radius:22px;
+
                     padding:18px;
-                    border:1px solid #1e293b;
+
+                    box-shadow:
+                    0 0 18px rgba(
+                        0,
+                        0,
+                        0,
+                        0.25
+                    );
 
                 }}
 
                 .coin-name {{
 
                     font-size:22px;
+
                     font-weight:bold;
-                    margin-bottom:12px;
+
+                    margin-bottom:14px;
+
+                    color:#38bdf8;
 
                 }}
 
                 .signal {{
 
                     display:inline-block;
-                    padding:8px 14px;
+
+                    padding:
+                    8px 14px;
+
                     border-radius:999px;
+
+                    font-size:13px;
+
                     font-weight:bold;
+
                     margin-bottom:15px;
-                    font-size:14px;
 
                 }}
 
                 .buy {{
 
                     background:#14532d;
+
                     color:#4ade80;
 
                 }}
@@ -264,6 +392,7 @@ def home():
                 .strong-buy {{
 
                     background:#064e3b;
+
                     color:#34d399;
 
                 }}
@@ -271,6 +400,7 @@ def home():
                 .watch {{
 
                     background:#713f12;
+
                     color:#facc15;
 
                 }}
@@ -278,35 +408,124 @@ def home():
                 .wait {{
 
                     background:#1e293b;
+
                     color:#94a3b8;
 
                 }}
 
-                .row {{
+                .history-card {{
 
-                    display:flex;
-                    justify-content:space-between;
-                    margin-bottom:8px;
-                    color:#cbd5e1;
+                    background:
+                    linear-gradient(
+                        145deg,
+                        #111827,
+                        #0f172a
+                    );
+
+                    border:
+                    1px solid #1f2937;
+
+                    border-radius:20px;
+
+                    padding:16px;
+
+                    margin-bottom:12px;
 
                 }}
 
-                .history-item {{
+                .status-bar {{
 
-                    background:#111827;
-                    border-radius:16px;
-                    padding:14px;
-                    margin-bottom:10px;
-                    border:1px solid #1f2937;
+                    display:flex;
+
+                    justify-content:
+                    space-between;
+
+                    align-items:center;
+
+                    background:
+                    #0f172a;
+
+                    border:
+                    1px solid #1e293b;
+
+                    border-radius:18px;
+
+                    padding:14px 18px;
+
+                    margin-bottom:20px;
+
+                }}
+
+                .status-dot {{
+
+                    width:12px;
+
+                    height:12px;
+
+                    border-radius:50%;
+
+                    background:#22c55e;
+
+                    box-shadow:
+                    0 0 12px #22c55e;
 
                 }}
 
                 .footer {{
 
                     text-align:center;
+
                     color:#64748b;
+
+                    font-size:12px;
+
                     margin-top:30px;
-                    font-size:13px;
+
+                    padding-bottom:30px;
+
+                }}
+
+                .bottom-nav {{
+
+                    position:fixed;
+
+                    bottom:0;
+
+                    left:0;
+
+                    width:100%;
+
+                    background:#0f172a;
+
+                    border-top:
+                    1px solid #1e293b;
+
+                    display:flex;
+
+                    justify-content:
+                    space-around;
+
+                    padding:12px 0;
+
+                    z-index:999;
+
+                }}
+
+                .nav-item {{
+
+                    text-align:center;
+
+                    color:#94a3b8;
+
+                    font-size:12px;
+
+                }}
+
+                .nav-icon {{
+
+                    font-size:20px;
+
+                    margin-bottom:4px;
 
                 }}
 
@@ -316,54 +535,88 @@ def home():
 
         <body>
 
-            <div class="header">
+            <div class="topbar">
 
-                <div class="title">
+                <div class="logo">
                     INDODAX AI BOT
                 </div>
 
                 <div class="subtitle">
-                    Railway Live Trading Dashboard
+                    AI Trading Dashboard
                 </div>
 
             </div>
 
-            <div class="grid">
+            <div class="status-bar">
+
+                <div>
+                    BOT STATUS
+                </div>
+
+                <div style="
+                    display:flex;
+                    align-items:center;
+                    gap:10px;
+                ">
+
+                    <div class="status-dot"></div>
+
+                    <div class="green">
+                        RUNNING
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="stats-grid">
 
                 <div class="card">
+
                     <div class="card-title">
                         WALLET
                     </div>
-                    <div class="big-number green">
+
+                    <div class="card-value green">
                         Rp {idr:,.0f}
                     </div>
+
                 </div>
 
                 <div class="card">
+
                     <div class="card-title">
                         TOTAL TRADES
                     </div>
-                    <div class="big-number">
+
+                    <div class="card-value blue">
                         {stats['total_trades']}
                     </div>
+
                 </div>
 
                 <div class="card">
+
                     <div class="card-title">
                         WINRATE
                     </div>
-                    <div class="big-number green">
+
+                    <div class="card-value green">
                         {stats['winrate']}%
                     </div>
+
                 </div>
 
                 <div class="card">
+
                     <div class="card-title">
                         TOTAL PROFIT
                     </div>
-                    <div class="big-number yellow">
+
+                    <div class="card-value yellow">
                         {stats['total_profit']}%
                     </div>
+
                 </div>
 
             </div>
@@ -388,7 +641,7 @@ def home():
                 OPEN POSITION
             </div>
 
-            <div class="trade-card">
+            <div class="trade-box">
 
                 <div class="trade-symbol">
                     {trader.active_trade['symbol']}
@@ -410,19 +663,19 @@ def home():
 
                 <div class="row">
                     <span>Take Profit</span>
-                    <span>
+                    <span class="green">
                     {trader.active_trade['tp_price']}
                     </span>
                 </div>
 
                 <div class="row">
                     <span>Stop Loss</span>
-                    <span>
+                    <span class="red">
                     {trader.active_trade['sl_price']}
                     </span>
                 </div>
 
-                <div class="trade-profit {profit_class}">
+                <div class="profit-big {profit_class}">
                     {trader.active_trade['profit_percent']}%
                 </div>
 
@@ -513,7 +766,7 @@ def home():
 
             html += f"""
 
-            <div class="history-item">
+            <div class="history-card">
 
                 <div class="row">
                     <span>{trade_data['symbol']}</span>
@@ -534,7 +787,31 @@ def home():
         html += """
 
             <div class="footer">
-                INDODAX AI BOT • Railway Live Server
+                INDODAX AI BOT • Railway Mobile App
+            </div>
+
+            <div class="bottom-nav">
+
+                <div class="nav-item">
+                    <div class="nav-icon">🏠</div>
+                    Home
+                </div>
+
+                <div class="nav-item">
+                    <div class="nav-icon">📈</div>
+                    Scanner
+                </div>
+
+                <div class="nav-item">
+                    <div class="nav-icon">🤖</div>
+                    Bot
+                </div>
+
+                <div class="nav-item">
+                    <div class="nav-icon">📜</div>
+                    History
+                </div>
+
             </div>
 
             <script>
