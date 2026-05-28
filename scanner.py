@@ -12,14 +12,13 @@ exchange = ccxt.indodax({
 market_data = []
 
 
-def get_multi_tf_signal(symbol):
+def get_multi_tf_score(symbol):
 
     try:
 
         timeframes = [
             "15m",
-            "1h",
-            "4h"
+            "1h"
         ]
 
         total_score = 0
@@ -29,7 +28,7 @@ def get_multi_tf_signal(symbol):
             ohlcv = exchange.fetch_ohlcv(
                 symbol,
                 timeframe=tf,
-                limit=100
+                limit=60
             )
 
             if not ohlcv:
@@ -84,14 +83,7 @@ def get_multi_tf_signal(symbol):
 
             total_score += score
 
-            print(
-                symbol,
-                tf,
-                "SCORE:",
-                score
-            )
-
-        final_score = total_score / 3
+        final_score = total_score / 2
 
         return round(final_score, 2)
 
@@ -113,11 +105,10 @@ def check_btc_market():
         ohlcv = exchange.fetch_ohlcv(
             "BTC/IDR",
             timeframe=config.TIMEFRAME,
-            limit=100
+            limit=60
         )
 
         if not ohlcv:
-
             return True
 
         df = pd.DataFrame(
@@ -151,31 +142,10 @@ def check_btc_market():
             latest_open
         ) * 100
 
-        print(
-            "BTC RSI:",
-            round(btc_rsi, 2)
-        )
-
-        print(
-            "BTC CANDLE:",
-            round(btc_dump, 2),
-            "%"
-        )
-
         if btc_dump <= -3:
-
-            print(
-                "BTC PANIC SELL"
-            )
-
             return False
 
         if btc_rsi < 35:
-
-            print(
-                "BTC RSI WEAK"
-            )
-
             return False
 
         return True
@@ -188,6 +158,144 @@ def check_btc_market():
         )
 
         return True
+
+
+def build_market_universe(tickers):
+
+    try:
+
+        candidates = []
+
+        for symbol in tickers:
+
+            try:
+
+                if "/IDR" not in symbol:
+                    continue
+
+                if symbol == "BTC/IDR":
+                    continue
+
+                data = tickers[symbol]
+
+                volume = data.get(
+                    "quoteVolume",
+                    0
+                )
+
+                bid = data.get(
+                    "bid",
+                    0
+                )
+
+                ask = data.get(
+                    "ask",
+                    0
+                )
+
+                last = data.get(
+                    "last",
+                    0
+                )
+
+                percentage = data.get(
+                    "percentage",
+                    0
+                )
+
+                if not volume:
+                    continue
+
+                if not bid:
+                    continue
+
+                if not ask:
+                    continue
+
+                if not last:
+                    continue
+
+                if (
+                    volume <
+                    config.MIN_VOLUME
+                ):
+                    continue
+
+                spread = (
+                    (ask - bid)
+                    / ask
+                ) * 100
+
+                if (
+                    config.ENABLE_SPREAD_FILTER
+                    and
+                    spread > config.MAX_SPREAD
+                ):
+                    continue
+
+                score = 0
+
+                if percentage:
+                    score += abs(
+                        percentage
+                    ) * 2
+
+                relative_volume = (
+                    volume /
+                    config.MIN_VOLUME
+                )
+
+                score += relative_volume
+
+                if spread < 0.5:
+                    score += 15
+
+                if volume > (
+                    config.MIN_VOLUME * 5
+                ):
+                    score += 20
+
+                candidates.append({
+
+                    "symbol":
+                    symbol,
+
+                    "score":
+                    score,
+
+                    "volume":
+                    volume
+
+                })
+
+            except Exception as e:
+
+                print(
+                    "UNIVERSE ERROR:",
+                    symbol,
+                    str(e)
+                )
+
+                continue
+
+        candidates = sorted(
+            candidates,
+            key=lambda x: x["score"],
+            reverse=True
+        )
+
+        return candidates[
+            :config.SCAN_LIMIT
+        ]
+
+    except Exception as e:
+
+        print(
+            "BUILD UNIVERSE ERROR:",
+            str(e)
+        )
+
+        return []
 
 
 def scan_market():
@@ -204,8 +312,6 @@ def scan_market():
 
             tickers = exchange.fetch_tickers()
 
-            count = 0
-
             btc_safe = check_btc_market()
 
             print(
@@ -213,19 +319,22 @@ def scan_market():
                 btc_safe
             )
 
-            print("SCANNING MARKET...")
+            market_universe = (
+                build_market_universe(
+                    tickers
+                )
+            )
 
-            for symbol in tickers:
+            print(
+                "UNIVERSE SIZE:",
+                len(market_universe)
+            )
+
+            for item in market_universe:
 
                 try:
 
-                    if "/IDR" not in symbol:
-                        continue
-
-                    if symbol == "BTC/IDR":
-                        continue
-
-                    print("CHECK:", symbol)
+                    symbol = item["symbol"]
 
                     data = tickers[symbol]
 
@@ -258,42 +367,19 @@ def scan_market():
                     if not ask:
                         continue
 
-                    spread = (
-                        (ask - bid)
-                        / ask
-                    ) * 100
-
-                    if (
-                        config.ENABLE_SPREAD_FILTER
-                        and
-                        spread > config.MAX_SPREAD
-                    ):
-                        continue
-
-                    if (
-                        volume <
-                        config.MIN_VOLUME
-                    ):
-                        continue
-
                     if not btc_safe:
 
                         print(
-                            "SKIP BTC PANIC:",
+                            "BTC PANIC:",
                             symbol
                         )
 
                         continue
 
-                    print(
-                        "FETCHING:",
-                        symbol
-                    )
-
                     ohlcv = exchange.fetch_ohlcv(
                         symbol,
                         timeframe=config.TIMEFRAME,
-                        limit=100
+                        limit=60
                     )
 
                     if not ohlcv:
@@ -397,7 +483,7 @@ def scan_market():
                         continue
 
                     multi_tf_score = (
-                        get_multi_tf_signal(
+                        get_multi_tf_score(
                             symbol
                         )
                     )
@@ -405,23 +491,18 @@ def scan_market():
                     signal = "WAIT"
 
                     if multi_tf_score >= 75:
-
                         signal = "STRONG BUY"
 
                     elif multi_tf_score >= 55:
-
                         signal = "BUY"
 
                     elif multi_tf_score >= 35:
-
                         signal = "WATCH"
 
-                    print(
-                        "MULTI TF:",
-                        symbol,
-                        signal,
-                        multi_tf_score
-                    )
+                    spread = (
+                        (ask - bid)
+                        / ask
+                    ) * 100
 
                     results.append({
 
@@ -454,19 +535,17 @@ def scan_market():
 
                     })
 
-                    count += 1
-
-                    if (
-                        count >=
-                        config.SCAN_LIMIT
-                    ):
-                        break
+                    print(
+                        "SCANNED:",
+                        symbol,
+                        signal,
+                        multi_tf_score
+                    )
 
                 except Exception as e:
 
                     print(
                         "COIN ERROR:",
-                        symbol,
                         str(e)
                     )
 
@@ -480,8 +559,7 @@ def scan_market():
 
             print(
                 "SCANNER UPDATED:",
-                len(market_data),
-                "COINS"
+                len(market_data)
             )
 
         except Exception as e:
