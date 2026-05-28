@@ -5,6 +5,8 @@ import pandas as pd
 import ta
 import config
 
+BOT_RUNNING = True
+
 exchange = ccxt.indodax({
     'enableRateLimit': True
 })
@@ -16,76 +18,166 @@ def get_multi_tf_score(symbol):
 
     try:
 
-        timeframes = [
-            "15m",
-            "1h"
-        ]
+        score_15m = 0
+        score_1h = 0
+        score_4h = 0
 
-        total_score = 0
+        tf_15m = exchange.fetch_ohlcv(
+            symbol,
+            timeframe="15m",
+            limit=60
+        )
 
-        for tf in timeframes:
+        tf_1h = exchange.fetch_ohlcv(
+            symbol,
+            timeframe="1h",
+            limit=60
+        )
 
-            ohlcv = exchange.fetch_ohlcv(
-                symbol,
-                timeframe=tf,
-                limit=60
-            )
+        tf_4h = exchange.fetch_ohlcv(
+            symbol,
+            timeframe="4h",
+            limit=60
+        )
 
-            if not ohlcv:
-                continue
+        if not tf_15m:
+            return 0
 
-            df = pd.DataFrame(
-                ohlcv,
-                columns=[
-                    'time',
-                    'open',
-                    'high',
-                    'low',
-                    'close',
-                    'volume'
-                ]
-            )
+        if not tf_1h:
+            return 0
 
-            close = df['close']
+        if not tf_4h:
+            return 0
 
-            rsi = ta.momentum.RSIIndicator(
-                close
-            ).rsi()
+        df_15m = pd.DataFrame(
+            tf_15m,
+            columns=[
+                'time',
+                'open',
+                'high',
+                'low',
+                'close',
+                'volume'
+            ]
+        )
 
-            ema20 = ta.trend.EMAIndicator(
-                close,
-                window=20
-            ).ema_indicator()
+        df_1h = pd.DataFrame(
+            tf_1h,
+            columns=[
+                'time',
+                'open',
+                'high',
+                'low',
+                'close',
+                'volume'
+            ]
+        )
 
-            ema50 = ta.trend.EMAIndicator(
-                close,
-                window=50
-            ).ema_indicator()
+        df_4h = pd.DataFrame(
+            tf_4h,
+            columns=[
+                'time',
+                'open',
+                'high',
+                'low',
+                'close',
+                'volume'
+            ]
+        )
 
-            latest_rsi = rsi.iloc[-1]
+        close_15m = df_15m['close']
+        close_1h = df_1h['close']
+        close_4h = df_4h['close']
 
-            latest_ema20 = ema20.iloc[-1]
+        rsi_15m = ta.momentum.RSIIndicator(
+            close_15m
+        ).rsi()
 
-            latest_ema50 = ema50.iloc[-1]
+        ema20_15m = ta.trend.EMAIndicator(
+            close_15m,
+            window=20
+        ).ema_indicator()
 
-            latest_price = close.iloc[-1]
+        ema50_15m = ta.trend.EMAIndicator(
+            close_15m,
+            window=50
+        ).ema_indicator()
 
-            score = 0
+        latest_price_15m = close_15m.iloc[-1]
 
-            if latest_ema20 > latest_ema50:
-                score += 40
+        latest_rsi_15m = rsi_15m.iloc[-1]
 
-            if latest_price > latest_ema20:
-                score += 30
+        latest_ema20_15m = ema20_15m.iloc[-1]
 
-            if 40 <= latest_rsi <= 75:
-                score += 30
+        latest_ema50_15m = ema50_15m.iloc[-1]
 
-            total_score += score
+        if latest_ema20_15m > latest_ema50_15m:
+            score_15m += 40
 
-        final_score = total_score / 2
+        if latest_price_15m > latest_ema20_15m:
+            score_15m += 30
 
-        return round(final_score, 2)
+        if 40 <= latest_rsi_15m <= 75:
+            score_15m += 30
+
+        rsi_1h = ta.momentum.RSIIndicator(
+            close_1h
+        ).rsi()
+
+        ema20_1h = ta.trend.EMAIndicator(
+            close_1h,
+            window=20
+        ).ema_indicator()
+
+        ema50_1h = ta.trend.EMAIndicator(
+            close_1h,
+            window=50
+        ).ema_indicator()
+
+        latest_price_1h = close_1h.iloc[-1]
+
+        latest_rsi_1h = rsi_1h.iloc[-1]
+
+        latest_ema20_1h = ema20_1h.iloc[-1]
+
+        latest_ema50_1h = ema50_1h.iloc[-1]
+
+        if latest_ema20_1h > latest_ema50_1h:
+            score_1h += 40
+
+        if latest_price_1h > latest_ema20_1h:
+            score_1h += 30
+
+        if 40 <= latest_rsi_1h <= 75:
+            score_1h += 30
+
+        ema20_4h = ta.trend.EMAIndicator(
+            close_4h,
+            window=20
+        ).ema_indicator()
+
+        ema50_4h = ta.trend.EMAIndicator(
+            close_4h,
+            window=50
+        ).ema_indicator()
+
+        latest_ema20_4h = ema20_4h.iloc[-1]
+
+        latest_ema50_4h = ema50_4h.iloc[-1]
+
+        if latest_ema20_4h > latest_ema50_4h:
+            score_4h = 20
+
+        final_score = (
+            score_15m +
+            score_1h +
+            score_4h
+        ) / 2.2
+
+        return round(
+            final_score,
+            2
+        )
 
     except Exception as e:
 
@@ -305,6 +397,14 @@ def scan_market():
     print("SCANNER STARTED")
 
     while True:
+
+        if not BOT_RUNNING:
+
+            print("SCANNER PAUSED")
+
+            time.sleep(5)
+
+            continue
 
         try:
 
