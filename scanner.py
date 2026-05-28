@@ -5,7 +5,7 @@ import pandas as pd
 import ta
 import config
 
-BOT_RUNNING = True
+BOT_RUNNING = False
 
 exchange = ccxt.indodax({
     'enableRateLimit': True
