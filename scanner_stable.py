@@ -1,4 +1,3 @@
-
 import ccxt
 import threading
 import time
