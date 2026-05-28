@@ -1,11 +1,10 @@
 {
   "name": "INDODAX AI BOT",
-  "short_name": "INDODAX BOT",
+  "short_name": "INDOBOT",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#020617",
   "theme_color": "#0ea5e9",
-  "orientation": "portrait",
   "icons": [
     {
       "src": "/static/icon-192.png",
