@@ -1,8 +1,11 @@
 from flask import Flask
+from flask import redirect
+
 import ccxt
 import os
 import config
 import trader
+import scanner
 
 from scanner import (
     market_data,
@@ -18,6 +21,8 @@ from history import (
 )
 
 app = Flask(__name__)
+
+BOT_RUNNING = True
 
 start_scanner()
 start_trader()
@@ -94,7 +99,7 @@ def style():
             sans-serif;
 
             padding:18px;
-            padding-bottom:90px;
+            padding-bottom:100px;
 
         }
 
@@ -150,6 +155,73 @@ def style():
 
         }
 
+        .status-bar {
+
+            display:flex;
+
+            justify-content:
+            space-between;
+
+            align-items:center;
+
+            background:
+            #0f172a;
+
+            border:
+            1px solid #1e293b;
+
+            border-radius:18px;
+
+            padding:14px 18px;
+
+            margin-bottom:20px;
+
+        }
+
+        .status-dot {
+
+            width:12px;
+
+            height:12px;
+
+            border-radius:50%;
+
+        }
+
+        .green-dot {
+
+            background:#22c55e;
+
+            box-shadow:
+            0 0 12px #22c55e;
+
+        }
+
+        .red-dot {
+
+            background:#ef4444;
+
+            box-shadow:
+            0 0 12px #ef4444;
+
+        }
+
+        .green {
+            color:#22c55e;
+        }
+
+        .red {
+            color:#ef4444;
+        }
+
+        .yellow {
+            color:#facc15;
+        }
+
+        .blue {
+            color:#38bdf8;
+        }
+
         .stats-grid {
 
             display:grid;
@@ -182,14 +254,6 @@ def style():
 
             padding:18px;
 
-            box-shadow:
-            0 0 20px rgba(
-                0,
-                0,
-                0,
-                0.25
-            );
-
         }
 
         .card-title {
@@ -200,8 +264,6 @@ def style():
 
             margin-bottom:10px;
 
-            letter-spacing:1px;
-
         }
 
         .card-value {
@@ -210,22 +272,6 @@ def style():
 
             font-weight:bold;
 
-        }
-
-        .green {
-            color:#22c55e;
-        }
-
-        .red {
-            color:#ef4444;
-        }
-
-        .yellow {
-            color:#facc15;
-        }
-
-        .blue {
-            color:#38bdf8;
         }
 
         .section-title {
@@ -242,62 +288,70 @@ def style():
 
         }
 
-        .trade-box {
+        .control-grid {
+
+            display:grid;
+
+            grid-template-columns:
+            repeat(
+                auto-fit,
+                minmax(150px,1fr)
+            );
+
+            gap:14px;
+
+            margin-bottom:25px;
+
+        }
+
+        .control-btn {
+
+            display:block;
+
+            text-align:center;
+
+            padding:18px;
+
+            border-radius:20px;
+
+            font-weight:bold;
+
+            font-size:16px;
+
+            color:white;
+
+        }
+
+        .start-btn {
 
             background:
             linear-gradient(
-                145deg,
-                #111827,
-                #0f172a
+                135deg,
+                #14532d,
+                #166534
             );
 
-            border:
-            1px solid #1f2937;
+        }
 
-            border-radius:24px;
+        .stop-btn {
 
-            padding:22px;
-
-            margin-bottom:20px;
+            background:
+            linear-gradient(
+                135deg,
+                #7f1d1d,
+                #991b1b
+            );
 
         }
 
-        .trade-symbol {
+        .pause-btn {
 
-            font-size:28px;
-
-            font-weight:bold;
-
-            margin-bottom:16px;
-
-            color:#38bdf8;
-
-        }
-
-        .row {
-
-            display:flex;
-
-            justify-content:
-            space-between;
-
-            align-items:center;
-
-            margin-bottom:12px;
-
-            color:#cbd5e1;
-
-            font-size:15px;
-
-        }
-
-        .profit-big {
-
-            font-size:34px;
-
-            font-weight:bold;
-
-            margin-top:12px;
+            background:
+            linear-gradient(
+                135deg,
+                #713f12,
+                #854d0e
+            );
 
         }
 
@@ -394,6 +448,61 @@ def style():
 
         }
 
+        .row {
+
+            display:flex;
+
+            justify-content:
+            space-between;
+
+            margin-bottom:10px;
+
+            color:#cbd5e1;
+
+        }
+
+        .trade-box {
+
+            background:
+            linear-gradient(
+                145deg,
+                #111827,
+                #0f172a
+            );
+
+            border:
+            1px solid #1f2937;
+
+            border-radius:24px;
+
+            padding:22px;
+
+            margin-bottom:20px;
+
+        }
+
+        .trade-symbol {
+
+            font-size:28px;
+
+            font-weight:bold;
+
+            margin-bottom:16px;
+
+            color:#38bdf8;
+
+        }
+
+        .profit-big {
+
+            font-size:34px;
+
+            font-weight:bold;
+
+            margin-top:12px;
+
+        }
+
         .history-card {
 
             background:
@@ -411,44 +520,6 @@ def style():
             padding:16px;
 
             margin-bottom:12px;
-
-        }
-
-        .status-bar {
-
-            display:flex;
-
-            justify-content:
-            space-between;
-
-            align-items:center;
-
-            background:
-            #0f172a;
-
-            border:
-            1px solid #1e293b;
-
-            border-radius:18px;
-
-            padding:14px 18px;
-
-            margin-bottom:20px;
-
-        }
-
-        .status-dot {
-
-            width:12px;
-
-            height:12px;
-
-            border-radius:50%;
-
-            background:#22c55e;
-
-            box-shadow:
-            0 0 12px #22c55e;
 
         }
 
@@ -504,6 +575,8 @@ def style():
 @app.route("/")
 def home():
 
+    global BOT_RUNNING
+
     exchange = ccxt.indodax({
         'apiKey': config.API_KEY,
         'secret': config.SECRET_KEY,
@@ -518,6 +591,16 @@ def home():
     )
 
     stats = get_stats()
+
+    status_text = "RUNNING"
+    status_color = "green"
+    dot_class = "green-dot"
+
+    if not BOT_RUNNING:
+
+        status_text = "STOPPED"
+        status_color = "red"
+        dot_class = "red-dot"
 
     html = f"""
 
@@ -545,13 +628,29 @@ def home():
             gap:10px;
         ">
 
-            <div class="status-dot"></div>
+            <div class="status-dot {dot_class}"></div>
 
-            <div class="green">
-                RUNNING
+            <div class="{status_color}">
+                {status_text}
             </div>
 
         </div>
+
+    </div>
+
+    <div class="control-grid">
+
+        <a href="/start" class="control-btn start-btn">
+            ▶ START BOT
+        </a>
+
+        <a href="/pause" class="control-btn pause-btn">
+            ⏸ PAUSE BOT
+        </a>
+
+        <a href="/stop" class="control-btn stop-btn">
+            ⛔ STOP BOT
+        </a>
 
     </div>
 
@@ -614,6 +713,45 @@ def home():
     """
 
     return html
+
+
+@app.route("/start")
+def start_bot():
+
+    global BOT_RUNNING
+
+    BOT_RUNNING = True
+
+    trader.BOT_RUNNING = True
+    scanner.BOT_RUNNING = True
+
+    return redirect("/")
+
+
+@app.route("/pause")
+def pause_bot():
+
+    global BOT_RUNNING
+
+    BOT_RUNNING = False
+
+    trader.BOT_RUNNING = False
+    scanner.BOT_RUNNING = False
+
+    return redirect("/")
+
+
+@app.route("/stop")
+def stop_bot():
+
+    global BOT_RUNNING
+
+    BOT_RUNNING = False
+
+    trader.BOT_RUNNING = False
+    scanner.BOT_RUNNING = False
+
+    return redirect("/")
 
 
 @app.route("/scanner")
@@ -679,16 +817,6 @@ def scanner_page():
             <div class="row">
                 <span>Price</span>
                 <span>{coin['price']}</span>
-            </div>
-
-            <div class="row">
-                <span>Volume</span>
-                <span>{coin['volume']:,.0f}</span>
-            </div>
-
-            <div class="row">
-                <span>Spread</span>
-                <span>{coin['spread']:.2f}%</span>
             </div>
 
         </div>
@@ -762,20 +890,6 @@ def position_page():
                 <span>Current Price</span>
                 <span>
                 {trader.active_trade['current_price']}
-                </span>
-            </div>
-
-            <div class="row">
-                <span>Take Profit</span>
-                <span class="green">
-                {trader.active_trade['tp_price']}
-                </span>
-            </div>
-
-            <div class="row">
-                <span>Stop Loss</span>
-                <span class="red">
-                {trader.active_trade['sl_price']}
                 </span>
             </div>
 
