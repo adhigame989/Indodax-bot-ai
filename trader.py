@@ -1,22 +1,13 @@
-import threading
-import time
 import ccxt
+import time
+import threading
+import json
+import os
 import config
+import history
 import scanner
 
-from storage import (
-    save_trade,
-    load_trade,
-    clear_trade
-)
-
-from telegram_bot import (
-    send_telegram
-)
-
-from history import (
-    add_trade_history
-)
+BOT_RUNNING = False
 
 exchange = ccxt.indodax({
     'apiKey': config.API_KEY,
@@ -24,355 +15,286 @@ exchange = ccxt.indodax({
     'enableRateLimit': True
 })
 
-active_trade = load_trade()
+active_trade = None
 
-cooldown_until = 0
-
-loss_streak = 0
+trade_file = "active_trade.json"
 
 
-def sync_wallet():
+def save_trade():
 
-    try:
-
-        balance = exchange.fetch_balance()
-
-        print("WALLET SYNC SUCCESS")
-
-        return balance
-
-    except Exception as e:
-
-        print("SYNC ERROR:", str(e))
-
-        return None
-
-
-def cancel_all_orders():
+    global active_trade
 
     try:
 
-        orders = exchange.fetch_open_orders()
+        with open(
+            trade_file,
+            "w"
+        ) as f:
 
-        print("OPEN ORDERS:", len(orders))
-
-        for order in orders:
-
-            try:
-
-                exchange.cancel_order(
-                    order['id'],
-                    order['symbol'],
-                    {
-                        'side': order['side']
-                    }
-                )
-
-                print(
-                    "ORDER CANCELLED:",
-                    order['id']
-                )
-
-            except Exception as e:
-
-                print(
-                    "CANCEL ERROR:",
-                    str(e)
-                )
-
-    except Exception as e:
-
-        print(
-            "FETCH ORDER ERROR:",
-            str(e)
-        )
-
-
-def get_idr_balance():
-
-    try:
-
-        balance = exchange.fetch_balance()
-
-        idr = balance['total'].get(
-            'IDR',
-            0
-        )
-
-        return float(idr)
-
-    except Exception as e:
-
-        print(
-            "BALANCE ERROR:",
-            str(e)
-        )
-
-        return 0
-
-
-def get_trade_amount():
-
-    try:
-
-        balance = exchange.fetch_balance()
-
-        idr = float(
-            balance['total'].get(
-                'IDR',
-                0
+            json.dump(
+                active_trade,
+                f
             )
+
+    except Exception as e:
+
+        print(
+            "SAVE TRADE ERROR:",
+            str(e)
         )
 
-        compound_amount = (
-            idr *
-            config.COMPOUND_PERCENT
-        ) / 100
 
-        if (
-            compound_amount <
-            config.BASE_TRADE_AMOUNT
+def load_trade():
+
+    global active_trade
+
+    try:
+
+        if os.path.exists(
+            trade_file
         ):
 
-            compound_amount = (
-                config.BASE_TRADE_AMOUNT
+            with open(
+                trade_file,
+                "r"
+            ) as f:
+
+                active_trade = json.load(f)
+
+                print(
+                    "TRADE LOADED"
+                )
+
+    except Exception as e:
+
+        print(
+            "LOAD TRADE ERROR:",
+            str(e)
+        )
+
+
+def clear_trade():
+
+    global active_trade
+
+    active_trade = None
+
+    try:
+
+        if os.path.exists(
+            trade_file
+        ):
+
+            os.remove(
+                trade_file
             )
 
-        if (
-            compound_amount >
+    except Exception as e:
+
+        print(
+            "CLEAR TRADE ERROR:",
+            str(e)
+        )
+
+
+def get_trade_amount(balance):
+
+    try:
+
+        compound_size = (
+            balance *
+            (
+                config.COMPOUND_PERCENT
+                / 100
+            )
+        )
+
+        amount = max(
+            config.BASE_TRADE_AMOUNT,
+            compound_size
+        )
+
+        amount = min(
+            amount,
             config.MAX_TRADE_AMOUNT
-        ):
-
-            compound_amount = (
-                config.MAX_TRADE_AMOUNT
-            )
-
-        print(
-            "COMPOUND TRADE AMOUNT:",
-            compound_amount
         )
 
-        return compound_amount
+        return amount
 
     except Exception as e:
 
         print(
-            "COMPOUND ERROR:",
+            "TRADE AMOUNT ERROR:",
             str(e)
         )
 
         return config.BASE_TRADE_AMOUNT
 
 
-def get_best_prices(symbol):
-
-    try:
-
-        orderbook = exchange.fetch_order_book(
-            symbol
-        )
-
-        best_ask = None
-        best_bid = None
-
-        if orderbook['asks']:
-
-            best_ask = orderbook[
-                'asks'
-            ][0][0]
-
-        if orderbook['bids']:
-
-            best_bid = orderbook[
-                'bids'
-            ][0][0]
-
-        return best_ask, best_bid
-
-    except Exception as e:
-
-        print(
-            "ORDERBOOK ERROR:",
-            str(e)
-        )
-
-        return None, None
-
-
-def wait_order_filled(
-    order_id,
-    symbol
-):
-
-    try:
-
-        print(
-            "WAITING ORDER FILLED:",
-            order_id
-        )
-
-        for i in range(20):
-
-            try:
-
-                orders = exchange.fetch_open_orders(
-                    symbol
-                )
-
-                still_open = False
-
-                for order in orders:
-
-                    if (
-                        str(order['id'])
-                        ==
-                        str(order_id)
-                    ):
-
-                        still_open = True
-                        break
-
-                if not still_open:
-
-                    print(
-                        "ORDER FILLED:",
-                        order_id
-                    )
-
-                    return True
-
-                print(
-                    "ORDER STILL OPEN:",
-                    order_id
-                )
-
-            except Exception as e:
-
-                print(
-                    "CHECK ORDER ERROR:",
-                    str(e)
-                )
-
-            time.sleep(3)
-
-        try:
-
-            exchange.cancel_order(
-                order_id,
-                symbol,
-                {
-                    'side': 'buy'
-                }
-            )
-
-            print(
-                "ORDER TIMEOUT CANCELLED:",
-                order_id
-            )
-
-        except Exception as e:
-
-            print(
-                "CANCEL TIMEOUT ERROR:",
-                str(e)
-            )
-
-        return False
-
-    except Exception as e:
-
-        print(
-            "WAIT FILLED ERROR:",
-            str(e)
-        )
-
-        return False
-
-
 def buy_coin(symbol):
 
+    global active_trade
+
     try:
 
-        idr_balance = get_idr_balance()
+        balance = exchange.fetch_balance()
 
-        print(
-            "IDR BALANCE:",
-            idr_balance
+        idr = balance['free'].get(
+            'IDR',
+            0
         )
 
-        trade_amount = get_trade_amount()
+        trade_amount = get_trade_amount(
+            idr
+        )
 
-        if idr_balance < trade_amount:
+        if idr < trade_amount:
 
-            print("NOT ENOUGH IDR")
+            print(
+                "NOT ENOUGH IDR"
+            )
 
-            return None
+            return
 
-        best_ask, best_bid = get_best_prices(
+        ticker = exchange.fetch_ticker(
             symbol
         )
 
-        if not best_ask:
+        ask_price = ticker['ask']
 
-            print("NO BEST ASK")
-
-            return None
-
-        buy_price = best_ask * (
-            1 +
-            config.BUY_SLIPPAGE
-        )
-
-        buy_price = round(
-            buy_price,
-            8
+        buy_price = (
+            ask_price *
+            (
+                1 +
+                config.BUY_SLIPPAGE
+            )
         )
 
         amount = (
-            trade_amount
-            / buy_price
+            trade_amount /
+            buy_price
         )
 
-        amount = round(
-            amount,
-            8
-        )
-
-        print(
-            "BUY ORDER:",
+        order = exchange.create_limit_buy_order(
             symbol,
             amount,
             buy_price
         )
 
-        order = exchange.create_order(
-            symbol=symbol,
-            type="limit",
-            side="buy",
-            amount=amount,
-            price=buy_price
-        )
-
         print(
-            "BUY SUCCESS:",
-            order
+            "BUY ORDER:",
+            symbol
         )
 
-        return {
+        time.sleep(10)
+
+        try:
+
+            order_info = exchange.fetch_order(
+                order['id'],
+                symbol
+            )
+
+            if (
+                order_info['status']
+                != 'closed'
+            ):
+
+                exchange.cancel_order(
+                    order['id'],
+                    symbol,
+                    {
+                        'side': 'buy'
+                    }
+                )
+
+                print(
+                    "BUY CANCELLED:",
+                    symbol
+                )
+
+                return
+
+        except Exception as e:
+
+            print(
+                "BUY CHECK ERROR:",
+                str(e)
+            )
+
+            return
+
+        tp_price = (
+            buy_price *
+            (
+                1 +
+                (
+                    config.TAKE_PROFIT
+                    / 100
+                )
+            )
+        )
+
+        sl_price = (
+            buy_price *
+            (
+                1 -
+                (
+                    config.STOP_LOSS
+                    / 100
+                )
+            )
+        )
+
+        active_trade = {
+
+            "symbol":
+            symbol,
+
+            "buy_price":
+            round(
+                buy_price,
+                8
+            ),
+
+            "current_price":
+            round(
+                buy_price,
+                8
+            ),
+
+            "tp_price":
+            round(
+                tp_price,
+                8
+            ),
+
+            "sl_price":
+            round(
+                sl_price,
+                8
+            ),
 
             "amount":
             amount,
 
-            "order":
-            order,
+            "highest_price":
+            round(
+                buy_price,
+                8
+            ),
 
-            "buy_price":
-            buy_price,
-
-            "trade_amount":
-            trade_amount
+            "profit_percent":
+            0
 
         }
+
+        save_trade()
+
+        print(
+            "BUY SUCCESS:",
+            symbol
+        )
 
     except Exception as e:
 
@@ -381,66 +303,122 @@ def buy_coin(symbol):
             str(e)
         )
 
-        send_telegram(
-            f"❌ BUY ERROR\n\n{str(e)}"
-        )
 
-        return None
+def sell_coin():
 
-
-def sell_coin(
-    symbol,
-    amount
-):
+    global active_trade
 
     try:
 
-        best_ask, best_bid = get_best_prices(
+        if not active_trade:
+            return
+
+        symbol = active_trade[
+            "symbol"
+        ]
+
+        amount = active_trade[
+            "amount"
+        ]
+
+        ticker = exchange.fetch_ticker(
             symbol
         )
 
-        if not best_bid:
+        bid_price = ticker['bid']
 
-            print("NO BEST BID")
-
-            return None
-
-        sell_price = best_bid * (
-            1 -
-            config.SELL_SLIPPAGE
+        sell_price = (
+            bid_price *
+            (
+                1 -
+                config.SELL_SLIPPAGE
+            )
         )
 
-        sell_price = round(
-            sell_price,
-            8
-        )
-
-        amount = round(
-            amount,
-            8
-        )
-
-        print(
-            "SELL ORDER:",
+        order = exchange.create_limit_sell_order(
             symbol,
             amount,
             sell_price
         )
 
-        order = exchange.create_order(
-            symbol=symbol,
-            type="limit",
-            side="sell",
-            amount=amount,
-            price=sell_price
+        print(
+            "SELL ORDER:",
+            symbol
         )
+
+        time.sleep(10)
+
+        try:
+
+            order_info = exchange.fetch_order(
+                order['id'],
+                symbol
+            )
+
+            if (
+                order_info['status']
+                != 'closed'
+            ):
+
+                exchange.cancel_order(
+                    order['id'],
+                    symbol,
+                    {
+                        'side': 'sell'
+                    }
+                )
+
+                print(
+                    "SELL CANCELLED:",
+                    symbol
+                )
+
+                return
+
+        except Exception as e:
+
+            print(
+                "SELL CHECK ERROR:",
+                str(e)
+            )
+
+            return
+
+        profit_percent = (
+            (
+                sell_price -
+                active_trade[
+                    "buy_price"
+                ]
+            )
+            /
+            active_trade[
+                "buy_price"
+            ]
+        ) * 100
+
+        history.add_trade_history({
+
+            "symbol":
+            symbol,
+
+            "side":
+            "SELL",
+
+            "profit_percent":
+            round(
+                profit_percent,
+                2
+            )
+
+        })
 
         print(
             "SELL SUCCESS:",
-            order
+            symbol
         )
 
-        return order
+        clear_trade()
 
     except Exception as e:
 
@@ -449,445 +427,181 @@ def sell_coin(
             str(e)
         )
 
-        send_telegram(
-            f"❌ SELL ERROR\n\n{str(e)}"
-        )
 
-        return None
-
-
-def trader_loop():
+def monitor_trade():
 
     global active_trade
-    global cooldown_until
-    global loss_streak
 
-    print("TRADER STARTED")
+    try:
 
-    send_telegram(
-        "🤖 INDODAX BOT STARTED"
+        if not active_trade:
+            return
+
+        symbol = active_trade[
+            "symbol"
+        ]
+
+        ticker = exchange.fetch_ticker(
+            symbol
+        )
+
+        current_price = ticker['last']
+
+        active_trade[
+            "current_price"
+        ] = round(
+            current_price,
+            8
+        )
+
+        profit_percent = (
+            (
+                current_price -
+                active_trade[
+                    "buy_price"
+                ]
+            )
+            /
+            active_trade[
+                "buy_price"
+            ]
+        ) * 100
+
+        active_trade[
+            "profit_percent"
+        ] = round(
+            profit_percent,
+            2
+        )
+
+        if (
+            current_price >
+            active_trade[
+                "highest_price"
+            ]
+        ):
+
+            active_trade[
+                "highest_price"
+            ] = current_price
+
+        if config.TRAILING_STOP:
+
+            trailing_stop_price = (
+                active_trade[
+                    "highest_price"
+                ]
+                *
+                (
+                    1 -
+                    (
+                        config.TRAILING_GAP
+                        / 100
+                    )
+                )
+            )
+
+            if (
+                current_price <
+                trailing_stop_price
+            ):
+
+                print(
+                    "TRAILING STOP HIT"
+                )
+
+                sell_coin()
+
+                return
+
+        if (
+            current_price >=
+            active_trade[
+                "tp_price"
+            ]
+        ):
+
+            print(
+                "TAKE PROFIT HIT"
+            )
+
+            sell_coin()
+
+            return
+
+        if (
+            current_price <=
+            active_trade[
+                "sl_price"
+            ]
+        ):
+
+            print(
+                "STOP LOSS HIT"
+            )
+
+            sell_coin()
+
+            return
+
+        save_trade()
+
+    except Exception as e:
+
+        print(
+            "MONITOR ERROR:",
+            str(e)
+        )
+
+
+def trade_loop():
+
+    global active_trade
+
+    print(
+        "TRADER STARTED"
     )
 
-    cancel_all_orders()
-
-    sync_wallet()
+    load_trade()
 
     while True:
 
-        try:
-
-            now = time.time()
-
-            market_data = (
-                scanner.market_data
-            )
+        if not BOT_RUNNING:
 
             print(
-                "MARKET DATA LENGTH:",
-                len(market_data)
+                "TRADER PAUSED"
             )
 
-            if now < cooldown_until:
+            time.sleep(5)
 
-                remain = int(
-                    cooldown_until - now
-                )
+            continue
 
-                print(
-                    "COOLDOWN ACTIVE:",
-                    remain,
-                    "seconds"
-                )
+        try:
 
-                time.sleep(
-                    config.TRADER_INTERVAL
-                )
+            if active_trade:
 
-                continue
-
-            if active_trade is None:
-
-                print(
-                    "SEARCHING ENTRY..."
-                )
-
-                for coin in market_data:
-
-                    print(
-                        "CHECK:",
-                        coin["symbol"],
-                        coin["signal"],
-                        coin["score"]
-                    )
-
-                    if coin["signal"] not in [
-                        "STRONG BUY",
-                        "BUY"
-                    ]:
-                        continue
-
-                    print(
-                        "TRY BUY:",
-                        coin["symbol"]
-                    )
-
-                    buy_result = buy_coin(
-                        coin["symbol"]
-                    )
-
-                    if buy_result:
-
-                        order_id = (
-                            buy_result["order"]["id"]
-                        )
-
-                        filled = wait_order_filled(
-                            order_id,
-                            coin["symbol"]
-                        )
-
-                        if not filled:
-
-                            print(
-                                "ORDER NOT FILLED"
-                            )
-
-                            continue
-
-                        amount = (
-                            buy_result["amount"]
-                        )
-
-                        real_buy_price = (
-                            buy_result["buy_price"]
-                        )
-
-                        trade_amount = (
-                            buy_result["trade_amount"]
-                        )
-
-                        tp_price = (
-                            real_buy_price
-                            *
-                            (
-                                1 +
-                                config.TAKE_PROFIT
-                                / 100
-                            )
-                        )
-
-                        sl_price = (
-                            real_buy_price
-                            *
-                            (
-                                1 -
-                                config.STOP_LOSS
-                                / 100
-                            )
-                        )
-
-                        active_trade = {
-
-                            "symbol":
-                            coin["symbol"],
-
-                            "buy_price":
-                            real_buy_price,
-
-                            "current_price":
-                            real_buy_price,
-
-                            "tp_price":
-                            tp_price,
-
-                            "sl_price":
-                            sl_price,
-
-                            "highest_price":
-                            real_buy_price,
-
-                            "profit_percent":
-                            0,
-
-                            "amount":
-                            amount,
-
-                            "trade_amount":
-                            trade_amount,
-
-                            "status":
-                            "OPEN"
-
-                        }
-
-                        save_trade(
-                            active_trade
-                        )
-
-                        print(
-                            "ACTIVE TRADE:",
-                            active_trade
-                        )
-
-                        send_telegram(
-                            f"🟢 BUY\n\n"
-                            f"{coin['symbol']}\n"
-                            f"Buy: {real_buy_price}\n"
-                            f"Modal: Rp {trade_amount:,.0f}"
-                        )
-
-                        break
+                monitor_trade()
 
             else:
 
-                print(
-                    "MONITORING:",
-                    active_trade["symbol"]
-                )
+                for coin in scanner.market_data:
 
-                for coin in market_data:
+                    signal = coin[
+                        "signal"
+                    ]
 
-                    if (
-                        coin["symbol"]
-                        !=
-                        active_trade["symbol"]
-                    ):
-                        continue
+                    symbol = coin[
+                        "symbol"
+                    ]
 
-                    current_price = float(
-                        coin["price"]
-                    )
+                    if signal in [
+                        "BUY",
+                        "STRONG BUY"
+                    ]:
 
-                    active_trade[
-                        "current_price"
-                    ] = current_price
-
-                    profit = (
-                        (
-                            current_price
-                            -
-                            active_trade[
-                                "buy_price"
-                            ]
+                        buy_coin(
+                            symbol
                         )
-                        /
-                        active_trade[
-                            "buy_price"
-                        ]
-                    ) * 100
-
-                    active_trade[
-                        "profit_percent"
-                    ] = round(
-                        profit,
-                        2
-                    )
-
-                    print(
-                        "CURRENT PROFIT:",
-                        active_trade[
-                            "profit_percent"
-                        ]
-                    )
-
-                    if (
-                        current_price >
-                        active_trade[
-                            "highest_price"
-                        ]
-                    ):
-
-                        active_trade[
-                            "highest_price"
-                        ] = current_price
-
-                        save_trade(
-                            active_trade
-                        )
-
-                    trailing_price = (
-                        active_trade[
-                            "highest_price"
-                        ]
-                        *
-                        (
-                            1 -
-                            config.TRAILING_GAP
-                            / 100
-                        )
-                    )
-
-                    if (
-                        current_price >=
-                        active_trade[
-                            "tp_price"
-                        ]
-                    ):
-
-                        sell_result = sell_coin(
-                            active_trade[
-                                "symbol"
-                            ],
-                            active_trade[
-                                "amount"
-                            ]
-                        )
-
-                        if sell_result:
-
-                            loss_streak = 0
-
-                            add_trade_history(
-
-                                active_trade["symbol"],
-                                "TP",
-
-                                active_trade["buy_price"],
-
-                                current_price,
-
-                                active_trade["profit_percent"]
-
-                            )
-
-                            send_telegram(
-                                f"🎯 TAKE PROFIT\n\n"
-                                f"{active_trade['symbol']}\n"
-                                f"Profit: "
-                                f"{active_trade['profit_percent']}%\n"
-                                f"Modal: Rp "
-                                f"{active_trade['trade_amount']:,.0f}"
-                            )
-
-                            clear_trade()
-
-                            active_trade = None
-
-                        break
-
-                    elif (
-                        current_price <=
-                        active_trade[
-                            "sl_price"
-                        ]
-                    ):
-
-                        sell_result = sell_coin(
-                            active_trade[
-                                "symbol"
-                            ],
-                            active_trade[
-                                "amount"
-                            ]
-                        )
-
-                        if sell_result:
-
-                            loss_streak += 1
-
-                            if loss_streak >= 2:
-
-                                cooldown_until = (
-                                    time.time()
-                                    + 3600
-                                )
-
-                                send_telegram(
-                                    "🧊 BOT COOLDOWN 1 HOUR"
-                                )
-
-                            else:
-
-                                cooldown_until = (
-                                    time.time()
-                                    + 1800
-                                )
-
-                                send_telegram(
-                                    "🧊 BOT COOLDOWN 30 MIN"
-                                )
-
-                            add_trade_history(
-
-                                active_trade["symbol"],
-                                "SL",
-
-                                active_trade["buy_price"],
-
-                                current_price,
-
-                                active_trade["profit_percent"]
-
-                            )
-
-                            send_telegram(
-                                f"🔴 STOP LOSS\n\n"
-                                f"{active_trade['symbol']}\n"
-                                f"Loss: "
-                                f"{active_trade['profit_percent']}%\n"
-                                f"Modal: Rp "
-                                f"{active_trade['trade_amount']:,.0f}"
-                            )
-
-                            clear_trade()
-
-                            active_trade = None
-
-                        break
-
-                    elif (
-
-                        config.TRAILING_STOP
-
-                        and
-
-                        current_price <=
-                        trailing_price
-
-                        and
-
-                        profit > 0
-
-                    ):
-
-                        sell_result = sell_coin(
-                            active_trade[
-                                "symbol"
-                            ],
-                            active_trade[
-                                "amount"
-                            ]
-                        )
-
-                        if sell_result:
-
-                            loss_streak = 0
-
-                            add_trade_history(
-
-                                active_trade["symbol"],
-                                "TRAILING",
-
-                                active_trade["buy_price"],
-
-                                current_price,
-
-                                active_trade["profit_percent"]
-
-                            )
-
-                            send_telegram(
-                                f"🚀 TRAILING STOP\n\n"
-                                f"{active_trade['symbol']}\n"
-                                f"Profit: "
-                                f"{active_trade['profit_percent']}%\n"
-                                f"Modal: Rp "
-                                f"{active_trade['trade_amount']:,.0f}"
-                            )
-
-                            clear_trade()
-
-                            active_trade = None
 
                         break
 
@@ -896,10 +610,6 @@ def trader_loop():
             print(
                 "TRADER ERROR:",
                 str(e)
-            )
-
-            send_telegram(
-                f"❌ TRADER ERROR\n\n{str(e)}"
             )
 
         time.sleep(
@@ -914,7 +624,7 @@ def start_trader():
     )
 
     thread = threading.Thread(
-        target=trader_loop
+        target=trade_loop
     )
 
     thread.daemon = True
