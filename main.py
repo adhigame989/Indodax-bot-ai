@@ -28,18 +28,39 @@ start_scanner()
 start_trader()
 
 
+LIVE_LOGS = [
+    "Scanner started",
+    "BTC bullish confirmed",
+    "Market scan running",
+    "Anti-FOMO active",
+    "Monitoring market"
+]
+
+
 def topbar():
 
     return """
 
     <div class="topbar">
 
-        <div class="logo">
-            INDODAX AI BOT
+        <div>
+
+            <div class="logo">
+                INDODAX AI BOT
+            </div>
+
+            <div class="subtitle">
+                AI Trading Dashboard
+            </div>
+
         </div>
 
-        <div class="subtitle">
-            AI Trading Dashboard
+        <div class="topbar-right">
+
+            <div class="online-box">
+                ● ONLINE
+            </div>
+
         </div>
 
     </div>
@@ -133,6 +154,10 @@ def style():
                 0.15
             );
 
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+
         }
 
         .logo {
@@ -152,6 +177,25 @@ def style():
             color:#94a3b8;
 
             font-size:14px;
+
+        }
+
+        .online-box {
+
+            background:#052e16;
+            color:#4ade80;
+            padding:10px 16px;
+            border-radius:999px;
+            font-size:13px;
+            font-weight:bold;
+
+            box-shadow:
+            0 0 15px rgba(
+                34,
+                197,
+                94,
+                0.3
+            );
 
         }
 
@@ -229,7 +273,7 @@ def style():
             grid-template-columns:
             repeat(
                 auto-fit,
-                minmax(160px,1fr)
+                minmax(180px,1fr)
             );
 
             gap:14px;
@@ -252,7 +296,15 @@ def style():
 
             border-radius:22px;
 
-            padding:18px;
+            padding:20px;
+
+            box-shadow:
+            0 0 20px rgba(
+                14,
+                165,
+                233,
+                0.08
+            );
 
         }
 
@@ -268,7 +320,7 @@ def style():
 
         .card-value {
 
-            font-size:28px;
+            font-size:30px;
 
             font-weight:bold;
 
@@ -384,6 +436,14 @@ def style():
             border-radius:22px;
 
             padding:18px;
+
+            box-shadow:
+            0 0 20px rgba(
+                14,
+                165,
+                233,
+                0.08
+            );
 
         }
 
@@ -567,6 +627,20 @@ def style():
 
         }
 
+        @media (min-width: 900px) {
+
+            body {
+                max-width:1400px;
+                margin:auto;
+            }
+
+            .stats-grid {
+                grid-template-columns:
+                repeat(4,1fr);
+            }
+
+        }
+
     </style>
 
     """
@@ -612,6 +686,10 @@ def sw():
         )
 
     }
+
+    setInterval(() => {
+        location.reload()
+    }, 30000)
 
     </script>
 
@@ -758,6 +836,145 @@ def home():
 
     </div>
 
+    <div class="section-title">
+        MARKET OVERVIEW
+    </div>
+
+    <div class="scanner-grid">
+    """
+
+    for coin in market_data[:4]:
+
+        signal_class = "wait"
+
+        if coin['signal'] == "BUY":
+            signal_class = "buy"
+
+        elif coin['signal'] == "STRONG BUY":
+            signal_class = "strong-buy"
+
+        elif coin['signal'] == "WATCH":
+            signal_class = "watch"
+
+        html += f"""
+
+        <div class="coin-card">
+
+            <div class="coin-name">
+                {coin['symbol']}
+            </div>
+
+            <div class="signal {signal_class}">
+                {coin['signal']}
+            </div>
+
+            <div class="row">
+                <span>Score</span>
+                <span>{coin['score']}</span>
+            </div>
+
+            <div class="row">
+                <span>RSI</span>
+                <span>{coin['rsi']}</span>
+            </div>
+
+            <div class="row">
+                <span>Price</span>
+                <span>{coin['price']}</span>
+            </div>
+
+        </div>
+
+        """
+
+    html += """
+
+    </div>
+
+    <div class="section-title">
+        ACTIVE POSITION
+    </div>
+    """
+
+    if trader.active_trade:
+
+        profit_class = "green"
+
+        if (
+            trader.active_trade[
+                "profit_percent"
+            ] < 0
+        ):
+            profit_class = "red"
+
+        html += f"""
+
+        <div class="trade-box">
+
+            <div class="trade-symbol">
+                {trader.active_trade['symbol']}
+            </div>
+
+            <div class="row">
+                <span>Buy Price</span>
+                <span>
+                {trader.active_trade['buy_price']}
+                </span>
+            </div>
+
+            <div class="row">
+                <span>Current</span>
+                <span>
+                {trader.active_trade['current_price']}
+                </span>
+            </div>
+
+            <div class="profit-big {profit_class}">
+                {trader.active_trade['profit_percent']}%
+            </div>
+
+        </div>
+
+        """
+
+    else:
+
+        html += """
+
+        <div class="trade-box">
+
+            <div class="trade-symbol">
+                NO ACTIVE TRADE
+            </div>
+
+        </div>
+
+        """
+
+    html += """
+
+    <div class="section-title">
+        LIVE LOGS
+    </div>
+
+    <div class="trade-box">
+    """
+
+    for log in LIVE_LOGS:
+
+        html += f"""
+
+        <div class="row">
+            <span>●</span>
+            <span>{log}</span>
+        </div>
+
+        """
+
+    html += f"""
+
+    </div>
+
     {sw()}
 
     </body>
@@ -886,175 +1103,6 @@ def scanner_page():
     html += f"""
 
     </div>
-
-    {sw()}
-
-    </body>
-
-    </html>
-
-    """
-
-    return html
-
-
-@app.route("/position")
-def position_page():
-
-    html = f"""
-
-    <html>
-
-    <head>
-
-    <title>
-    Position
-    </title>
-
-    {pwa()}
-
-    {style()}
-
-    </head>
-
-    <body>
-
-    {topbar()}
-
-    """
-
-    if trader.active_trade:
-
-        profit_class = "green"
-
-        if (
-            trader.active_trade[
-                "profit_percent"
-            ] < 0
-        ):
-
-            profit_class = "red"
-
-        html += f"""
-
-        <div class="section-title">
-            OPEN POSITION
-        </div>
-
-        <div class="trade-box">
-
-            <div class="trade-symbol">
-                {trader.active_trade['symbol']}
-            </div>
-
-            <div class="row">
-                <span>Buy Price</span>
-                <span>
-                {trader.active_trade['buy_price']}
-                </span>
-            </div>
-
-            <div class="row">
-                <span>Current Price</span>
-                <span>
-                {trader.active_trade['current_price']}
-                </span>
-            </div>
-
-            <div class="profit-big {profit_class}">
-                {trader.active_trade['profit_percent']}%
-            </div>
-
-        </div>
-
-        """
-
-    else:
-
-        html += """
-
-        <div class="trade-box">
-
-            <div class="trade-symbol">
-                NO ACTIVE TRADE
-            </div>
-
-        </div>
-
-        """
-
-    html += f"""
-
-    {sw()}
-
-    </body>
-
-    </html>
-
-    """
-
-    return html
-
-
-@app.route("/history")
-def history_page():
-
-    stats = get_stats()
-
-    html = f"""
-
-    <html>
-
-    <head>
-
-    <title>
-    History
-    </title>
-
-    {pwa()}
-
-    {style()}
-
-    </head>
-
-    <body>
-
-    {topbar()}
-
-    <div class="section-title">
-        TRADE HISTORY
-    </div>
-
-    """
-
-    for trade_data in stats['history'][:30]:
-
-        color = "green"
-
-        if trade_data['profit_percent'] < 0:
-            color = "red"
-
-        html += f"""
-
-        <div class="history-card">
-
-            <div class="row">
-                <span>{trade_data['symbol']}</span>
-                <span class="{color}">
-                {trade_data['profit_percent']}%
-                </span>
-            </div>
-
-            <div class="row">
-                <span>{trade_data['side']}</span>
-                <span>{trade_data['time']}</span>
-            </div>
-
-        </div>
-
-        """
-
-    html += f"""
 
     {sw()}
 
