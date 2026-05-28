@@ -22,7 +22,7 @@ from history import (
 
 app = Flask(__name__)
 
-BOT_RUNNING = True
+BOT_RUNNING = False
 
 start_scanner()
 start_trader()
@@ -572,6 +572,52 @@ def style():
     """
 
 
+def pwa():
+
+    return """
+
+    <link
+    rel="manifest"
+    href="/static/manifest.json">
+
+    <meta
+    name="theme-color"
+    content="#0ea5e9">
+
+    <meta
+    name="mobile-web-app-capable"
+    content="yes">
+
+    <meta
+    name="apple-mobile-web-app-capable"
+    content="yes">
+
+    <meta
+    name="apple-mobile-web-app-status-bar-style"
+    content="black-translucent">
+
+    """
+
+
+def sw():
+
+    return """
+
+    <script>
+
+    if ('serviceWorker' in navigator) {
+
+        navigator.serviceWorker.register(
+            '/static/sw.js'
+        )
+
+    }
+
+    </script>
+
+    """
+
+
 @app.route("/")
 def home():
 
@@ -607,6 +653,12 @@ def home():
     <html>
 
     <head>
+
+    <title>
+    INDODAX AI BOT
+    </title>
+
+    {pwa()}
 
     {style()}
 
@@ -706,6 +758,8 @@ def home():
 
     </div>
 
+    {sw()}
+
     </body>
 
     </html>
@@ -762,6 +816,12 @@ def scanner_page():
     <html>
 
     <head>
+
+    <title>
+    Scanner
+    </title>
+
+    {pwa()}
 
     {style()}
 
@@ -823,9 +883,11 @@ def scanner_page():
 
         """
 
-    html += """
+    html += f"""
 
     </div>
+
+    {sw()}
 
     </body>
 
@@ -844,6 +906,12 @@ def position_page():
     <html>
 
     <head>
+
+    <title>
+    Position
+    </title>
+
+    {pwa()}
 
     {style()}
 
@@ -915,7 +983,9 @@ def position_page():
 
         """
 
-    html += """
+    html += f"""
+
+    {sw()}
 
     </body>
 
@@ -936,6 +1006,12 @@ def history_page():
     <html>
 
     <head>
+
+    <title>
+    History
+    </title>
+
+    {pwa()}
 
     {style()}
 
@@ -978,7 +1054,9 @@ def history_page():
 
         """
 
-    html += """
+    html += f"""
+
+    {sw()}
 
     </body>
 
