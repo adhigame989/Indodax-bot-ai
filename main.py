@@ -172,6 +172,8 @@ def home():
         html += f"#{i} {coin['symbol']} | {coin['signal']} | Score {coin['score']}<br>"
     html += "</div>"
 
+    html += auto_refresh()
+    html += "</body></html>"
     <script>
     function updateClock(){
     const now=new Date();
@@ -181,9 +183,6 @@ def home():
     updateClock();
     setInterval(updateClock,1000);
     </script>
-
-    html += auto_refresh()
-    html += "</body></html>"
     return html
 
 
