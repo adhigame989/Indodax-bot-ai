@@ -176,7 +176,7 @@ def home():
     html += f"""
     <div class="trade-box">
     <b>MARKET STATUS</b><br><br>
-    BOT : {'RUNNING' if BOT_RUNNING else 'STOPPED'}<br>
+    BOT : {BOT_STATUS}
     TIMEFRAME : {config.TIMEFRAME}<br>
     SCANNED COINS : {len(scanner.market_data)}<br>
     BTC FILTER : {btc_status}
