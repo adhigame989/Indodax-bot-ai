@@ -2,6 +2,7 @@ from flask import Flask, redirect
 import ccxt
 import os
 from datetime import datetime
+from zoneinfo import ZoneInfo
 import config
 import trader
 import scanner
@@ -75,8 +76,9 @@ def auto_refresh():
 @app.route("/")
 def home():
     stats = get_stats()
-    now = datetime.now().strftime("%H:%M:%S")
-
+    now = datetime.now(
+        ZoneInfo("Asia/Jakarta")
+    ).strftime("%H:%M:%S")
     wallet = 0
     try:
         exchange = ccxt.indodax({
@@ -136,22 +138,6 @@ def home():
     html += "<div class='trade-box'><b>TOP SIGNALS</b><br><br>"
     for i, coin in enumerate(scanner.market_data[:10], start=1):
         html += f"#{i} {coin['symbol']} | {coin['signal']} | Score {coin['score']}<br>"
-    html += "</div>"
-    html += """
-    <div class='trade-box'>
-
-    <b>LIVE LOGS</b>
-
-    <br><br>
-    """
-
-    for log in scanner.recent_logs:
-
-        html += f"""
-        {log}
-        <br>
-        """
-
     html += "</div>"
 
     html += auto_refresh()
