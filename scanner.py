@@ -198,36 +198,52 @@ def check_btc_market():
 
         ohlcv = exchange.fetch_ohlcv(
             "BTC/IDR",
-            timeframe=config.TIMEFRAME,
-            limit=60
+            timeframe="1h",
+            limit=100
         )
 
         if not ohlcv:
-            return True
+            return "NEUTRAL"
 
         df = pd.DataFrame(
             ohlcv,
             columns=[
-                'time',
-                'open',
-                'high',
-                'low',
-                'close',
-                'volume'
+                "time",
+                "open",
+                "high",
+                "low",
+                "close",
+                "volume"
             ]
         )
 
-        close = df['close']
+        close = df["close"]
+
+        rsi = ta.momentum.RSIIndicator(
+            close
+        ).rsi()
+
+        ema20 = ta.trend.EMAIndicator(
+            close,
+            window=20
+        ).ema_indicator()
+
+        ema50 = ta.trend.EMAIndicator(
+            close,
+            window=50
+        ).ema_indicator()
+
+        latest_rsi = rsi.iloc[-1]
+
+        latest_ema20 = ema20.iloc[-1]
+
+        latest_ema50 = ema50.iloc[-1]
 
         latest_price = close.iloc[-1]
 
-        latest_open = df['open'].iloc[-1]
+        latest_open = df["open"].iloc[-1]
 
-        btc_rsi = ta.momentum.RSIIndicator(
-            close
-        ).rsi().iloc[-1]
-
-        btc_dump = (
+        btc_change = (
             (
                 latest_price -
                 latest_open
@@ -236,13 +252,21 @@ def check_btc_market():
             latest_open
         ) * 100
 
-        if btc_dump <= -3:
-            return False
+        if (
+            btc_change <= -3
+            or
+            latest_rsi < 35
+        ):
+            return "PANIC"
 
-        if btc_rsi < 35:
-            return False
+        if (
+            latest_rsi > 55
+            and
+            latest_ema20 > latest_ema50
+        ):
+            return "BULLISH"
 
-        return True
+        return "NEUTRAL"
 
     except Exception as e:
 
@@ -251,7 +275,7 @@ def check_btc_market():
             str(e)
         )
 
-        return True
+        return "NEUTRAL"
 
 
 def build_market_universe(tickers):
@@ -414,8 +438,7 @@ def scan_market():
 
             tickers = exchange.fetch_tickers()
 
-            btc_safe = check_btc_market()
-
+            btc_status = check_btc_market()
             print(
                 "BTC SAFE:",
                 btc_safe
@@ -469,7 +492,7 @@ def scan_market():
                     if not ask:
                         continue
 
-                    if not btc_safe:
+                    if btc_status == "PANIC":
 
                         print(
                             "BTC PANIC:",
@@ -592,14 +615,30 @@ def scan_market():
 
                     signal = "WAIT"
 
-                    if multi_tf_score >= 75:
-                        signal = "STRONG BUY"
+                    signal = "WAIT"
 
-                    elif multi_tf_score >= 55:
-                        signal = "BUY"
+                    if btc_status == "BULLISH":
 
-                    elif multi_tf_score >= 35:
-                        signal = "WATCH"
+                        if multi_tf_score >= 75:
+                            signal = "STRONG BUY"
+
+                        elif multi_tf_score >= 55:
+                            signal = "BUY"
+
+                        elif multi_tf_score >= 35:
+                            signal = "WATCH"
+
+                    elif btc_status == "NEUTRAL":
+
+                        if multi_tf_score >= 75:
+                            signal = "STRONG BUY"
+
+                        elif multi_tf_score >= 35:
+                            signal = "WATCH"
+
+                    else:
+
+                        signal = "WAIT"
 
                     spread = (
                         (ask - bid)
