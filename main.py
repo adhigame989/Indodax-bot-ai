@@ -31,9 +31,6 @@ def style():
     <style>
     body{background:#020617;color:white;font-family:Arial,sans-serif;margin:0;padding:15px;padding-bottom:90px}
     .topbar{background:#0f172a;padding:20px;border-radius:20px;border:1px solid #1e293b;margin-bottom:15px}
-    .top-header{display:flex;justify-content:space-between;align-items:flex-start;}
-    .datetime{text-align:right;color:#94a3b8;font-size:13px;line-height:1.7;}
-    .creator{color:#38bdf8;margin-top:8px;}
     .logo{font-size:28px;font-weight:bold;color:#38bdf8}
     .subtitle{color:#94a3b8}
     .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
