@@ -137,6 +137,22 @@ def home():
     for i, coin in enumerate(scanner.market_data[:10], start=1):
         html += f"#{i} {coin['symbol']} | {coin['signal']} | Score {coin['score']}<br>"
     html += "</div>"
+    html += """
+    <div class='trade-box'>
+
+    <b>LIVE LOGS</b>
+
+    <br><br>
+    """
+
+    for log in scanner.recent_logs:
+
+        html += f"""
+        {log}
+        <br>
+        """
+
+    html += "</div>"
 
     html += auto_refresh()
     html += "</body></html>"
