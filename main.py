@@ -51,11 +51,54 @@ def style():
 
 
 def topbar():
-    return """
+
+    now = datetime.now(
+        ZoneInfo("Asia/Jakarta")
+    )
+
+    tanggal = now.strftime(
+        "%d-%m-%Y"
+    )
+
+    jam = now.strftime(
+        "%H:%M:%S WIB"
+    )
+
+    return f"""
     <div class="topbar">
-        <div class="logo">INDODAX AI BOT</div>
-        <div class="subtitle">Premium Dashboard V3.4</div>
+
+        <div class="top-header">
+
+            <div>
+
+                <div class="logo">
+                    INDODAX AI BOT
+                </div>
+
+                <div class="subtitle">
+                    Premium Dashboard V3.6
+                </div>
+
+                <div class="creator">
+                    By: Adhi Prasetyo
+                </div>
+
+            </div>
+
+            <div class="datetime">
+
+                {tanggal}
+
+                <br>
+
+                {jam}
+
+            </div>
+
+        </div>
+
     </div>
+
     <div class="bottom-nav">
         <a href="/">🏠 Home</a>
         <a href="/scanner">📈 Scanner</a>
