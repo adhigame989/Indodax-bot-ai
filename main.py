@@ -121,18 +121,20 @@ def home():
     </div>
     """
 
+    btc_status = "PASS" if scanner.check_btc_market() else "BLOCKED"
+    
     html += f"""
     <div class="trade-box">
     <b>MARKET STATUS</b><br><br>
     BOT : {'RUNNING' if BOT_RUNNING else 'STOPPED'}<br>
     TIMEFRAME : {config.TIMEFRAME}<br>
     SCANNED COINS : {len(scanner.market_data)}<br>
-    BTC FILTER : ACTIVE
+    BTC FILTER : {btc_status}
     </div>
     """
 
     html += "<div class='trade-box'><b>TOP SIGNALS</b><br><br>"
-    for i, coin in enumerate(scanner.market_data[:5], start=1):
+    for i, coin in enumerate(scanner.market_data[:10], start=1):
         html += f"#{i} {coin['symbol']} | {coin['signal']} | Score {coin['score']}<br>"
     html += "</div>"
 
