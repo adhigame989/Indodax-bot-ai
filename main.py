@@ -7,10 +7,7 @@ import config
 import trader
 import scanner
 
-from scanner import (
-    market_data,
-    start_scanner
-)
+from scanner import start_scanner
 
 from trader import (
     start_trader
@@ -843,7 +840,7 @@ def home():
     <div class="scanner-grid">
     """
 
-    for coin in market_data[:4]:
+    for coin in scanner.market_data[:4]:
 
         signal_class = "wait"
 
@@ -1056,7 +1053,7 @@ def scanner_page():
 
     """
 
-    for coin in market_data:
+    for coin in scanner.market_data:
 
         signal_class = "wait"
 
