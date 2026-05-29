@@ -14,6 +14,7 @@ from history import get_stats
 app = Flask(__name__)
 
 BOT_RUNNING = False
+BOT_STATUS = "STOPPED"
 
 start_scanner()
 start_trader()
@@ -142,11 +143,17 @@ def home():
     </div>
     """
 
+    if BOT_STATUS == "RUNNING":
     status_text = "🟢 BOT RUNNING"
     status_class = "green"
-    if not BOT_RUNNING:
-        status_text = "🔴 BOT STOPPED"
-        status_class = "red"
+
+    elif BOT_STATUS == "PAUSED":
+    status_text = "🟡 BOT PAUSED"
+    status_class = "yellow"
+
+    else:
+    status_text = "🔴 BOT STOPPED"
+    status_class = "red"
 
     html += f"""
     <div class="trade-box">
@@ -203,6 +210,7 @@ def home():
 def start_bot():
     global BOT_RUNNING
     BOT_RUNNING=True
+    BOT_STATUS = "RUNNING"
     trader.BOT_RUNNING=True
     scanner.BOT_RUNNING=True
     return redirect("/")
@@ -211,15 +219,21 @@ def start_bot():
 @app.route("/pause")
 def pause_bot():
     global BOT_RUNNING
-    BOT_RUNNING=False
+    BOT_RUNNING=True
+    BOT_STATUS = "PAUSED"
     trader.BOT_RUNNING=False
-    scanner.BOT_RUNNING=False
+    scanner.BOT_RUNNING=True
     return redirect("/")
 
 
 @app.route("/stop")
 def stop_bot():
-    return pause_bot()
+    global BOT_RUNNING
+    BOT_RUNNING = False
+    BOT_STATUS = "STOPPED"
+    scanner.BOT_RUNNING = False
+    trader.BOT_RUNNING = False
+    return redirect("/")
 
 
 @app.route("/scanner")
