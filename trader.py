@@ -6,6 +6,7 @@ import os
 import config
 import history
 import scanner
+import telegram_bot
 
 BOT_RUNNING = False
 
@@ -295,6 +296,15 @@ def buy_coin(symbol):
             "BUY SUCCESS:",
             symbol
         )
+        telegram_bot.send_telegram(
+
+            f"🟢 BUY SUCCESS\n\n"
+            f"Coin: {symbol}\n"
+            f"Buy Price: {buy_price:.8f}\n"
+            f"TP: {tp_price:.8f}\n"
+            f"SL: {sl_price:.8f}"
+
+        )
 
     except Exception as e:
 
@@ -417,6 +427,14 @@ def sell_coin():
             "SELL SUCCESS:",
             symbol
         )
+        telegram_bot.send_telegram(
+
+            f"🔴 SELL SUCCESS\n\n"
+            f"Coin: {symbol}\n"
+            f"Sell Price: {sell_price:.8f}\n"
+            f"Profit: {profit_percent:.2f}%"
+
+        )
 
         clear_trade()
 
@@ -509,6 +527,9 @@ def monitor_trade():
                 print(
                     "TRAILING STOP HIT"
                 )
+                telegram_bot.send_telegram(
+                    f"⚠️ TRAILING STOP HIT\n\n{symbol}"
+                )
 
                 sell_coin()
 
@@ -524,6 +545,9 @@ def monitor_trade():
             print(
                 "TAKE PROFIT HIT"
             )
+            telegram_bot.send_telegram(
+                f"🎯 TAKE PROFIT HIT\n\n{symbol}"
+            )
 
             sell_coin()
 
@@ -538,6 +562,9 @@ def monitor_trade():
 
             print(
                 "STOP LOSS HIT"
+            )
+            telegram_bot.send_telegram(
+                f"🛑 STOP LOSS HIT\n\n{symbol}"
             )
 
             sell_coin()
