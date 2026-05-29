@@ -397,21 +397,21 @@ def sell_coin():
             ]
         ) * 100
 
-        history.add_trade_history({
+        history.add_trade_history(
 
-            "symbol":
             symbol,
 
-            "side":
             "SELL",
 
-            "profit_percent":
-            round(
-                profit_percent,
-                2
-            )
+            active_trade[
+                "buy_price"
+            ],
 
-        })
+            sell_price,
+
+            profit_percent
+
+        )
 
         print(
             "SELL SUCCESS:",
