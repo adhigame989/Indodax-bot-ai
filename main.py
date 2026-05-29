@@ -144,16 +144,16 @@ def home():
     """
 
     if BOT_STATUS == "RUNNING":
-    status_text = "🟢 BOT RUNNING"
-    status_class = "green"
+        status_text = "🟢 BOT RUNNING"
+        status_class = "green"
 
     elif BOT_STATUS == "PAUSED":
-    status_text = "🟡 BOT PAUSED"
-    status_class = "yellow"
+        status_text = "🟡 BOT PAUSED"
+        status_class = "yellow"
 
     else:
-    status_text = "🔴 BOT STOPPED"
-    status_class = "red"
+        status_text = "🔴 BOT STOPPED"
+        status_class = "red"
 
     html += f"""
     <div class="trade-box">
@@ -176,7 +176,7 @@ def home():
     html += f"""
     <div class="trade-box">
     <b>MARKET STATUS</b><br><br>
-    BOT : {BOT_STATUS}
+    BOT : {BOT_STATUS}<br>
     TIMEFRAME : {config.TIMEFRAME}<br>
     SCANNED COINS : {len(scanner.market_data)}<br>
     BTC FILTER : {btc_status}
@@ -209,6 +209,7 @@ def home():
 @app.route("/start")
 def start_bot():
     global BOT_RUNNING
+    global BOT_STATUS
     BOT_RUNNING=True
     BOT_STATUS = "RUNNING"
     trader.BOT_RUNNING=True
@@ -219,6 +220,7 @@ def start_bot():
 @app.route("/pause")
 def pause_bot():
     global BOT_RUNNING
+    global BOT_STATUS
     BOT_RUNNING=True
     BOT_STATUS = "PAUSED"
     trader.BOT_RUNNING=False
@@ -229,6 +231,7 @@ def pause_bot():
 @app.route("/stop")
 def stop_bot():
     global BOT_RUNNING
+    global BOT_STATUS
     BOT_RUNNING = False
     BOT_STATUS = "STOPPED"
     scanner.BOT_RUNNING = False
