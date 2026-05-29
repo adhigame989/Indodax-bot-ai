@@ -1111,6 +1111,160 @@ def scanner_page():
 
     return html
 
+    @app.route("/position")
+def position_page():
+
+    html = f"""
+
+    <html>
+
+    <head>
+
+    <title>Position</title>
+
+    {pwa()}
+
+    {style()}
+
+    </head>
+
+    <body>
+
+    {topbar()}
+
+    """
+
+    if trader.active_trade:
+
+        profit_class = "green"
+
+        if trader.active_trade["profit_percent"] < 0:
+            profit_class = "red"
+
+        html += f"""
+
+        <div class="section-title">
+            OPEN POSITION
+        </div>
+
+        <div class="trade-box">
+
+            <div class="trade-symbol">
+                {trader.active_trade['symbol']}
+            </div>
+
+            <div class="row">
+                <span>Buy Price</span>
+                <span>{trader.active_trade['buy_price']}</span>
+            </div>
+
+            <div class="row">
+                <span>Current Price</span>
+                <span>{trader.active_trade['current_price']}</span>
+            </div>
+
+            <div class="profit-big {profit_class}">
+                {trader.active_trade['profit_percent']}%
+            </div>
+
+        </div>
+
+        """
+
+    else:
+
+        html += """
+
+        <div class="trade-box">
+
+            <div class="trade-symbol">
+                NO ACTIVE TRADE
+            </div>
+
+        </div>
+
+        """
+
+    html += f"""
+
+    {sw()}
+
+    </body>
+
+    </html>
+
+    """
+
+    return html
+
+    @app.route("/history")
+def history_page():
+
+    stats = get_stats()
+
+    html = f"""
+
+    <html>
+
+    <head>
+
+    <title>History</title>
+
+    {pwa()}
+
+    {style()}
+
+    </head>
+
+    <body>
+
+    {topbar()}
+
+    <div class="section-title">
+        TRADE HISTORY
+    </div>
+
+    """
+
+    for trade_data in stats["history"][:30]:
+
+        color = "green"
+
+        if trade_data["profit_percent"] < 0:
+            color = "red"
+
+        html += f"""
+
+        <div class="history-card">
+
+            <div class="row">
+                <span>{trade_data['symbol']}</span>
+                <span class="{color}">
+                    {trade_data['profit_percent']}%
+                </span>
+            </div>
+
+            <div class="row">
+                <span>{trade_data['side']}</span>
+                <span>{trade_data['time']}</span>
+            </div>
+
+        </div>
+
+        """
+
+    html += f"""
+
+    {sw()}
+
+    </body>
+
+    </html>
+
+    """
+
+    return html
+
 
 if __name__ == "__main__":
 
