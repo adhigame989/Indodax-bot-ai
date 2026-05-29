@@ -31,6 +31,9 @@ def style():
     <style>
     body{background:#020617;color:white;font-family:Arial,sans-serif;margin:0;padding:15px;padding-bottom:90px}
     .topbar{background:#0f172a;padding:20px;border-radius:20px;border:1px solid #1e293b;margin-bottom:15px}
+    .top-header{display:flex;justify-content:space-between;align-items:flex-start;}
+    .datetime{text-align:right;color:#94a3b8;font-size:13px;line-height:1.7;}
+    .creator{color:#38bdf8;margin-top:8px;}
     .logo{font-size:28px;font-weight:bold;color:#38bdf8}
     .subtitle{color:#94a3b8}
     .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
@@ -52,19 +55,7 @@ def style():
 
 def topbar():
 
-    now = datetime.now(
-        ZoneInfo("Asia/Jakarta")
-    )
-
-    tanggal = now.strftime(
-        "%d-%m-%Y"
-    )
-
-    jam = now.strftime(
-        "%H:%M:%S WIB"
-    )
-
-    return f"""
+    return """
     <div class="topbar">
 
         <div class="top-header">
@@ -87,11 +78,9 @@ def topbar():
 
             <div class="datetime">
 
-                {tanggal}
+                <div id="live-date"></div>
 
-                <br>
-
-                {jam}
+                <div id="live-clock"></div>
 
             </div>
 
@@ -182,6 +171,16 @@ def home():
     for i, coin in enumerate(scanner.market_data[:10], start=1):
         html += f"#{i} {coin['symbol']} | {coin['signal']} | Score {coin['score']}<br>"
     html += "</div>"
+
+    <script>
+    function updateClock(){
+    const now=new Date();
+    document.getElementById("live-date").innerHTML=now.toLocaleDateString('id-ID');
+    document.getElementById("live-clock").innerHTML=now.toLocaleTimeString('id-ID')+" WIB";
+    }
+    updateClock();
+    setInterval(updateClock,1000);
+    </script>
 
     html += auto_refresh()
     html += "</body></html>"
