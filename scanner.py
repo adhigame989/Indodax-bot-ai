@@ -440,8 +440,8 @@ def scan_market():
 
             btc_status = check_btc_market()
             print(
-                "BTC SAFE:",
-                btc_safe
+                "BTC STATUS:",
+                btc_status
             )
 
             market_universe = (
