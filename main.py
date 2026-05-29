@@ -175,14 +175,6 @@ def home():
     html += auto_refresh()
     html += "</body></html>"
     <script>
-    function updateClock(){
-    const now=new Date();
-    document.getElementById("live-date").innerHTML=now.toLocaleDateString('id-ID');
-    document.getElementById("live-clock").innerHTML=now.toLocaleTimeString('id-ID')+" WIB";
-    }
-    updateClock();
-    setInterval(updateClock,1000);
-    </script>
     return html
 
 
