@@ -52,7 +52,19 @@ def style():
 
 def topbar():
 
-    return """
+    now = datetime.now(
+        ZoneInfo("Asia/Jakarta")
+    )
+
+    tanggal = now.strftime(
+        "%d-%m-%Y"
+    )
+
+    jam = now.strftime(
+        "%H:%M:%S WIB"
+    )
+
+    return f"""
     <div class="topbar">
 
         <div class="top-header">
@@ -75,9 +87,11 @@ def topbar():
 
             <div class="datetime">
 
-                <div id="live-date"></div>
+                {tanggal}
 
-                <div id="live-clock"></div>
+                <br>
+
+                {jam}
 
             </div>
 
