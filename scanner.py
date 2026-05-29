@@ -13,6 +13,8 @@ exchange = ccxt.indodax({
 
 market_data = []
 
+recent_logs = []
+
 
 def get_multi_tf_score(symbol):
 
@@ -648,6 +650,12 @@ def scan_market():
                         "COIN ERROR:",
                         str(e)
                     )
+                    recent_logs.insert(
+                        0,
+                        f"{symbol} | {signal} | {round(multi_tf_score, 2)}"
+                    )
+
+                    recent_logs[:] = recent_logs[:20]
 
                     continue
 
