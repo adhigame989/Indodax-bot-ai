@@ -327,10 +327,14 @@ def sell_coin():
             "symbol"
         ]
 
-        amount = active_trade[
-            "amount"
-        ]
+        base_coin = symbol.split("/")[0]
 
+        balance = exchange.fetch_balance()
+
+        amount = balance["free"].get(
+            base_coin,
+            0
+        )
         ticker = exchange.fetch_ticker(
             symbol
         )
