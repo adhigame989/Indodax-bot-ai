@@ -110,7 +110,7 @@ def topbar():
 def auto_refresh():
     return """
     <script>
-    setTimeout(function(){location.reload();},30000);
+    setTimeout(function(){location.reload();},10000);
     </script>
     """
 
