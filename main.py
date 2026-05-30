@@ -12,6 +12,9 @@ from trader import start_trader
 from history import get_stats
 
 app = Flask(__name__)
+from datetime import datetime
+
+BOT_START_TIME = datetime.now()
 
 BOT_RUNNING = False
 BOT_STATUS = "STOPPED"
@@ -113,11 +116,30 @@ def auto_refresh():
     setTimeout(function(){location.reload();},10000);
     </script>
     """
+    
+def get_uptime():
+
+    delta = datetime.now() - BOT_START_TIME
+
+    days = delta.days
+
+    hours = delta.seconds // 3600
+
+    minutes = (
+        delta.seconds % 3600
+    ) // 60
+
+    return (
+        f"{days}d "
+        f"{hours}h "
+        f"{minutes}m"
+    )
 
 
 @app.route("/")
 def home():
     stats = get_stats()
+    uptime = get_uptime()
     win = stats["win"]
     loss = stats["loss"]
     now = datetime.now(
@@ -220,10 +242,17 @@ def home():
     html += f"""
     <div class="trade-box">
     <b>MARKET STATUS</b><br><br>
+
     BOT : {BOT_STATUS}<br>
+
+    UPTIME : {uptime}<br>
+
     TIMEFRAME : {config.TIMEFRAME}<br>
+
     SCANNED COINS : {len(scanner.market_data)}<br>
+
     BTC STATUS : {btc_view}
+
     </div>
     """
     if trader.active_trade:
