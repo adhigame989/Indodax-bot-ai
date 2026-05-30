@@ -118,6 +118,8 @@ def auto_refresh():
 @app.route("/")
 def home():
     stats = get_stats()
+    win = stats["win"]
+    loss = stats["loss"]
     now = datetime.now(
         ZoneInfo("Asia/Jakarta")
     ).strftime("%H:%M:%S")
@@ -163,15 +165,57 @@ def home():
 
     html += f"""
     <div class="grid">
-      <div class="card"><div class="title">WALLET</div><div class="value green">Rp {wallet:,.0f}</div></div>
-      <div class="card"><div class="title">TRADES</div><div class="value blue">{stats['total_trades']}</div></div>
-      <div class="card"><div class="title">WINRATE</div><div class="value green">{stats['winrate']}%</div></div>
-      <div class="card"><div class="title">PROFIT</div><div class="value yellow">{stats['total_profit']}%</div></div>
-      <div class="card"><div class="title">LAST UPDATE</div><div class="value blue">{now}</div></div>
+
+      <div class="card">
+        <div class="title">WALLET</div>
+        <div class="value green">Rp {wallet:,.0f}</div>
+      </div>
+
+      <div class="card">
+        <div class="title">TRADES</div>
+        <div class="value blue">{stats['total_trades']}</div>
+      </div>
+
+      <div class="card">
+        <div class="title">WINRATE</div>
+        <div class="value green">{stats['winrate']}%</div>
+      </div>
+
+      <div class="card">
+        <div class="title">PROFIT</div>
+        <div class="value yellow">{stats['total_profit']}%</div>
+      </div>
+
+      <div class="card">
+        <div class="title">WIN</div>
+        <div class="value green">{win}</div>
+      </div>
+
+      <div class="card">
+        <div class="title">LOSS</div>
+        <div class="value red">{loss}</div>
+      </div>
+
+      <div class="card">
+        <div class="title">LAST UPDATE</div>
+        <div class="value blue">{now}</div>
+      </div>
+
     </div>
     """
 
-    btc_status = "PASS" if scanner.check_btc_market() else "BLOCKED"
+    btc_status = scanner.check_btc_market()
+    if btc_status == "BULLISH":
+
+        btc_view = "🟢 BULLISH"
+
+    elif btc_status == "NEUTRAL":
+
+        btc_view = "🟡 NEUTRAL"
+
+    else:
+
+        btc_view = "🔴 PANIC"
     
     html += f"""
     <div class="trade-box">
@@ -179,14 +223,65 @@ def home():
     BOT : {BOT_STATUS}<br>
     TIMEFRAME : {config.TIMEFRAME}<br>
     SCANNED COINS : {len(scanner.market_data)}<br>
-    BTC FILTER : {btc_status}
+    BTC STATUS : {btc_view}
     </div>
     """
+    if trader.active_trade:
+
+        t = trader.active_trade
+
+        color = "green"
+
+        if t.get("profit_percent", 0) < 0:
+            color = "red"
+
+        html += f"""
+        <div class="trade-box">
+
+        <b>ACTIVE POSITION</b><br><br>
+
+        Coin : {t['symbol']}<br>
+        Buy : {t['buy_price']}<br>
+
+        <span class="{color}">
+        Profit : {t['profit_percent']}%
+        </span>
+
+        </div>
+        """
+
+    else:
+
+        html += """
+        <div class="trade-box">
+
+        <b>ACTIVE POSITION</b><br><br>
+
+        NO ACTIVE TRADE
+
+        </div>
+        """
 
     html += "<div class='trade-box'><b>TOP SIGNALS</b><br><br>"
     for i, coin in enumerate(scanner.market_data[:10], start=1):
         html += f"#{i} {coin['symbol']} | {coin['signal']} | Score {coin['score']}<br>"
     html += "</div>"
+    if scanner.market_data:
+
+        top = scanner.market_data[0]
+
+        html += f"""
+        <div class="trade-box">
+
+        <b>BEST SIGNAL NOW</b><br><br>
+
+        Coin : {top['symbol']}<br>
+        Signal : {top['signal']}<br>
+        Score : {top['score']}<br>
+        RSI : {top['rsi']}
+
+        </div>
+        """
 
     html += """
     <script>
