@@ -202,6 +202,23 @@ def home():
         wallet = balance['total'].get('IDR',0)
     except:
         pass
+        used_cash = 0
+
+        if trader.active_trade:
+
+            used_cash = config.BASE_TRADE_AMOUNT
+
+        free_cash = wallet - used_cash
+
+        if free_cash < 0:
+
+            free_cash = 0
+
+        active_count = 0
+
+        if trader.active_trade:
+
+        active_count = 1
 
     html = f"<html><head>{pwa()}{style()}</head><body>{topbar()}"
 
