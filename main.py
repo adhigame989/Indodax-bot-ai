@@ -304,6 +304,7 @@ def home():
     if trader.active_trade:
 
         t = trader.active_trade
+        m = trade_metrics()
 
         color = "green"
 
@@ -313,14 +314,31 @@ def home():
         html += f"""
         <div class="trade-box">
 
-        <b>ACTIVE POSITION</b><br><br>
+        <b>{t.get('symbol')}</b>
 
-        Coin : {t['symbol']}<br>
-        Buy : {t['buy_price']}<br>
+        <br><br>
 
-        <span class="{color}">
-        Profit : {t['profit_percent']}%
+        Buy : {t.get('buy_price')}<br>
+        Now : {t.get('current_price')}<br><br>
+
+        High : Rp {m['high_rp']:,.0f} ({m['high_pct']:.2f}%)<br>
+        Low : Rp {m['low_rp']:,.0f} ({m['low_pct']:.2f}%)<br><br>
+
+        <span class="{p}">
+        Current : Rp {m['current_rp']:,.0f}
+        ({t.get('profit_percent')}%)
         </span>
+
+        <br><br>
+
+        TP / SL :
+        {t.get('tp_price')}
+        /
+        {t.get('sl_price')}
+
+        <br>
+
+        Hold : {m['hold']}
 
         </div>
         """
