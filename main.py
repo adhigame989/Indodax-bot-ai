@@ -6,6 +6,7 @@ from zoneinfo import ZoneInfo
 import config
 import trader
 import scanner
+import time
 
 from scanner import start_scanner
 from trader import start_trader
@@ -134,6 +135,51 @@ def get_uptime():
         f"{hours}h "
         f"{minutes}m"
     )
+def trade_metrics():
+
+    if not trader.active_trade:
+        return None
+
+    t = trader.active_trade
+
+    buy = t.get("buy_price", 0)
+    now = t.get("current_price", buy)
+
+    high = t.get("highest_price", buy)
+    low = t.get("lowest_price", buy)
+
+    amount = t.get("amount", 0)
+
+    current_rp = (now - buy) * amount
+    high_rp = (high - buy) * amount
+    low_rp = (low - buy) * amount
+
+    high_pct = ((high - buy) / buy * 100) if buy else 0
+    low_pct = ((low - buy) / buy * 100) if buy else 0
+
+    hold = "-"
+
+    if "buy_time" in t:
+
+        sec = int(
+            time.time() -
+            t["buy_time"]
+        )
+
+        d = sec // 86400
+        h = (sec % 86400) // 3600
+        m = (sec % 3600) // 60
+
+        hold = f"{d}d {h}h {m}m"
+
+    return {
+        "current_rp": current_rp,
+        "high_rp": high_rp,
+        "low_rp": low_rp,
+        "high_pct": high_pct,
+        "low_pct": low_pct,
+        "hold": hold
+    }
 
 
 @app.route("/")
