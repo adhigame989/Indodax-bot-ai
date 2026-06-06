@@ -462,17 +462,52 @@ def scanner_page():
 def position_page():
     html=f"<html><head>{style()}</head><body>{topbar()}"
     if trader.active_trade:
-        t=trader.active_trade
-        p="green" if t.get('profit_percent',0)>=0 else "red"
-        html+=f"""
+
+        t = trader.active_trade
+
+        m = trade_metrics()
+
+        p = "green"
+
+        if (
+            t.get(
+                "profit_percent",
+                0
+            ) < 0
+        ):
+            p = "red"
+
+        html += f"""
         <div class='trade-box'>
-        <b>{t.get('symbol')}</b><br><br>
-        Buy Price : {t.get('buy_price')}<br>
-        Current Price : {t.get('current_price')}<br>
-        TP Price : {t.get('tp_price')}<br>
-        SL Price : {t.get('sl_price')}<br>
-        Highest Price : {t.get('highest_price')}<br><br>
-        <span class='{p}'>Profit : {t.get('profit_percent')}%</span>
+
+        <b>{t.get('symbol')}</b>
+
+        <br><br>
+
+        Buy : {t.get('buy_price')}<br>
+        Now : {t.get('current_price')}<br><br>
+
+        High : Rp {m['high_rp']:,.0f} ({m['high_pct']:.2f}%)<br>
+        Low : Rp {m['low_rp']:,.0f} ({m['low_pct']:.2f}%)<br><br>
+
+        <span class='{p}'>
+
+        Current : Rp {m['current_rp']:,.0f}
+        ({t.get('profit_percent')}%)
+
+        </span>
+
+        <br><br>
+
+        TP / SL :
+        {t.get('tp_price')}
+        /
+        {t.get('sl_price')}
+
+        <br>
+
+        Hold : {m['hold']}
+
         </div>
         """
     else:
