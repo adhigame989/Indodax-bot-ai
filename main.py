@@ -470,6 +470,9 @@ def position_page():
         Buy : {t.get('buy_price')}<br>
         Now : {t.get('current_price')}<br><br>
 
+        Modal : Rp {t.get('trade_amount', 0):,.0f}<br>
+        Value : Rp {t.get('current_value', t.get('trade_amount', 0)):,.0f}<br><br>
+
         High : Rp {m['high_rp']:,.0f} ({m['high_pct']:.2f}%)<br>
         Low : Rp {m['low_rp']:,.0f} ({m['low_pct']:.2f}%)<br><br>
 
