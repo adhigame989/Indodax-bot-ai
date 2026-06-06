@@ -444,7 +444,7 @@ def trade_loop():
 
                 monitor_trade()
 
-            else:
+            if len(active_trades) < config.MAX_ACTIVE_TRADES:
 
                 for coin in scanner.market_data:
 
