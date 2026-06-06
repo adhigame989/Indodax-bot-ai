@@ -95,8 +95,19 @@ def get_trade_amount(balance):
 def buy_coin(symbol):
 
     global active_trade
+    global active_trades
 
     try:
+        for t in active_trades:
+
+            if t["symbol"] == symbol:
+
+                print(
+                    "ALREADY OPEN:",
+                    symbol
+                )
+
+                return
 
         balance = exchange.fetch_balance()
 
