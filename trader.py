@@ -320,59 +320,59 @@ def sell_coin():
         print("SELL ERROR:", str(e))
 
 
-def monitor_trade():
+def monitor_trade(trade):
 
     global active_trade
 
     try:
 
-        if not active_trade:
+        if not trade:
             return
 
-        symbol = active_trade["symbol"]
+        symbol = trade["symbol"]
 
         ticker = exchange.fetch_ticker(symbol)
 
         current_price = ticker['last']
 
-        active_trade["current_price"] = round(
+        trade["current_price"] = round(
             current_price,
             8
         )
-        active_trade["current_value"] = (
+        trade["current_value"] = (
             current_price *
-            active_trade["amount"]
+            trade["amount"]
         )
 
         profit_percent = (
             (
                 current_price -
-                active_trade["buy_price"]
+                trade["buy_price"]
             )
             /
-            active_trade["buy_price"]
+            trade["buy_price"]
         ) * 100
 
-        active_trade["profit_percent"] = round(
+        trade["profit_percent"] = round(
             profit_percent,
             2
         )
 
-        if current_price > active_trade["highest_price"]:
-            active_trade["highest_price"] = current_price
+        if current_price > trade["highest_price"]:
+            trade["highest_price"] = current_price
 
-        if current_price < active_trade["lowest_price"]:
-            active_trade["lowest_price"] = current_price
+        if current_price < trade["lowest_price"]:
+            trade["lowest_price"] = current_price
 
         # Trailing hanya aktif jika posisi profit
         if (
             config.TRAILING_STOP
             and current_price >
-            active_trade["buy_price"]
+            trade["buy_price"]
         ):
 
             trailing_stop_price = (
-                active_trade["highest_price"]
+                trade["highest_price"]
                 *
                 (
                     1 - (
@@ -392,7 +392,7 @@ def monitor_trade():
                 sell_coin()
                 return
 
-        if current_price >= active_trade["tp_price"]:
+        if current_price >= trade["tp_price"]:
 
             print("TAKE PROFIT HIT")
 
@@ -403,7 +403,7 @@ def monitor_trade():
             sell_coin()
             return
 
-        if current_price <= active_trade["sl_price"]:
+        if current_price <= trade["sl_price"]:
 
             print("STOP LOSS HIT")
 
