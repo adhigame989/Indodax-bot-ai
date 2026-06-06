@@ -158,7 +158,7 @@ def buy_coin(symbol):
             (1 - (config.STOP_LOSS / 100))
         )
 
-        active_trade = {
+        trade = {
 
             "symbol": symbol,
 
@@ -201,7 +201,9 @@ def buy_coin(symbol):
             "profit_percent": 0
 
         }
+        active_trades.append(trade)
 
+        active_trade = active_trades[0]
         save_trade()
 
         print("BUY SUCCESS:", symbol)
