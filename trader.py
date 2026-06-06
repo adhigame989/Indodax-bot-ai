@@ -182,6 +182,8 @@ def buy_coin(symbol):
             ),
 
             "amount": amount,
+            "trade_amount": trade_amount,
+            "entry_value": trade_amount,
 
             "highest_price": round(
                 buy_price,
@@ -329,6 +331,10 @@ def monitor_trade():
         active_trade["current_price"] = round(
             current_price,
             8
+        )
+        active_trade["current_value"] = (
+            current_price *
+            active_trade["amount"]
         )
 
         profit_percent = (
