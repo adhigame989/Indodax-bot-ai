@@ -16,6 +16,7 @@ exchange = ccxt.indodax({
     'enableRateLimit': True
 })
 
+active_trades = []
 active_trade = None
 trade_file = "active_trade.json"
 
