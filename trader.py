@@ -213,7 +213,7 @@ def buy_coin(symbol):
 
             "buy_time": time.time(),
 
-            "profit_percent": 0
+            "profit_percent": 0,
             "sl_trigger": False,
             "sl_trigger_time": 0,
 
@@ -432,6 +432,7 @@ def monitor_trade(trade):
                     "PRICE RECOVERED:",
                     symbol
                 )
+                return
 
         if current_price >= trade["tp_price"]:
 
@@ -468,7 +469,7 @@ def monitor_trade(trade):
                 >= 30
             ):
 
-                send_telegram(
+                telegram_bot.send_telegram(
                     f"🛑 STOP LOSS HIT\n\n{symbol}"
                 )
 
