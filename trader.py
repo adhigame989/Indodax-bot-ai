@@ -214,6 +214,8 @@ def buy_coin(symbol):
             "buy_time": time.time(),
 
             "profit_percent": 0
+            "sl_trigger": False,
+            "sl_trigger_time": 0,
 
         }
         active_trades.append(trade)
@@ -416,6 +418,20 @@ def monitor_trade(trade):
 
                 sell_coin(trade)
                 return
+        if trade["sl_trigger"]:
+
+            if current_price > trade["sl_price"]:
+
+                trade["sl_trigger"] = False
+
+                trade["sl_trigger_time"] = 0
+
+                save_trade()
+
+                print(
+                    "PRICE RECOVERED:",
+                    symbol
+                )
 
         if current_price >= trade["tp_price"]:
 
@@ -430,14 +446,35 @@ def monitor_trade(trade):
 
         if current_price <= trade["sl_price"]:
 
-            print("STOP LOSS HIT")
+            if not trade["sl_trigger"]:
 
-            telegram_bot.send_telegram(
-                f"🛑 STOP LOSS HIT\n\n{symbol}"
-            )
+                trade["sl_trigger"] = True
 
-            sell_coin(trade)
-            return
+                trade["sl_trigger_time"] = time.time()
+
+                save_trade()
+
+                print(
+                    "SL TRIGGER:",
+                    symbol
+                )
+
+                return
+
+            if (
+                time.time()
+                -
+                trade["sl_trigger_time"]
+                >= 30
+            ):
+
+                send_telegram(
+                    f"🛑 STOP LOSS HIT\n\n{symbol}"
+                )
+
+                sell_coin(trade)
+
+                return
 
         save_trade()
 
