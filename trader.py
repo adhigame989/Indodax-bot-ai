@@ -313,7 +313,21 @@ def sell_coin(trade):
             f"Profit: {profit_percent:.2f}%"
         )
 
-        clear_trade()
+        if trade in active_trades:
+
+            active_trades.remove(
+                trade
+            )
+
+        if active_trades:
+
+            active_trade = active_trades[0]
+
+        else:
+
+            active_trade = None
+
+        save_trade()
 
     except Exception as e:
 
