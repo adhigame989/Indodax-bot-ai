@@ -202,19 +202,6 @@ def home():
         wallet = balance['total'].get('IDR',0)
     except:
         pass
-        try:
-    exchange = ccxt.indodax({
-        'apiKey': config.API_KEY,
-        'secret': config.SECRET_KEY,
-        'enableRateLimit': True
-    })
-
-    balance = exchange.fetch_balance()
-
-    wallet = balance['total'].get('IDR',0)
-
-except:
-    pass
 
     html = f"<html><head>{pwa()}{style()}</head><body>{topbar()}"
 
