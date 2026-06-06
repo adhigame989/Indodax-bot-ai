@@ -440,9 +440,9 @@ def trade_loop():
 
         try:
 
-            if active_trade:
+            for trade in active_trades:
 
-                monitor_trade()
+                monitor_trade(trade)
 
             if len(active_trades) < config.MAX_ACTIVE_TRADES:
 
