@@ -135,12 +135,7 @@ def get_uptime():
         f"{hours}h "
         f"{minutes}m"
     )
-def trade_metrics():
-
-    if not trader.active_trade:
-        return None
-
-    t = trader.active_trade
+def trade_metrics(t):
 
     buy = t.get("buy_price", 0)
     now = t.get("current_price", buy)
@@ -301,14 +296,19 @@ def home():
 
     </div>
     """
-    if trader.active_trade:
+    if trader.active_trades:
 
-        t = trader.active_trade
-        m = trade_metrics()
+    for t in trader.active_trades:
+
+        m = trade_metrics(t)
 
         color = "green"
 
-        if t.get("profit_percent", 0) < 0:
+        if t.get(
+            "profit_percent",
+            0
+        ) < 0:
+
             color = "red"
 
         html += f"""
@@ -321,12 +321,19 @@ def home():
         Buy : {t.get('buy_price')}<br>
         Now : {t.get('current_price')}<br><br>
 
-        High : Rp {m['high_rp']:,.0f} ({m['high_pct']:.2f}%)<br>
-        Low : Rp {m['low_rp']:,.0f} ({m['low_pct']:.2f}%)<br><br>
+        High : Rp {m['high_rp']:,.0f}
+        ({m['high_pct']:.2f}%)<br>
+
+        Low : Rp {m['low_rp']:,.0f}
+        ({m['low_pct']:.2f}%)<br><br>
 
         <span class="{color}">
-        Current : Rp {m['current_rp']:,.0f}
+
+        Current :
+        Rp {m['current_rp']:,.0f}
+
         ({t.get('profit_percent')}%)
+
         </span>
 
         <br><br>
@@ -342,19 +349,6 @@ def home():
 
         </div>
         """
-
-    else:
-
-        html += """
-        <div class="trade-box">
-
-        <b>ACTIVE POSITION</b><br><br>
-
-        NO ACTIVE TRADE
-
-        </div>
-        """
-
     html += "<div class='trade-box'><b>TOP SIGNALS</b><br><br>"
     for i, coin in enumerate(scanner.market_data[:10], start=1):
         html += f"#{i} {coin['symbol']} | {coin['signal']} | Score {coin['score']}<br>"
@@ -444,11 +438,13 @@ def scanner_page():
 @app.route("/position")
 def position_page():
     html=f"<html><head>{style()}</head><body>{topbar()}"
-    if trader.active_trade:
+    if trader.active_trades:
+
+        for t in trader.active_trades:
 
         t = trader.active_trade
 
-        m = trade_metrics()
+        m = trade_metrics(t)
 
         p = "green"
 
