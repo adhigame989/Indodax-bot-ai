@@ -225,16 +225,16 @@ def buy_coin(symbol):
         print("BUY ERROR:", str(e))
 
 
-def sell_coin():
+def sell_coin(trade):
 
     global active_trade
 
     try:
 
-        if not active_trade:
+        if not trade:
             return
 
-        symbol = active_trade["symbol"]
+        symbol = trade["symbol"]
 
         base_coin = symbol.split("/")[0]
 
@@ -290,16 +290,16 @@ def sell_coin():
         profit_percent = (
             (
                 sell_price -
-                active_trade["buy_price"]
+                trade["buy_price"]
             )
             /
-            active_trade["buy_price"]
+            trade["buy_price"]
         ) * 100
 
         history.add_trade_history(
             symbol,
             "SELL",
-            active_trade["buy_price"],
+            trade["buy_price"],
             sell_price,
             profit_percent
         )
@@ -389,7 +389,7 @@ def monitor_trade(trade):
                     f"⚠️ TRAILING STOP HIT\n\n{symbol}"
                 )
 
-                sell_coin()
+                sell_coin(trade)
                 return
 
         if current_price >= trade["tp_price"]:
@@ -400,7 +400,7 @@ def monitor_trade(trade):
                 f"🎯 TAKE PROFIT HIT\n\n{symbol}"
             )
 
-            sell_coin()
+            sell_coin(trade)
             return
 
         if current_price <= trade["sl_price"]:
@@ -411,7 +411,7 @@ def monitor_trade(trade):
                 f"🛑 STOP LOSS HIT\n\n{symbol}"
             )
 
-            sell_coin()
+            sell_coin(trade)
             return
 
         save_trade()
