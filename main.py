@@ -324,7 +324,7 @@ def home():
         High : Rp {m['high_rp']:,.0f} ({m['high_pct']:.2f}%)<br>
         Low : Rp {m['low_rp']:,.0f} ({m['low_pct']:.2f}%)<br><br>
 
-        <span class="{p}">
+        <span class="{color}">
         Current : Rp {m['current_rp']:,.0f}
         ({t.get('profit_percent')}%)
         </span>
