@@ -452,42 +452,42 @@ def position_page():
             ):
                 p = "red"
 
-        html += f"""
-        <div class='trade-box'>
+            html += f"""
+            <div class='trade-box'>
 
-        <b>{t.get('symbol')}</b>
+            <b>{t.get('symbol')}</b>
 
-        <br><br>
+            <br><br>
 
-        Buy : {t.get('buy_price')}<br>
-        Now : {t.get('current_price')}<br><br>
+            Buy : {t.get('buy_price')}<br>
+            Now : {t.get('current_price')}<br><br>
 
-        Modal : Rp {t.get('trade_amount', 0):,.0f}<br>
-        Value : Rp {t.get('current_value', t.get('trade_amount', 0)):,.0f}<br><br>
+            Modal : Rp {t.get('trade_amount', 0):,.0f}<br>
+            Value : Rp {t.get('current_value', t.get('trade_amount', 0)):,.0f}<br><br>
 
-        High : Rp {m['high_rp']:,.0f} ({m['high_pct']:.2f}%)<br>
-        Low : Rp {m['low_rp']:,.0f} ({m['low_pct']:.2f}%)<br><br>
+            High : Rp {m['high_rp']:,.0f} ({m['high_pct']:.2f}%)<br>
+            Low : Rp {m['low_rp']:,.0f} ({m['low_pct']:.2f}%)<br><br>
 
-        <span class='{p}'>
+            <span class='{p}'>
 
-        Current : Rp {m['current_rp']:,.0f}
-        ({t.get('profit_percent')}%)
+            Current : Rp {m['current_rp']:,.0f}
+            ({t.get('profit_percent')}%)
 
-        </span>
+            </span>
 
-        <br><br>
+            <br><br>
 
-        TP / SL :
-        {t.get('tp_price')}
-        /
-        {t.get('sl_price')}
+            TP / SL :
+            {t.get('tp_price')}
+            /
+            {t.get('sl_price')}
 
-        <br>
+            <br>
 
-        Hold : {m['hold']}
+            Hold : {m['hold']}
 
-        </div>
-        """
+            </div>
+            """
     else:
         html+="<div class='trade-box'>NO ACTIVE TRADE</div>"
     html+="</body></html>"
