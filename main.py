@@ -441,20 +441,16 @@ def position_page():
     if trader.active_trades:
 
         for t in trader.active_trades:
+            m = trade_metrics(t)
+            p = "green"
 
-        t = trader.active_trade
-
-        m = trade_metrics(t)
-
-        p = "green"
-
-        if (
-            t.get(
-                "profit_percent",
-                0
-            ) < 0
-        ):
-            p = "red"
+            if (
+                t.get(
+                    "profit_percent",
+                    0
+                ) < 0
+            ):
+                p = "red"
 
         html += f"""
         <div class='trade-box'>
