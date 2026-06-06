@@ -23,10 +23,11 @@ trade_file = "active_trade.json"
 
 def save_trade():
     global active_trade
+    global active_trades
 
     try:
         with open(trade_file, "w") as f:
-            json.dump(active_trade, f)
+            json.dump(active_trades, f)
 
     except Exception as e:
         print("SAVE TRADE ERROR:", str(e))
@@ -34,13 +35,16 @@ def save_trade():
 
 def load_trade():
     global active_trade
+    global active_trades
 
     try:
         if os.path.exists(trade_file):
 
             with open(trade_file, "r") as f:
-                active_trade = json.load(f)
-
+                active_trades = json.load(f)
+                
+        if active_trades:
+            active_trade = active_trades[0]
             print("TRADE LOADED")
 
     except Exception as e:
