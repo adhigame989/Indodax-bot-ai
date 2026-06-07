@@ -216,6 +216,8 @@ def buy_coin(symbol):
             "profit_percent": 0,
             "sl_trigger": False,
             "sl_trigger_time": 0,
+            "trailing_trigger": False,
+            "trailing_trigger_time": 0,
 
         }
         active_trades.append(trade)
@@ -253,10 +255,7 @@ def sell_coin(trade):
 
         balance = exchange.fetch_balance()
 
-        amount = balance["free"].get(
-            base_coin,
-            0
-        )
+        amount = trade["amount"]
 
         ticker = exchange.fetch_ticker(symbol)
 
@@ -410,14 +409,43 @@ def monitor_trade(trade):
 
             if current_price < trailing_stop_price:
 
-                print("TRAILING STOP HIT")
+                if not trade["trailing_trigger"]:
 
-                telegram_bot.send_telegram(
-                    f"⚠️ TRAILING STOP HIT\n\n{symbol}"
-                )
+                    trade["trailing_trigger"] = True
+                    trade["trailing_trigger_time"] = time.time()
 
-                sell_coin(trade)
-                return
+                    save_trade()
+
+                    print(
+                        "TRAILING TRIGGER:",
+                        symbol
+                    )
+
+                    return
+
+                if (
+                    time.time()
+                    -
+                    trade["trailing_trigger_time"]
+                    >= 30
+                ):
+
+                    telegram_bot.send_telegram(
+                        f"⚠️ TRAILING STOP HIT\n\n{symbol}"
+                    )
+
+                    sell_coin(trade)
+
+                    return
+
+            else:
+
+                if trade["trailing_trigger"]:
+
+                    trade["trailing_trigger"] = False
+                    trade["trailing_trigger_time"] = 0
+
+                    save_trade()
         if trade["sl_trigger"]:
 
             if current_price > trade["sl_price"]:
@@ -466,7 +494,7 @@ def monitor_trade(trade):
                 time.time()
                 -
                 trade["sl_trigger_time"]
-                >= 30
+                >= 60
             ):
 
                 telegram_bot.send_telegram(
