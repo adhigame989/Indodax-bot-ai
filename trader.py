@@ -146,6 +146,7 @@ def buy_coin(symbol):
                 order['id'],
                 symbol
             )
+            print(order_info)
 
             if order_info['status'] != 'closed':
 
