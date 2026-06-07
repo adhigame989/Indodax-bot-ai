@@ -255,8 +255,14 @@ def sell_coin(trade):
 
         balance = exchange.fetch_balance()
 
-        amount = trade["amount"]
+        wallet_amount = balance['free'].get(base_coin,0)
 
+        amount = min(trade["amount"],wallet_amount)
+        print(
+            f"SELL AMOUNT: "
+            f"{amount} / "
+            f"WALLET: {wallet_amount}"
+        )
         ticker = exchange.fetch_ticker(symbol)
 
         bid_price = ticker['bid']
