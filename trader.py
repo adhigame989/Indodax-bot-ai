@@ -147,6 +147,21 @@ def buy_coin(symbol):
                 symbol
             )
             print(order_info)
+            base_coin = symbol.split('/')[0].lower()
+
+            receive_key = f"receive_{base_coin}"
+
+            actual_amount = float(
+                order_info['info']['return']['order'].get(
+                    receive_key,
+                    amount
+                )
+            )
+
+            print(
+                "ACTUAL AMOUNT:",
+                actual_amount
+            )
 
             if order_info['status'] != 'closed':
 
@@ -198,7 +213,7 @@ def buy_coin(symbol):
                 8
             ),
 
-            "amount": amount,
+            "amount": actual_amount,
             "trade_amount": trade_amount,
             "entry_value": trade_amount,
 
