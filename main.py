@@ -135,6 +135,15 @@ def get_uptime():
         f"{hours}h "
         f"{minutes}m"
     )
+    
+def rp(value):
+
+    try:
+        return f"Rp {float(value):,.0f}".replace(",", ".")
+
+    except:
+        return "Rp 0"
+        
 def trade_metrics(t):
 
     buy = t.get("buy_price", 0)
@@ -292,6 +301,8 @@ def home():
 
     SCANNED COINS : {len(scanner.market_data)}<br>
 
+    ACTIVE TRADES :{len(trader.active_trades)}/{config.MAX_ACTIVE_TRADES}<br>
+
     BTC STATUS : {btc_view}
 
     </div>
@@ -318,8 +329,8 @@ def home():
 
             <br><br>
 
-            Buy : {t.get('buy_price')}<br>
-            Now : {t.get('current_price')}<br><br>
+            Buy : {rp(t.get('buy_price'))}<br>
+            Now : {rp(t.get('current_price'))}<br><br>
 
             High : Rp {m['high_rp']:,.0f}
             ({m['high_pct']:.2f}%)<br>
@@ -338,11 +349,10 @@ def home():
 
             <br><br>
 
-            TP / SL :
-            {t.get('tp_price')}
-            /
-            {t.get('sl_price')}
+            TP : {rp(t.get('tp_price'))}
+            <br>
 
+            SL : {rp(t.get('sl_price'))}
             <br>
 
             Hold : {m['hold']}
@@ -459,8 +469,8 @@ def position_page():
 
             <br><br>
 
-            Buy : {t.get('buy_price')}<br>
-            Now : {t.get('current_price')}<br><br>
+            Buy : {rp(t.get('buy_price'))}<br>
+            Now : {rp(t.get('current_price'))}<br><br>
 
             Modal : Rp {t.get('trade_amount', 0):,.0f}<br>
             Value : Rp {t.get('current_value', t.get('trade_amount', 0)):,.0f}<br><br>
@@ -477,11 +487,10 @@ def position_page():
 
             <br><br>
 
-            TP / SL :
-            {t.get('tp_price')}
-            /
-            {t.get('sl_price')}
+            TP : {rp(t.get('tp_price'))}
+            <br>
 
+            SL : {rp(t.get('sl_price'))}
             <br>
 
             Hold : {m['hold']}
@@ -506,7 +515,32 @@ def history_page():
     </div>
     """
     for t in stats['history'][:30]:
-        html+=f"<div class='card'>{t['symbol']} | {t['side']} | {t['profit_percent']}% | {t['time']}</div>"
+
+        waktu = t['time']
+
+        try:
+
+            from datetime import datetime
+
+            dt = datetime.fromisoformat(
+                waktu
+            )
+
+            waktu = dt.strftime(
+                "%d-%m-%Y %H:%M WIB"
+            )
+
+        except:
+            pass
+
+        html += (
+            f"<div class='card'>"
+            f"{t['symbol']} | "
+            f"{t['side']} | "
+            f"{t['profit_percent']}% | "
+            f"{waktu}"
+            f"</div>"
+    )
     html+="</body></html>"
     return html
 
