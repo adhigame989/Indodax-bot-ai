@@ -1,6 +1,6 @@
 import json
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 
 HISTORY_FILE = "history.json"
 
@@ -92,10 +92,12 @@ def add_trade_history(
             ),
 
             "time":
-            datetime.now().strftime(
-                "%Y-%m-%d %H:%M:%S"
+            (
+                datetime.utcnow()
+                + timedelta(hours=7)
+            ).strftime(
+                "%Y-%m-%d %H:%M:%S WIB"
             )
-
         }
 
         history.insert(
