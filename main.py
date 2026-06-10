@@ -105,7 +105,7 @@ def topbar():
     <div class="bottom-nav">
         <a href="/">🏠 Home</a>
         <a href="/scanner">📈 Scanner</a>
-        <a href="/position">🤖 Bot</a>
+        <a href="/position">📊 Positions</a>
         <a href="/history">📜 History</a>
     </div>
     """
@@ -324,23 +324,24 @@ def home():
 
             html += f"""
             <div class="trade-box">
- 
+
             <b>{t.get('symbol')}</b>
 
-            <br><br>
+            <div class="{color}"
+            style="
+            font-size:20px;font-weight:bold;margin-top:8px;margin-bottom:10px;
+            ">
+
+            Rp {t.get('current_value',0):,.0f}
+
+            </div>
 
             Buy : {rp(t.get('buy_price'))}<br>
             Now : {rp(t.get('current_price'))}<br><br>
 
-            High : Rp {m['high_rp']:,.0f}
-            ({m['high_pct']:.2f}%)<br>
-
-            Low : Rp {m['low_rp']:,.0f}
-            ({m['low_pct']:.2f}%)<br><br>
-
             <span class="{color}">
 
-            Current :
+            P/L :
             Rp {m['current_rp']:,.0f}
 
             ({t.get('profit_percent')}%)
@@ -348,12 +349,6 @@ def home():
             </span>
 
             <br><br>
-
-            TP : {rp(t.get('tp_price'))}
-            <br>
-
-            SL : {rp(t.get('sl_price'))}
-            <br>
 
             Hold : {m['hold']}
 
@@ -465,13 +460,14 @@ def position_page():
             html += f"""
             <div class='trade-box'>
 
-            <b>{t.get('symbol')}</b>
+            <h3>{t.get('symbol')}</h3>
 
             <br><br>
 
             Buy : {rp(t.get('buy_price'))}<br>
             Now : {rp(t.get('current_price'))}<br><br>
 
+            Amount : {t.get('amount',0):.8f}<br><br>
             Modal : Rp {t.get('trade_amount', 0):,.0f}<br>
             Value : Rp {t.get('current_value', t.get('trade_amount', 0)):,.0f}<br><br>
 
