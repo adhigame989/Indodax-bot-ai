@@ -242,12 +242,12 @@ def home():
     except:
         pass
 
-profit_color = "yellow"
+    profit_color = "yellow"
 
-if stats["total_profit"] > 0:
-    profit_color = "green"
-elif stats["total_profit"] < 0:
-    profit_color = "red"
+    if stats["total_profit"] > 0:
+        profit_color = "green"
+    elif stats["total_profit"] < 0:
+        profit_color = "red"
     html = f"<html><head>{pwa()}{style()}</head><body>{topbar()}"
 
     html += """
