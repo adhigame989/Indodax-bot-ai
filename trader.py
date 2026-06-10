@@ -129,9 +129,19 @@ def buy_coin(symbol):
         )
         amount = trade_amount / buy_price
 
-        amount = exchange.amount_to_precision(symbol,amount)
+        amount = float(
+            exchange.amount_to_precision(
+                symbol,
+                amount
+            )
+        )
 
-        buy_price = exchange.price_to_precision(symbol,buy_price)
+        buy_price = float(
+            exchange.price_to_precision(
+                symbol,
+                buy_price
+            )
+        )
         print("BUY SYMBOL:", symbol)
         print("TRADE AMOUNT:", trade_amount)
         print("BUY PRICE:", buy_price)
@@ -243,6 +253,10 @@ def buy_coin(symbol):
 
         }
         active_trades.append(trade)
+        print(
+            "ACTIVE TRADES SAVED:",
+            len(active_trades)
+        )
 
         active_trade = active_trades[0]
         save_trade()
@@ -279,7 +293,17 @@ def sell_coin(trade):
 
         wallet_amount = balance['free'].get(base_coin,0)
 
-        amount = min(trade["amount"],wallet_amount)
+        amount = min(
+            trade["amount"],
+            wallet_amount
+        )
+
+        amount = float(
+            exchange.amount_to_precision(
+                symbol,
+                amount
+            )
+        )
         print(
             f"SELL AMOUNT: "
             f"{amount} / "
