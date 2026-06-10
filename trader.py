@@ -9,7 +9,7 @@ import scanner
 import telegram_bot
 
 BOT_RUNNING = False
-
+trade_lock = threading.Lock()
 exchange = ccxt.indodax({
     'apiKey': config.API_KEY,
     'secret': config.SECRET_KEY,
@@ -97,6 +97,7 @@ def buy_coin(symbol):
     global active_trade
     global active_trades
 
+    with trade_lock:
     try:
         for t in active_trades:
 
@@ -115,6 +116,12 @@ def buy_coin(symbol):
 
         trade_amount = get_trade_amount(idr)
 
+        if len(active_trades) >= config.MAX_ACTIVE_TRADES:
+            print(
+                f"MAX TRADE REACHED: "
+                f"{len(active_trades)}/{config.MAX_ACTIVE_TRADES}"
+            )
+            return
         if idr < trade_amount:
             print("NOT ENOUGH IDR")
             return
