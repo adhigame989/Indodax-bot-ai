@@ -602,7 +602,6 @@ def trade_loop():
                     ]:
 
                         buy_coin(symbol)
-                        break
 
         except Exception as e:
 
