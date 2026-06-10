@@ -195,15 +195,24 @@ def home():
     now = datetime.now(
         ZoneInfo("Asia/Jakarta")
     ).strftime("%H:%M:%S")
-    wallet = 0
+    free_idr=0
+    used_idr=0
+    total_idr=0
+
     try:
-        exchange = ccxt.indodax({
-            'apiKey': config.API_KEY,
-            'secret': config.SECRET_KEY,
-            'enableRateLimit': True
+        exchange=ccxt.indodax({
+            'apiKey':config.API_KEY,
+            'secret':config.SECRET_KEY,
+            'enableRateLimit':True
         })
-        balance = exchange.fetch_balance()
-        wallet = balance['total'].get('IDR',0)
+
+        balance=exchange.fetch_balance()
+
+        free_idr=balance['free'].get('IDR',0)
+        used_idr=balance['used'].get('IDR',0)
+
+        total_idr=free_idr+used_idr
+
     except:
         pass
 
@@ -239,8 +248,12 @@ def home():
     <div class="grid">
 
       <div class="card">
-        <div class="title">WALLET</div>
-        <div class="value green">Rp {wallet:,.0f}</div>
+        <div class="title">TOTAL ASSET</div>
+        <div class="value green">Rp {total_idr:,.0f}</div>
+        <div style="font-size:12px;color:#94a3b8;margin-top:6px">
+        Free : Rp {free_idr:,.0f}<br>
+        Locked : Rp {used_idr:,.0f}
+        </div>
       </div>
 
       <div class="card">
