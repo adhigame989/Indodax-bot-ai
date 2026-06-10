@@ -346,7 +346,7 @@ def home():
 
     SCANNED COINS : {len(scanner.market_data)}<br>
 
-    BOT POSITIONS :{len(trader.active_trades)}/{config.MAX_ACTIVE_TRADES}
+    BOT POSITIONS :{len(trader.active_trades)}/{config.MAX_ACTIVE_TRADES}<br>
     
     OPEN ORDERS : {open_order_count}<br>
 
