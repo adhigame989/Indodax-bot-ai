@@ -128,8 +128,10 @@ def buy_coin(symbol):
             (1 + config.BUY_SLIPPAGE)
         )
 
-        amount = trade_amount / buy_price
-
+        amount = max(
+            1,
+            int(trade_amount / buy_price)
+        )
         order = exchange.create_limit_buy_order(
             symbol,
             amount,
