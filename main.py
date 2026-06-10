@@ -207,11 +207,32 @@ def home():
         })
 
         balance=exchange.fetch_balance()
+        open_order_count = 0
 
-        print("=" * 50)
-        print("BALANCE DEBUG")
-        print(balance)
-        print("=" * 50)
+        try:
+            open_order_count = len(
+                exchange.fetch_open_orders()
+            )
+        except:
+            pass
+        manual_positions = 0
+
+        bot_symbols = {
+            t["symbol"].split("/")[0]
+            for t in trader.active_trades
+        }
+        for coin, amount in balance["free"].items():
+
+            if coin == "IDR":
+                continue
+
+            if amount <= 0:
+                continue
+
+            if coin in bot_symbols:
+                continue
+
+            manual_positions += 1
 
         free_idr=balance['free'].get('IDR',0)
         used_idr=balance['used'].get('IDR',0)
@@ -221,6 +242,12 @@ def home():
     except:
         pass
 
+profit_color = "yellow"
+
+if stats["total_profit"] > 0:
+    profit_color = "green"
+elif stats["total_profit"] < 0:
+    profit_color = "red"
     html = f"<html><head>{pwa()}{style()}</head><body>{topbar()}"
 
     html += """
@@ -269,7 +296,7 @@ def home():
 
       <div class="card">
         <div class="title">PROFIT</div>
-        <div class="value yellow">{stats['total_profit']}%</div>
+        <div class="value {profit_color}">{stats['total_profit']}%</div>
       </div>
 
       <div class="card">
@@ -307,6 +334,10 @@ def home():
     <div class="trade-box">
     <b>MARKET STATUS</b><br><br>
 
+    TOTAL ASSET : Rp {total_idr:,.0f}<br>
+    FREE IDR : Rp {free_idr:,.0f}<br>
+    OPEN ORDERS VALUE : Rp {used_idr:,.0f}<br>
+
     BOT : {BOT_STATUS}<br>
 
     UPTIME : {uptime}<br>
@@ -315,12 +346,12 @@ def home():
 
     SCANNED COINS : {len(scanner.market_data)}<br>
 
-    ACTIVE TRADES :{len(trader.active_trades)}/{config.MAX_ACTIVE_TRADES}<br>
+    BOT POSITIONS :{len(trader.active_trades)}/{config.MAX_ACTIVE_TRADES}
+    
+    OPEN ORDERS : {open_order_count}<br>
 
-    TOTAL ASSET : Rp {total_idr:,.0f}<br>
-    FREE IDR : Rp {free_idr:,.0f}<br>
-    LOCKED IDR : Rp {used_idr:,.0f}<br>
-
+    MANUAL POSITIONS : {manual_positions}<br>
+    
     BTC STATUS : {btc_view}
 
     </div>
