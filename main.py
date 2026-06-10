@@ -248,12 +248,8 @@ def home():
     <div class="grid">
 
       <div class="card">
-        <div class="title">TOTAL ASSET</div>
-        <div class="value green">Rp {total_idr:,.0f}</div>
-        <div style="font-size:12px;color:#94a3b8;margin-top:6px">
-        Free : Rp {free_idr:,.0f}<br>
-        Locked : Rp {used_idr:,.0f}
-        </div>
+          <div class="title">TOTAL ASSET</div>
+          <div class="value green">Rp {total_idr:,.0f}</div>
       </div>
 
       <div class="card">
@@ -315,6 +311,10 @@ def home():
     SCANNED COINS : {len(scanner.market_data)}<br>
 
     ACTIVE TRADES :{len(trader.active_trades)}/{config.MAX_ACTIVE_TRADES}<br>
+
+    TOTAL ASSET : Rp {total_idr:,.0f}<br>
+    FREE IDR : Rp {free_idr:,.0f}<br>
+    LOCKED IDR : Rp {used_idr:,.0f}<br>
 
     BTC STATUS : {btc_view}
 
