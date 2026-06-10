@@ -132,6 +132,10 @@ def buy_coin(symbol):
         amount = exchange.amount_to_precision(symbol,amount)
 
         buy_price = exchange.price_to_precision(symbol,buy_price)
+        print("BUY SYMBOL:", symbol)
+        print("TRADE AMOUNT:", trade_amount)
+        print("BUY PRICE:", buy_price)
+        print("AMOUNT:", amount)
         order = exchange.create_limit_buy_order(
             symbol,
             amount,
