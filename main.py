@@ -208,6 +208,11 @@ def home():
 
         balance=exchange.fetch_balance()
 
+        print("=" * 50)
+        print("BALANCE DEBUG")
+        print(balance)
+        print("=" * 50)
+
         free_idr=balance['free'].get('IDR',0)
         used_idr=balance['used'].get('IDR',0)
 
