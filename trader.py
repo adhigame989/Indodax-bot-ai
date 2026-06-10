@@ -127,6 +127,7 @@ def buy_coin(symbol):
             ask_price *
             (1 + config.BUY_SLIPPAGE)
         )
+        amount = trade_amount / buy_price
 
         amount = exchange.amount_to_precision(symbol,amount)
 
