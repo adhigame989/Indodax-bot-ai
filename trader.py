@@ -557,6 +557,8 @@ def trade_loop():
 
                 monitor_trade(trade)
 
+            print(
+                "ACTIVE:",len(active_trades),"/",config.MAX_ACTIVE_TRADES)
             if len(active_trades) < config.MAX_ACTIVE_TRADES:
 
                 for coin in scanner.market_data:
