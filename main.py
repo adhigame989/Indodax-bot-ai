@@ -237,8 +237,24 @@ def home():
         free_idr=balance['free'].get('IDR',0)
         used_idr=balance['used'].get('IDR',0)
 
-        total_idr=free_idr+used_idr
+        coin_value = 0
 
+        for coin, amount in balance['free'].items():
+
+            if coin == "IDR":
+                continue
+
+            if amount <= 0:
+                continue
+
+            try:
+                ticker = exchange.fetch_ticker(f"{coin}/IDR")
+                price = ticker["last"]
+                coin_value += amount * price
+            except:
+                pass
+
+        total_idr = free_idr + used_idr + coin_value
     except:
         pass
 
