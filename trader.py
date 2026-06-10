@@ -273,9 +273,10 @@ def buy_coin(symbol):
         telegram_bot.send_telegram(
             f"🟢 BUY SUCCESS\n\n"
             f"Coin: {symbol}\n"
-            f"Buy Price: {buy_price:.8f}\n"
-            f"TP: {tp_price:.8f}\n"
-            f"SL: {sl_price:.8f}"
+            f"Modal: Rp {trade_amount:,.0f}\n\n"
+            f"Buy Price: Rp {buy_price:,.2f}\n"
+            f"TP: Rp {tp_price:,.2f}\n"
+            f"SL: Rp {sl_price:,.2f}"
         )
 
     except Exception as e:
@@ -380,8 +381,9 @@ def sell_coin(trade):
         telegram_bot.send_telegram(
             f"🔴 SELL SUCCESS\n\n"
             f"Coin: {symbol}\n"
-            f"Sell Price: {sell_price:.8f}\n"
-            f"Profit: {profit_percent:.2f}%"
+            f"Nilai Jual: Rp {sell_value:,.0f}\n"
+            f"Sell Price: Rp {sell_price:,.2f}\n"
+            f"Profit: Rp {profit_idr:,.0f} ({profit_percent:.2f}%)"
         )
 
         if trade in active_trades:
