@@ -19,6 +19,7 @@ exchange = ccxt.indodax({
 active_trades = []
 active_trade = None
 trade_file = "active_trade.json"
+coin_cooldown = {}
 
 
 def save_trade():
@@ -298,6 +299,9 @@ def sell_coin(trade):
             /
             trade["buy_price"]
         ) * 100
+        if profit_percent < 0:
+            coin_cooldown[symbol] = time.time()
+            print("COOLDOWN SET:", symbol)
 
         sell_value = sell_price * amount
 
@@ -541,6 +545,18 @@ def trade_loop():
 
                     signal = coin["signal"]
                     symbol = coin["symbol"]
+                    if symbol in coin_cooldown:
+
+                        cooldown_age = (
+                            time.time()
+                            - coin_cooldown[symbol]
+                    )
+
+                        if cooldown_age < 1800:
+
+                            print(f"COOLDOWN SKIP: {symbol}")
+
+                            continue
 
                     if signal in [
                         "BUY",
