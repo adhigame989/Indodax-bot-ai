@@ -296,6 +296,10 @@ def scan_market():
 
                     if not last_price or not bid or not ask:
                         continue
+                    spread_pct = ((ask - bid) / last_price) * 100
+
+                    if spread_pct > 2:
+                        continue
 
                     ohlcv = exchange.fetch_ohlcv(
                         symbol,
