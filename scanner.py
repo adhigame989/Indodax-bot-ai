@@ -357,7 +357,6 @@ def scan_market():
                         continue
 
                     multi_tf_score = get_multi_tf_score(symbol)
-                    multi_tf_score = get_multi_tf_score(symbol)
                     volume_score = get_volume_acceleration_score(latest_volume, avg_volume)
 
                     recent_high = df["high"].tail(20).max()
