@@ -345,14 +345,23 @@ def scan_market():
                         continue
 
                     multi_tf_score = get_multi_tf_score(symbol)
+                    multi_tf_score = get_multi_tf_score(symbol)
+                    volume_score = get_volume_acceleration_score(latest_volume, avg_volume)
 
-                    volume_score = get_volume_acceleration_score(
-                        latest_volume,
-                        avg_volume
-                    )
+                    recent_high = df["high"].tail(20).max()
+                    distance_to_breakout = ((recent_high - latest_price) / latest_price) * 100
 
-                    final_score = multi_tf_score + volume_score
+                    breakout_score = 0
+                    if distance_to_breakout <= 1:
+                        breakout_score = 25
+                    elif distance_to_breakout <= 3:
+                        breakout_score = 10
+                    elif distance_to_breakout > 5:
+                        breakout_score = -20
 
+                    final_score = multi_tf_score + volume_score + breakout_score
+
+                    print(f"{symbol} BreakoutDist={distance_to_breakout:.2f}% BreakoutScore={breakout_score}")
                     signal = "WAIT"
 
                     if btc_status == "BULLISH":
