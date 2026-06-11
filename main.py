@@ -49,8 +49,8 @@ def style():
     table{width:100%;border-collapse:collapse}
     th,td{padding:10px;border-bottom:1px solid #1e293b;text-align:left}
     th{color:#38bdf8}
-    .bottom-nav{position:fixed;bottom:0;left:0;width:100%;background:#0f172a;border-top:1px solid #1e293b;display:flex;justify-content:space-around;padding:12px}
-    .bottom-nav a{color:#94a3b8;text-decoration:none}
+    .bottom-nav{position:fixed;bottom:0;left:0;width:100%;background:#0f172a;border-top:1px solid #1e293b;display:flex;justify-content:space-around;align-items:center;height:80px}
+    .bottom-nav a{flex:1;text-align:center;color:#94a3b8;text-decoration:none;font-size:18px;padding:20px 0}
     .top-header{display:flex;justify-content:space-between;align-items:flex-start;}
     .datetime{text-align:right;color:#94a3b8;font-size:13px;line-height:1.5;}
     .creator{color:#38bdf8;margin-top:6px;}
