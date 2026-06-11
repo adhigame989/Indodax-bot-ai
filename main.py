@@ -666,22 +666,22 @@ def settings_page():
     """
 
     return html
-    @app.route("/save_settings", methods=["POST"])
-    def save_settings():
+@app.route("/save_settings", methods=["POST"])
+def save_settings():
 
-        config.BASE_TRADE_AMOUNT = int(request.form["base_trade_amount"])
+    config.BASE_TRADE_AMOUNT = int(request.form["base_trade_amount"])
 
-        config.MAX_ACTIVE_TRADES = int(request.form["max_active_trades"])
+    config.MAX_ACTIVE_TRADES = int(request.form["max_active_trades"])
 
-        config.TAKE_PROFIT = float(request.form["take_profit"])
+    config.TAKE_PROFIT = float(request.form["take_profit"])
 
-        config.STOP_LOSS = float(request.form["stop_loss"])
+    config.STOP_LOSS = float(request.form["stop_loss"])
 
-        config.TRAILING_GAP = float(request.form["trailing_gap"])
+    config.TRAILING_GAP = float(request.form["trailing_gap"])
 
-        config.SCAN_LIMIT = int(request.form["scan_limit"])
+    config.SCAN_LIMIT = int(request.form["scan_limit"])
 
-        return redirect("/settings")
+    return redirect("/settings")
 
 if __name__ == "__main__":
     port=int(os.environ.get("PORT",5000))
