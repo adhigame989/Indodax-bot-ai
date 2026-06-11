@@ -330,6 +330,7 @@ def scan_market():
 
                     latest_volume = volume_data.iloc[-1]
                     avg_volume = volume_data.tail(20).mean()
+                    volume_ratio = latest_volume / avg_volume if avg_volume > 0 else 1
 
                     candle_pump = (
                         (latest_price - latest_open)
@@ -395,6 +396,7 @@ def scan_market():
                     print(f"{symbol} BreakoutDist={distance_to_breakout:.2f}% BreakoutScore={breakout_score}")
                     print(f"{symbol} TrendScore={trend_score}")
                     print(f"{symbol} GreenCandles={green_count}")
+                    print(f"{symbol} VolRatio={volume_ratio:.2f} "f"VolScore={volume_score}")
                     signal = "WAIT"
 
                     if btc_status == "BULLISH":
