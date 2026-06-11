@@ -224,7 +224,7 @@ def home():
             t["symbol"].split("/")[0]
             for t in trader.active_trades
         }
-        for coin, amount in balance["free"].items():
+        for coin, amount in balance["total"].items():
 
             if coin == "IDR":
                 continue
@@ -242,7 +242,7 @@ def home():
 
         coin_value = 0
 
-        for coin, amount in balance['free'].items():
+        for coin, amount in balance['total'].items():
 
             if coin == "IDR":
                 continue
