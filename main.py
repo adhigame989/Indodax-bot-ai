@@ -1,4 +1,4 @@
-from flask import Flask, redirect
+from flask import Flask, redirect, request
 import ccxt
 import os
 from datetime import datetime
@@ -107,6 +107,7 @@ def topbar():
         <a href="/scanner">📈 Scanner</a>
         <a href="/position">📊 Positions</a>
         <a href="/history">📜 History</a>
+        <a href="/settings">⚙️ Settings</a>
     </div>
     """
 
@@ -608,7 +609,79 @@ def history_page():
     )
     html+="</body></html>"
     return html
+@app.route("/settings")
+def settings_page():
 
+    html = f"""
+    <html>
+    <head>{style()}</head>
+    <body>
+
+    {topbar()}
+
+    <div class="trade-box">
+
+    <h2>⚙️ BOT SETTINGS</h2>
+
+    <form action="/save_settings" method="post">
+
+    Base Trade Amount<br>
+    <input type="number" name="base_trade_amount"
+    value="{config.BASE_TRADE_AMOUNT}"><br><br>
+
+    Max Active Trades<br>
+    <input type="number" name="max_active_trades"
+    value="{config.MAX_ACTIVE_TRADES}"><br><br>
+
+    Take Profit (%)<br>
+    <input type="number" step="0.1"
+    name="take_profit"
+    value="{config.TAKE_PROFIT}"><br><br>
+
+    Stop Loss (%)<br>
+    <input type="number" step="0.1"
+    name="stop_loss"
+    value="{config.STOP_LOSS}"><br><br>
+
+    Trailing Gap (%)<br>
+    <input type="number" step="0.1"
+    name="trailing_gap"
+    value="{config.TRAILING_GAP}"><br><br>
+
+    Scan Limit<br>
+    <input type="number"
+    name="scan_limit"
+    value="{config.SCAN_LIMIT}"><br><br>
+
+    <button type="submit">
+    SAVE SETTINGS
+    </button>
+
+    </form>
+
+    </div>
+
+    </body>
+    </html>
+    """
+
+    return html
+    @app.route("/save_settings", methods=["POST"])
+    def save_settings():
+
+        config.BASE_TRADE_AMOUNT = int(request.form["base_trade_amount"])
+
+        config.MAX_ACTIVE_TRADES = int(request.form["max_active_trades"])
+
+        config.TAKE_PROFIT = float(request.form["take_profit"])
+
+        config.STOP_LOSS = float(request.form["stop_loss"])
+
+        config.TRAILING_GAP = float(request.form["trailing_gap"])
+
+        config.SCAN_LIMIT = int(request.form["scan_limit"])
+
+        return redirect("/settings")
 
 if __name__ == "__main__":
     port=int(os.environ.get("PORT",5000))
