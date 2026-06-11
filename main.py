@@ -207,9 +207,9 @@ def home():
         })
 
         balance=exchange.fetch_balance()
-        print("FREE:", balance["free"])
-        print("USED:", balance["used"])
-        print("TOTAL:", balance["total"])
+        print("FREE:", balance["free"].get("IDR", 0))
+        print("USED:", balance["used"].get("IDR", 0))
+        print("TOTAL:", balance["total"].get("IDR", 0))
         open_order_count = 0
 
         try:
