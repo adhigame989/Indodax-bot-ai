@@ -250,6 +250,7 @@ def home():
             if amount <= 0:
                 continue
 
+            print("COIN:", coin, amount) 
             try:
                 ticker = exchange.fetch_ticker(f"{coin}/IDR")
                 price = ticker["last"]
