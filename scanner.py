@@ -381,7 +381,7 @@ def scan_market():
                     if latest_price > ema20.iloc[-1]:
                         trend_score += 10
                     if ema20.iloc[-1] < ema50.iloc[-1]:
-                        continue
+                        trend_score -= 30
                     green_count = 0
 
                     if df["close"].iloc[-1] > df["open"].iloc[-1]:
@@ -394,7 +394,7 @@ def scan_market():
                         green_count += 1
 
                     if green_count < 2:
-                        continue
+                        trend_score -= 20
                     final_score = (multi_tf_score + volume_score + breakout_score + trend_score)
 
                     print(f"{symbol} BreakoutDist={distance_to_breakout:.2f}% BreakoutScore={breakout_score}")
