@@ -22,7 +22,6 @@ BLACKLIST = [
     "BUSD/IDR"
 ]
 
-
 def get_volume_acceleration_score(latest_volume, avg_volume):
 
     if avg_volume <= 0:
@@ -30,14 +29,20 @@ def get_volume_acceleration_score(latest_volume, avg_volume):
 
     ratio = latest_volume / avg_volume
 
+    if ratio >= 4:
+        return 35
+
     if ratio >= 3:
-        return 15
+        return 25
 
     if ratio >= 2:
-        return 10
+        return 15
 
     if ratio >= 1.5:
-        return 5
+        return 8
+
+    if ratio < 0.8:
+        return -10
 
     return 0
 
