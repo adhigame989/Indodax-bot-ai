@@ -300,7 +300,7 @@ def scan_market():
                     ohlcv = exchange.fetch_ohlcv(
                         symbol,
                         timeframe=config.TIMEFRAME,
-                        limit=60
+                        limit=250
                     )
 
                     if not ohlcv:
@@ -315,8 +315,10 @@ def scan_market():
                     volume_data = df["volume"]
 
                     rsi = ta.momentum.RSIIndicator(close).rsi()
-                    ema20 = ta.trend.EMAIndicator(close, window=20).ema_indicator()
 
+                    ema7 = ta.trend.EMAIndicator(close, window=7).ema_indicator()
+                    ema20 = ta.trend.EMAIndicator(close, window=20).ema_indicator()
+                    ema50 = ta.trend.EMAIndicator(close, window=50).ema_indicator()
                     latest_price = close.iloc[-1]
                     latest_open = df["open"].iloc[-1]
                     latest_rsi = rsi.iloc[-1]
@@ -359,9 +361,36 @@ def scan_market():
                     elif distance_to_breakout > 5:
                         breakout_score = -20
 
-                    final_score = multi_tf_score + volume_score + breakout_score
+                    trend_score = 0
+
+                    if ema7.iloc[-1] > ema20.iloc[-1]:
+                        trend_score += 10
+
+                    if ema20.iloc[-1] > ema50.iloc[-1]:
+                        trend_score += 10
+
+                    if latest_price > ema20.iloc[-1]:
+                        trend_score += 10
+                    if ema20.iloc[-1] < ema50.iloc[-1]:
+                        continue
+                    green_count = 0
+
+                    if df["close"].iloc[-1] > df["open"].iloc[-1]:
+                        green_count += 1
+
+                    if df["close"].iloc[-2] > df["open"].iloc[-2]:
+                        green_count += 1
+
+                    if df["close"].iloc[-3] > df["open"].iloc[-3]:
+                        green_count += 1
+
+                    if green_count < 2:
+                        continue
+                    final_score = (multi_tf_score + volume_score + breakout_score + trend_score)
 
                     print(f"{symbol} BreakoutDist={distance_to_breakout:.2f}% BreakoutScore={breakout_score}")
+                    print(f"{symbol} TrendScore={trend_score}")
+                    print(f"{symbol} GreenCandles={green_count}")
                     signal = "WAIT"
 
                     if btc_status == "BULLISH":
