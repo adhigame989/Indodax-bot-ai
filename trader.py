@@ -500,6 +500,13 @@ def monitor_trade(trade):
                     trade["trailing_trigger"] = True
                     trade["trailing_trigger_time"] = time.time()
 
+                    telegram_bot.send_telegram(
+                        f"⚠️ TRAILING TOUCHED\n\n"
+                        f"Coin: {symbol}\n"
+                        f"Price: Rp {current_price:,.2f}\n"
+                        f"Buffer: 30 sec started"
+                    )
+
                     save_trade()
 
                     print(
@@ -517,7 +524,9 @@ def monitor_trade(trade):
                 ):
 
                     telegram_bot.send_telegram(
-                        f"⚠️ TRAILING STOP HIT\n\n{symbol}"
+                        f"🎯 TRAILING SELL\n\n"
+                        f"Coin: {symbol}\n"
+                        f"Profit secured"
                     )
 
                     sell_coin(trade)
@@ -531,6 +540,12 @@ def monitor_trade(trade):
                     trade["trailing_trigger"] = False
                     trade["trailing_trigger_time"] = 0
 
+                    telegram_bot.send_telegram(
+                        f"✅ TRAILING RECOVERED\n\n"
+                        f"Coin: {symbol}\n"
+                        f"Price back above trailing"
+                    )
+
                     save_trade()
         if trade["sl_trigger"]:
 
@@ -539,6 +554,11 @@ def monitor_trade(trade):
                 trade["sl_trigger"] = False
 
                 trade["sl_trigger_time"] = 0
+                telegram_bot.send_telegram(
+                    f"✅ SL RECOVERED\n\n"
+                    f"Coin: {symbol}\n"
+                    f"Price back above SL"
+                )
 
                 save_trade()
 
@@ -566,6 +586,13 @@ def monitor_trade(trade):
                 trade["sl_trigger"] = True
 
                 trade["sl_trigger_time"] = time.time()
+
+                telegram_bot.send_telegram(
+                    f"⚠️ SL TOUCHED\n\n"
+                    f"Coin: {symbol}\n"
+                    f"Price: Rp {current_price:,.2f}\n"
+                    f"Buffer: 60 sec started"
+                )
 
                 save_trade()
 
