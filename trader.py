@@ -493,7 +493,7 @@ def monitor_trade(trade):
                 )
             )
 
-            if current_price < trailing_stop_price:
+            if current_price <= trailing_stop_price:
 
                 if not trade["trailing_trigger"]:
 
