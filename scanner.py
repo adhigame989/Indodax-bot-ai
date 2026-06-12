@@ -395,6 +395,23 @@ def scan_market():
 
                     if green_count < 2:
                         trend_score -= 20
+                    last_high = df["high"].iloc[-1]
+                    last_low = df["low"].iloc[-1]
+                    last_close = df["close"].iloc[-1]
+
+                    wick_range = ((last_high - last_low) / last_close) * 100
+
+                    if wick_range > 8:
+                        trend_score -= 40
+                        print(f"{symbol} ABNORMAL WICK DETECTED: {wick_range:.2f}%")
+                    body = abs(df["close"].iloc[-1] - df["open"].iloc[-1])
+                    full = df["high"].iloc[-1] - df["low"].iloc[-1]
+
+                    if full > 0:
+                        body_ratio = body / full
+
+                    if body_ratio < 0.25:
+                        trend_score -= 30
                     final_score = (multi_tf_score + volume_score + breakout_score + trend_score)
 
                     print(f"{symbol} BreakoutDist={distance_to_breakout:.2f}% BreakoutScore={breakout_score}")
