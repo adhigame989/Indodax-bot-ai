@@ -122,7 +122,7 @@ def buy_coin(symbol):
             amount = trade_amount / buy_price
 
             market = exchange.market(symbol)
-            precision = market.get("precision", {}).get("amount", 8)
+            precision = int(market.get("precision", {}).get("amount", 8))
 
             if precision == 0:
                 amount = int(amount)
