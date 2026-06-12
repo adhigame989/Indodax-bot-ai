@@ -412,6 +412,12 @@ def scan_market():
 
                     if body_ratio < 0.25:
                         trend_score -= 30
+                    if volume_ratio > 2 and breakout_distance < 3:
+                        final_score += 10
+
+                    if volume_ratio > 3 and breakout_distance < 2:
+                        final_score += 20
+                    
                     final_score = (multi_tf_score + volume_score + breakout_score + trend_score)
 
                     print(f"{symbol} BreakoutDist={distance_to_breakout:.2f}% BreakoutScore={breakout_score}")
