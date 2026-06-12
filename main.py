@@ -495,7 +495,7 @@ def stop_bot():
     trader.BOT_RUNNING = False
     return redirect("/")
 
-@app.route("/manual_sell/<symbol>")
+@app.route("/manual_sell/<path:symbol>")
 def manual_sell_route(symbol):
 
     trader.manual_sell(symbol)
