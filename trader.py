@@ -120,7 +120,14 @@ def buy_coin(symbol):
             buy_price = ask_price * (1 + config.BUY_SLIPPAGE)
 
             amount = trade_amount / buy_price
-            amount = float(exchange.amount_to_precision(symbol, amount))
+
+            market = exchange.market(symbol)
+            precision = market.get("precision", {}).get("amount", 8)
+
+            if precision == 0:
+                amount = int(amount)
+            else:
+                amount = round(amount, precision)
             buy_price = float(exchange.price_to_precision(symbol, buy_price))
 
             print("BUY SYMBOL:", symbol)
