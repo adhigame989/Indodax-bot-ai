@@ -495,7 +495,14 @@ def stop_bot():
     trader.BOT_RUNNING = False
     return redirect("/")
 
+@app.route("/manual_sell/<symbol>")
+def manual_sell_route(symbol):
 
+    trader.manual_sell(symbol)
+
+    return redirect("/position")
+
+    
 @app.route("/scanner")
 def scanner_page():
     html=f"<html><head>{style()}</head><body>{topbar()}<div class='table-box'><table><tr><th>Coin</th><th>Signal</th><th>Score</th><th>RSI</th><th>Price</th></tr>"
@@ -560,6 +567,20 @@ def position_page():
             <br>
 
             Hold : {m['hold']}
+            <br><br>
+
+            <a href="/manual_sell/{t.get('symbol')}"
+            style="
+            display:inline-block;
+            padding:12px 20px;
+            background:#991b1b;
+            color:white;
+            border-radius:10px;
+            text-decoration:none;
+            font-weight:bold;
+            ">
+            SELL MANUAL
+            </a>
 
             </div>
             """
