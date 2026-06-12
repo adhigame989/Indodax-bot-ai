@@ -347,7 +347,91 @@ def sell_coin(trade):
 
         print("SELL ERROR:", str(e))
 
+def manual_sell(symbol):
+    global active_trade
 
+    try:
+        for trade in active_trades:
+            if trade["symbol"] == symbol:
+
+                base_coin = symbol.split("/")[0]
+
+                balance = exchange.fetch_balance()
+                wallet_amount = balance["free"].get(base_coin, 0)
+
+                amount = min(
+                    trade["amount"],
+                    wallet_amount
+                )
+
+                amount = float(
+                    exchange.amount_to_precision(
+                        symbol,
+                        amount
+                    )
+                )
+
+                ticker = exchange.fetch_ticker(symbol)
+
+                bid_price = ticker["bid"]
+
+                sell_price = (
+                    bid_price *
+                    (1 - config.SELL_SLIPPAGE)
+                )
+
+                exchange.create_limit_sell_order(
+                    symbol,
+                    amount,
+                    sell_price
+                )
+
+                profit_percent = (
+                    (
+                        sell_price -
+                        trade["buy_price"]
+                    )
+                    /
+                    trade["buy_price"]
+                ) * 100
+
+                sell_value = sell_price * amount
+
+                profit_idr = (
+                    sell_value -
+                    trade["entry_value"]
+                )
+
+                history.add_trade_history(
+                    symbol,
+                    "MANUAL SELL",
+                    trade["buy_price"],
+                    sell_price,
+                    profit_percent
+                )
+
+                telegram_bot.send_telegram(
+                    f"⚠️ MANUAL SELL\n\n"
+                    f"Coin: {symbol}\n"
+                    f"Sell Price: Rp {sell_price:,.2f}\n"
+                    f"Profit: Rp {profit_idr:,.0f} ({profit_percent:.2f}%)"
+                )
+
+                active_trades.remove(trade)
+
+                if active_trades:
+                    active_trade = active_trades[0]
+                else:
+                    active_trade = None
+
+                save_trade()
+
+                print("MANUAL SELL:", symbol)
+
+                break
+
+    except Exception as e:
+        print("MANUAL SELL ERROR:", str(e))
 def monitor_trade(trade):
 
     global active_trade
