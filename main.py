@@ -569,7 +569,8 @@ def position_page():
             Hold : {m['hold']}
             <br><br>
 
-            <a href="/manual_sell/{t.get('symbol')}"
+            <a href="#"
+            onclick="if(confirm('Yakin mau sell manual {t.get('symbol')}?')) { window.location='/manual_sell/{t.get('symbol')}'; }"
             style="
             display:inline-block;
             padding:12px 20px;
