@@ -241,6 +241,7 @@ def sell_coin(trade):
         )
 
         amount = int(float(exchange.amount_to_precision(symbol,amount)))
+        sell_price = float(exchange.price_to_precision(symbol, sell_price))
         print(
             f"SELL AMOUNT: "
             f"{amount} / "
@@ -362,6 +363,7 @@ def manual_sell(symbol):
                 )
 
                 amount = int(float(exchange.amount_to_precision(symbol,amount)))
+                sell_price = float(exchange.price_to_precision(symbol, sell_price))
 
                 ticker = exchange.fetch_ticker(symbol)
 
