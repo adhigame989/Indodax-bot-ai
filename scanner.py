@@ -13,6 +13,7 @@ exchange = ccxt.indodax({
 
 market_data = []
 recent_logs = []
+failed_breakout_watchlist = {}
 
 BLACKLIST = [
     "USDT/IDR",
@@ -105,7 +106,7 @@ def get_multi_tf_score(symbol):
         if close_15m.iloc[-1] > ema20_15m.iloc[-1]:
             score_15m += 30
 
-        if 40 <= rsi_15m.iloc[-1] <= 75:
+        if 45 <= rsi_15m.iloc[-1] <= 68:
             score_15m += 30
 
         rsi_1h = ta.momentum.RSIIndicator(close_1h).rsi()
@@ -118,7 +119,7 @@ def get_multi_tf_score(symbol):
         if close_1h.iloc[-1] > ema20_1h.iloc[-1]:
             score_1h += 30
 
-        if 40 <= rsi_1h.iloc[-1] <= 75:
+        if 45 <= rsi_1h.iloc[-1] <= 68:
             score_1h += 30
 
         ema20_4h = ta.trend.EMAIndicator(close_4h, window=20).ema_indicator()
@@ -328,6 +329,11 @@ def scan_market():
                     ema7 = ta.trend.EMAIndicator(close, window=7).ema_indicator()
                     ema20 = ta.trend.EMAIndicator(close, window=20).ema_indicator()
                     ema50 = ta.trend.EMAIndicator(close, window=50).ema_indicator()
+                    ema7_now = ema7.iloc[-1]
+                    ema7_prev = ema7.iloc[-2]
+                    
+                    ema_slope = ((ema7_now - ema7_prev)/ ema7_prev) * 100
+                    
                     latest_price = close.iloc[-1]
                     latest_open = df["open"].iloc[-1]
                     latest_rsi = rsi.iloc[-1]
@@ -336,17 +342,38 @@ def scan_market():
                     latest_volume = volume_data.iloc[-1]
                     avg_volume = volume_data.tail(20).mean()
                     volume_ratio = latest_volume / avg_volume if avg_volume > 0 else 1
+                    
+                    relative_volume_score = 0
 
-                    candle_pump = (
-                        (latest_price - latest_open)
-                        / latest_open
-                    ) * 100
+                    if volume_ratio >= 4:
+                        relative_volume_score = 20
+                    elif volume_ratio >= 3:
+                        relative_volume_score = 15
+                    elif volume_ratio >= 2:
+                        relative_volume_score = 8
+
+                    candle_pump = ((latest_price - latest_open) / latest_open) * 100
 
                     if candle_pump > 8:
                         continue
+                    # STEP 7 - Fake pump rejection
+                    upper_wick = df["high"].iloc[-1] - max(df["close"].iloc[-1], df["open"].iloc[-1])
+                    body = abs(df["close"].iloc[-1] - df["open"].iloc[-1])
+
+                    if body > 0:
+                        wick_ratio = upper_wick / body
+
+                        if wick_ratio > 2.5:
+                            continue
 
                     if latest_rsi > 80:
                         continue
+                    if 52 <= latest_rsi <= 68:
+                        trend_score += 10
+                    elif 68 < latest_rsi <= 75:
+                        trend_score += 5
+                    elif latest_rsi < 40:
+                        trend_score -= 10
 
                     ema_distance = (
                         (latest_price - latest_ema20)
@@ -388,6 +415,20 @@ def scan_market():
                             breakout_score += 8
 
                     trend_score = 0
+                    # STEP 9 - Revisit bonus
+                    if symbol in failed_breakout_watchlist:
+
+                        watch_age = time.time() - failed_breakout_watchlist[symbol]
+
+                        if watch_age <= 7200:  # 2 jam
+                            trend_score += 15
+                        else:
+                            del failed_breakout_watchlist[symbol]
+                    if ema_slope > 0.4:
+                        trend_score += 10
+
+                    elif ema_slope < 0:
+                        trend_score -= 10
                     if ema7.iloc[-1] > ema20.iloc[-1]:
                         trend_score += 10
 
@@ -411,6 +452,12 @@ def scan_market():
 
                     if green_count < 2:
                         trend_score -= 20
+                    # STEP 9 - Failed breakout memory
+                    if (distance_to_breakout < 2
+                        and df["close"].iloc[-1] < df["open"].iloc[-1]
+                        and volume_ratio > 1.2):
+                        failed_breakout_watchlist[symbol] = time.time()
+                            
                     last_high = df["high"].iloc[-1]
                     last_low = df["low"].iloc[-1]
                     last_close = df["close"].iloc[-1]
@@ -429,7 +476,7 @@ def scan_market():
                     if body_ratio < 0.25:
                         trend_score -= 30
                     
-                    final_score = (multi_tf_score + volume_score + breakout_score + trend_score)
+                    final_score = (multi_tf_score + volume_score + breakout_score + trend_score + relative_volume_score)
                     if volume_ratio > 2 and distance_to_breakout < 3:
                         final_score += 10
 
