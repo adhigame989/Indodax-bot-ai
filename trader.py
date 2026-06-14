@@ -195,7 +195,9 @@ def buy_coin(symbol):
                 "sl_trigger": False,
                 "sl_trigger_time": 0,
                 "trailing_trigger": False,
-                "trailing_trigger_time": 0
+                "trailing_trigger_time": 0,
+                "tp_mode": False,
+                "tp_highest": round(buy_price, 8)
             }
 
             active_trades.append(trade)
@@ -482,11 +484,9 @@ def monitor_trade(trade):
         if current_price < trade["lowest_price"]:
             trade["lowest_price"] = current_price
 
-        # Trailing hanya aktif jika posisi profit
-        if (
-            config.TRAILING_STOP
-            and current_price >
-            trade["buy_price"]
+        # Smart trailing aktif setelah profit cukup
+        if (config.TRAILING_STOP
+            and profit_percent >= config.TRAILING_START
         ):
 
             trailing_stop_price = (
@@ -553,6 +553,56 @@ def monitor_trade(trade):
                     )
 
                     save_trade()
+        # Dynamic TP Buffer
+        tp_buffer_percent = (
+            config.TAKE_PROFIT *
+            (1 - config.TP_BUFFER_RATIO)
+        )
+
+        # Masuk profit zone
+        if (
+            profit_percent >= tp_buffer_percent
+            and not trade["tp_mode"]
+        ):
+
+            trade["tp_mode"] = True
+            trade["tp_highest"] = current_price
+
+            telegram_bot.send_telegram(
+                f"🎯 TP ZONE ENTERED\n\n"
+                f"Coin: {symbol}\n"
+                f"Profit: {profit_percent:.2f}%"
+            )
+
+            save_trade()
+
+        # TP Confirmation Mode
+        if trade["tp_mode"]:
+
+            if current_price > trade["tp_highest"]:
+                trade["tp_highest"] = current_price
+
+            tp_trailing_price = (
+                trade["tp_highest"]
+                *
+                (
+                    1 - (
+                        config.TP_CONFIRM_TRAILING / 100
+                    )
+                )
+            )
+
+            if current_price <= tp_trailing_price:
+
+                telegram_bot.send_telegram(
+                    f"🚀 TP CONFIRM SELL\n\n"
+                    f"Coin: {symbol}\n"
+                    f"Profit locked"
+                )
+
+                sell_coin(trade)
+
+                return
         if trade["sl_trigger"]:
 
             if current_price > trade["sl_price"]:
@@ -573,17 +623,6 @@ def monitor_trade(trade):
                     symbol
                 )
                 return
-
-        if current_price >= trade["tp_price"]:
-
-            print("TAKE PROFIT HIT")
-
-            telegram_bot.send_telegram(
-                f"🎯 TAKE PROFIT HIT\n\n{symbol}"
-            )
-
-            sell_coin(trade)
-            return
 
         if current_price <= trade["sl_price"]:
 
