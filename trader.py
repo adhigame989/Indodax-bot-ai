@@ -69,10 +69,9 @@ def get_trade_amount(balance):
 
     try:
 
-        compound_size = (
-            balance *
-            (config.COMPOUND_PERCENT / 100)
-        )
+        effective_balance = min(balance,config.BOT_CAPITAL_LIMIT)
+
+        compound_size = (effective_balance *(config.COMPOUND_PERCENT / 100))
 
         amount = max(
             config.BASE_TRADE_AMOUNT,
@@ -121,12 +120,7 @@ def buy_coin(symbol):
 
             amount = trade_amount / buy_price
 
-            amount_str = exchange.amount_to_precision(symbol,amount)
-
-            if "." in amount_str:
-                amount = float(amount_str)
-            else:
-                amount = int(amount_str)
+            amount = int(float(exchange.amount_to_precision(symbol,amount)))
             buy_price = float(exchange.price_to_precision(symbol, buy_price))
 
             print("BUY SYMBOL:", symbol)
@@ -246,12 +240,7 @@ def sell_coin(trade):
             wallet_amount
         )
 
-        amount_str = exchange.amount_to_precision(symbol,amount)
-
-        if "." in amount_str:
-            amount = float(amount_str)
-        else:
-            amount = int(amount_str)
+        amount = int(float(exchange.amount_to_precision(symbol,amount)))
         print(
             f"SELL AMOUNT: "
             f"{amount} / "
@@ -372,12 +361,7 @@ def manual_sell(symbol):
                     wallet_amount
                 )
 
-                amount_str = exchange.amount_to_precision(symbol,amount)
-
-                if "." in amount_str:
-                    amount = float(amount_str)
-                else:
-                    amount = int(amount_str)
+                amount = int(float(exchange.amount_to_precision(symbol,amount)))
 
                 ticker = exchange.fetch_ticker(symbol)
 
