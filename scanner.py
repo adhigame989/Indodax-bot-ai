@@ -360,9 +360,12 @@ def scan_market():
                     volume_score = get_volume_acceleration_score(latest_volume, avg_volume)
 
                     recent_high = df["high"].tail(20).max()
-                    distance_to_breakout = ((recent_high - latest_price) / latest_price) * 100
+                    recent_low = df["low"].tail(20).min()
+
+                    distance_to_breakout = ((recent_high - latest_price)/ latest_price) * 100
 
                     breakout_score = 0
+
                     if distance_to_breakout <= 1:
                         breakout_score = 25
                     elif distance_to_breakout <= 3:
@@ -370,8 +373,21 @@ def scan_market():
                     elif distance_to_breakout > 5:
                         breakout_score = -20
 
-                    trend_score = 0
 
+# === BREAKOUT STRENGTH ===
+                    price_range = recent_high - recent_low
+
+                    if price_range > 0:
+
+                        breakout_strength = ((latest_price - recent_low)/ price_range)
+
+                        if breakout_strength > 0.75:
+                            breakout_score += 15
+
+                        elif breakout_strength > 0.60:
+                            breakout_score += 8
+
+                    trend_score = 0
                     if ema7.iloc[-1] > ema20.iloc[-1]:
                         trend_score += 10
 
@@ -412,13 +428,13 @@ def scan_market():
 
                     if body_ratio < 0.25:
                         trend_score -= 30
-                    if volume_ratio > 2 and breakout_distance < 3:
-                        final_score += 10
-
-                    if volume_ratio > 3 and breakout_distance < 2:
-                        final_score += 20
                     
                     final_score = (multi_tf_score + volume_score + breakout_score + trend_score)
+                    if volume_ratio > 2 and distance_to_breakout < 3:
+                        final_score += 10
+
+                    if volume_ratio > 3 and distance_to_breakout < 2:
+                        final_score += 20
 
                     print(f"{symbol} BreakoutDist={distance_to_breakout:.2f}% BreakoutScore={breakout_score}")
                     print(f"{symbol} TrendScore={trend_score}")
