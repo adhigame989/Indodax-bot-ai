@@ -651,6 +651,10 @@ def settings_page():
     <input type="number" name="base_trade_amount"
     value="{config.BASE_TRADE_AMOUNT}"><br><br>
 
+    Bot Capital Limit<br>
+    <input type="number" name="bot_capital_limit"
+    value="{config.BOT_CAPITAL_LIMIT}"><br><br>
+
     Max Active Trades<br>
     <input type="number" name="max_active_trades"
     value="{config.MAX_ACTIVE_TRADES}"><br><br>
@@ -692,6 +696,8 @@ def settings_page():
 def save_settings():
 
     config.BASE_TRADE_AMOUNT = int(request.form["base_trade_amount"])
+
+    config.BOT_CAPITAL_LIMIT = int(request.form["bot_capital_limit"])
 
     config.MAX_ACTIVE_TRADES = int(request.form["max_active_trades"])
 
