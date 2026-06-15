@@ -120,7 +120,7 @@ def buy_coin(symbol):
 
             amount = trade_amount / buy_price
 
-            amount = float(exchange.amount_to_precision(symbol,amount))
+            amount_precise = float(exchange.amount_to_precision(symbol,amount))
             if amount_precise >= 1:
                 amount = int(amount_precise)
             else:
@@ -244,7 +244,7 @@ def sell_coin(trade):
             wallet_amount
         )
 
-        amount = float(exchange.amount_to_precision(symbol,amount))
+        amount_precise = float(exchange.amount_to_precision(symbol,amount))
         if amount_precise >= 1:
             amount = int(amount_precise)
         else:
@@ -370,7 +370,7 @@ def manual_sell(symbol):
                     wallet_amount
                 )
 
-                amount = float(exchange.amount_to_precision(symbol,amount))
+                amount_precise = float(exchange.amount_to_precision(symbol,amount))
                 if amount_precise >= 1:
                     amount = int(amount_precise)
                 else:
