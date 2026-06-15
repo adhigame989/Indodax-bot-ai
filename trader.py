@@ -244,12 +244,22 @@ def sell_coin(trade):
             wallet_amount
         )
 
-        amount_precise = float(exchange.amount_to_precision(symbol,amount))
+        amount_precise = float(
+            exchange.amount_to_precision(symbol,amount))
+
         if amount_precise >= 1:
             amount = int(amount_precise)
         else:
             amount = amount_precise
-        sell_price = float(exchange.price_to_precision(symbol, sell_price))
+
+        ticker = exchange.fetch_ticker(symbol)
+
+        bid_price = ticker['bid']
+
+        sell_price = (bid_price *(1 - config.SELL_SLIPPAGE))
+
+        sell_price = float(exchange.price_to_precision(symbol,sell_price))
+
         print(
             f"SELL AMOUNT: "
             f"{amount} / "
@@ -375,8 +385,7 @@ def manual_sell(symbol):
                     amount = int(amount_precise)
                 else:
                     amount = amount_precise
-                sell_price = float(exchange.price_to_precision(symbol, sell_price))
-
+                
                 ticker = exchange.fetch_ticker(symbol)
 
                 bid_price = ticker["bid"]
@@ -385,7 +394,8 @@ def manual_sell(symbol):
                     bid_price *
                     (1 - config.SELL_SLIPPAGE)
                 )
-
+                sell_price = float(exchange.price_to_precision(symbol, sell_price))
+                
                 exchange.create_limit_sell_order(
                     symbol,
                     amount,
