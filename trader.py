@@ -285,14 +285,6 @@ def sell_coin(trade):
             f"{amount} / "
             f"WALLET: {wallet_amount}"
         )
-        ticker = exchange.fetch_ticker(symbol)
-
-        bid_price = ticker['bid']
-
-        sell_price = (
-            bid_price *
-            (1 - config.SELL_SLIPPAGE)
-        )
 
         order = exchange.create_limit_sell_order(
             symbol,
