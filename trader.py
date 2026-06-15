@@ -7,6 +7,8 @@ import config
 import history
 import scanner
 import telegram_bot
+import json
+import os
 
 BOT_RUNNING = False
 trade_lock = threading.Lock()
@@ -17,9 +19,29 @@ exchange = ccxt.indodax({
 })
 
 active_trades = []
+TRADES_FILE = "active_trades.json"
 active_trade = None
 trade_file = "active_trade.json"
 coin_cooldown = {}
+
+def save_trades():
+
+    with open(TRADES_FILE, "w") as f:
+        json.dump(active_trades, f, indent=4)
+
+
+def load_trades():
+
+    global active_trades
+
+    if os.path.exists(TRADES_FILE):
+
+        with open(TRADES_FILE, "r") as f:
+            active_trades = json.load(f)
+
+        print(
+            f"LOADED {len(active_trades)} ACTIVE TRADES"
+        )
 
 
 def save_trade():
@@ -199,13 +221,14 @@ def buy_coin(symbol):
             }
 
             active_trades.append(trade)
+            save_trades()
 
             print("ACTIVE TRADES SAVED:", len(active_trades))
 
             if active_trades:
                 active_trade = active_trades[0]
 
-            save_trade()
+            save_trades()
 
             print("BUY SUCCESS:", symbol)
 
@@ -345,6 +368,7 @@ def sell_coin(trade):
             active_trades.remove(
                 trade
             )
+        save_trades()
 
         if active_trades:
 
@@ -354,7 +378,7 @@ def sell_coin(trade):
 
             active_trade = None
 
-        save_trade()
+        save_trades()
 
     except Exception as e:
 
@@ -430,13 +454,14 @@ def manual_sell(symbol):
                 )
 
                 active_trades.remove(trade)
+                save_trades()
 
                 if active_trades:
                     active_trade = active_trades[0]
                 else:
                     active_trade = None
 
-                save_trade()
+                save_trades()
 
                 print("MANUAL SELL:", symbol)
 
@@ -517,7 +542,7 @@ def monitor_trade(trade):
                         f"Buffer: 30 sec started"
                     )
 
-                    save_trade()
+                    save_trades()
 
                     print(
                         "TRAILING TRIGGER:",
@@ -556,7 +581,7 @@ def monitor_trade(trade):
                         f"Price back above trailing"
                     )
 
-                    save_trade()
+                    save_trades()
         # Dynamic TP Buffer
         tp_buffer_percent = (
             config.TAKE_PROFIT *
@@ -578,7 +603,7 @@ def monitor_trade(trade):
                 f"Profit: {profit_percent:.2f}%"
             )
 
-            save_trade()
+            save_trades()
 
         # TP Confirmation Mode
         if trade["tp_mode"]:
@@ -620,7 +645,7 @@ def monitor_trade(trade):
                     f"Price back above SL"
                 )
 
-                save_trade()
+                save_trades()
 
                 print(
                     "PRICE RECOVERED:",
@@ -643,7 +668,7 @@ def monitor_trade(trade):
                     f"Buffer: 60 sec started"
                 )
 
-                save_trade()
+                save_trades()
 
                 print(
                     "SL TRIGGER:",
@@ -667,7 +692,7 @@ def monitor_trade(trade):
 
                 return
 
-        save_trade()
+        save_trades()
 
     except Exception as e:
 
@@ -733,7 +758,7 @@ def trade_loop():
         time.sleep(
             config.TRADER_INTERVAL
         )
-
+load_trades()
 
 def start_trader():
 
