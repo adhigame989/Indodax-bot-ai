@@ -678,50 +678,50 @@ def trade_loop():
 
             print(
                 "ACTIVE:",len(active_trades),"/",config.MAX_ACTIVE_TRADES)
-            unique_symbols = set(
-                t["symbol"] for t in active_trades
-            )
+            for coin in scanner.market_data[:]:
+                signal = coin["signal"]
+                symbol = coin["symbol"]
 
-            can_open_new_coin = (
-                len(unique_symbols) < config.MAX_ACTIVE_TRADES
-            )
-            can_add_layer = any(
-                sum(
+                same_coin_count = sum(
                     1 for t in active_trades
-                    if t["symbol"] == coin["symbol"]
-                ) < config.MAX_LAYER_PER_COIN
-                for coin in scanner.market_data
-            )
+                    if t["symbol"] == symbol
+                )
+                now = time.time()
 
-            if can_open_new_coin or can_add_layer:   
+                if same_coin_count == 0:
+                    cooldown = 0
+                elif same_coin_count == 1:
+                    cooldown = 180
+                elif same_coin_count == 2:
+                    cooldown = 300
+                else:
+                    cooldown = 300
 
-                for coin in scanner.market_data[:]:
+                if symbol in coin_cooldown:
+                    cooldown_age = now - coin_cooldown[symbol]
 
-                    signal = coin["signal"]
-                    symbol = coin["symbol"]
-                    if symbol in coin_cooldown:
+                    if cooldown_age < cooldown:
+                        print(f"COOLDOWN SKIP: {symbol}")
+                        continue
+                    else:
+                        del coin_cooldown[symbol]
 
-                        cooldown_age = (
-                            time.time()
-                            - coin_cooldown[symbol]
-                    )
+                unique_symbols = set(
+                    t["symbol"] for t in active_trades
+                )
 
-                        if cooldown_age < 1800:
-                            continue
-                        else:
-                            del coin_cooldown[symbol]
+                if same_coin_count >= config.MAX_LAYER_PER_COIN:
+                    continue
 
-                            print(f"COOLDOWN SKIP: {symbol}")
+                if (
+                    symbol not in unique_symbols
+                    and len(unique_symbols) >= config.MAX_ACTIVE_TRADES
+                ):
+                    continue
 
-                            continue
-
-                    if signal in [
-                        "BUY",
-                        "STRONG BUY"
-                    ]:
-
-                        buy_coin(symbol)
-                        break
+                if signal in ["BUY", "STRONG BUY"]:
+                    buy_coin(symbol)
+                    break   
 
         except Exception as e:
 
