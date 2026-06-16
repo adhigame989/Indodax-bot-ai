@@ -264,6 +264,11 @@ def home():
         pass
 
     profit_color = "yellow"
+    layer_count = {}
+
+        for t in trader.active_trades:
+            symbol = t["symbol"]
+            layer_count[symbol] = layer_count.get(symbol, 0) + 1
 
     if stats["total_profit"] > 0:
         profit_color = "green"
@@ -367,7 +372,9 @@ def home():
 
     SCANNED COINS : {len(scanner.market_data)}<br>
 
-    BOT POSITIONS :{len(trader.active_trades)}/{config.MAX_ACTIVE_TRADES}<br>
+    BOT POSITIONS:<br>
+    for symbol, count in layer_count.items():
+        html += f"{symbol} : {count}/{config.MAX_LAYER_PER_COIN}<br>"
     
     OPEN ORDERS : {open_order_count}<br>
 
@@ -495,10 +502,9 @@ def stop_bot():
     trader.BOT_RUNNING = False
     return redirect("/")
 
-@app.route("/manual_sell/<path:symbol>")
-def manual_sell_route(symbol):
-
-    trader.manual_sell(symbol)
+@app.route("/manual_sell/<trade_id>")
+def manual_sell_route(trade_id):
+    trader.manual_sell(trade_id)
 
     return redirect("/position")
 
@@ -570,7 +576,7 @@ def position_page():
             <br><br>
 
             <a href="javascript:void(0)"
-            onclick="if(confirm('Yakin mau sell manual {t.get('symbol')}?')) window.location='/manual_sell/{t.get('symbol')}';"
+            onclick="if(confirm('Yakin mau sell manual {t.get('id')}?')) window.location='/manual_sell/{t.get('id')}';"
             style="
             display:inline-block;
             padding:12px 20px;
