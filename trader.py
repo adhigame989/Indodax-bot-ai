@@ -84,8 +84,14 @@ def buy_coin(symbol):
                 )
                 return
 
-            if len(active_trades) >= config.MAX_ACTIVE_TRADES:
-                print(f"MAX TRADE REACHED: {len(active_trades)}/{config.MAX_ACTIVE_TRADES}")
+            unique_symbols = set(
+                t["symbol"] for t in active_trades
+            )
+
+            if symbol not in unique_symbols and len(unique_symbols) >= config.MAX_ACTIVE_TRADES:
+                print(
+                    f"MAX COINS REACHED: {len(unique_symbols)}/{config.MAX_ACTIVE_TRADES}"
+                )
                 return
 
             balance = exchange.fetch_balance()
