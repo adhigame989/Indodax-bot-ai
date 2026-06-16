@@ -373,9 +373,11 @@ def home():
     SCANNED COINS : {len(scanner.market_data)}<br>
 
     BOT POSITIONS:<br>
+    """
     for symbol, count in layer_count.items():
         html += f"{symbol} : {count}/{config.MAX_LAYER_PER_COIN}<br>"
     
+    html += f"""
     OPEN ORDERS : {open_order_count}<br>
 
     MANUAL POSITIONS : {manual_positions}<br>
