@@ -18,8 +18,7 @@ exchange = ccxt.indodax({
 })
 
 active_trades = []
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-TRADES_FILE = os.path.join(BASE_DIR, "active_trades.json")
+TRADES_FILE = "/data/active_trades.json"
 coin_cooldown = {}
 
 def save_trades():
