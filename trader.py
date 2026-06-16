@@ -321,6 +321,9 @@ def sell_coin(trade):
             sell_value -
             trade["entry_value"]
         )
+        pl_label = "Profit"
+        if profit_idr < 0:
+            pl_label = "Loss"
         history.add_trade_history(
             symbol,
             "SELL",
@@ -330,14 +333,6 @@ def sell_coin(trade):
         )
 
         print("SELL SUCCESS:", symbol)
-
-        telegram_bot.send_telegram(
-            f"🔴 SELL SUCCESS\n\n"
-            f"Coin: {symbol}\n"
-            f"Nilai Jual: Rp {sell_value:,.0f}\n"
-            f"Sell Price: Rp {sell_price:,.2f}\n"
-            f"Profit: Rp {profit_idr:,.0f} ({profit_percent:.2f}%)"
-        )
 
         if trade in active_trades:
 
@@ -407,6 +402,9 @@ def manual_sell(symbol):
                     sell_value -
                     trade["entry_value"]
                 )
+                pl_label = "Profit"
+                if profit_idr < 0:
+                    pl_label = "Loss"
 
                 history.add_trade_history(
                     symbol,
@@ -417,10 +415,11 @@ def manual_sell(symbol):
                 )
 
                 telegram_bot.send_telegram(
-                    f"⚠️ MANUAL SELL\n\n"
+                    f"🧾 MANUAL SELL\n\n"
                     f"Coin: {symbol}\n"
+                    f"Nilai Jual: Rp {sell_value:,.0f}\n"
                     f"Sell Price: Rp {sell_price:,.2f}\n"
-                    f"Profit: Rp {profit_idr:,.0f} ({profit_percent:.2f}%)"
+                    f"{pl_label}: Rp {profit_idr:,.0f} ({profit_percent:.2f}%)"
                 )
 
                 active_trades.remove(trade)
@@ -502,7 +501,7 @@ def monitor_trade(trade):
                     trade["trailing_trigger_time"] = time.time()
 
                     telegram_bot.send_telegram(
-                        f"⚠️ TRAILING TOUCHED\n\n"
+                        f"📉 TRAILING TOUCHED\n\n"
                         f"Coin: {symbol}\n"
                         f"Price: Rp {current_price:,.2f}\n"
                         f"Buffer: 30 sec started"
@@ -525,9 +524,11 @@ def monitor_trade(trade):
                 ):
 
                     telegram_bot.send_telegram(
-                        f"🎯 TRAILING SELL\n\n"
+                        f"🪙 TRAILING SELL\n\n"
                         f"Coin: {symbol}\n"
-                        f"Profit secured"
+                        f"Nilai Jual: Rp {sell_value:,.0f}\n"
+                        f"Sell Price: Rp {sell_price:,.2f}\n"
+                        f"Profit: Rp {profit_idr:,.0f} ({profit_percent:.2f}%)"
                     )
 
                     sell_coin(trade)
@@ -592,7 +593,9 @@ def monitor_trade(trade):
                 telegram_bot.send_telegram(
                     f"🚀 TP CONFIRM SELL\n\n"
                     f"Coin: {symbol}\n"
-                    f"Profit locked"
+                    f"Nilai Jual: Rp {sell_value:,.0f}\n"
+                    f"Sell Price: Rp {sell_price:,.2f}\n"
+                    f"Profit: Rp {profit_idr:,.0f} ({profit_percent:.2f}%)"
                 )
 
                 sell_coin(trade)
@@ -628,7 +631,7 @@ def monitor_trade(trade):
                 trade["sl_trigger_time"] = time.time()
 
                 telegram_bot.send_telegram(
-                    f"⚠️ SL TOUCHED\n\n"
+                    f"🚨 SL TOUCHED\n\n"
                     f"Coin: {symbol}\n"
                     f"Price: Rp {current_price:,.2f}\n"
                     f"Buffer: 60 sec started"
@@ -651,7 +654,11 @@ def monitor_trade(trade):
             ):
 
                 telegram_bot.send_telegram(
-                    f"🛑 STOP LOSS HIT\n\n{symbol}"
+                    f"💸 SL SELL\n\n"
+                    f"Coin: {symbol}\n"
+                    f"Nilai Jual: Rp {sell_value:,.0f}\n"
+                    f"Sell Price: Rp {sell_price:,.2f}\n"
+                    f"Loss: Rp {profit_idr:,.0f} ({profit_percent:.2f}%)"
                 )
 
                 sell_coin(trade)
