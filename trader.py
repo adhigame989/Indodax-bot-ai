@@ -43,7 +43,7 @@ def load_trades():
                     active_trades.clear()
                     active_trades.extend(data)
                 else:
-                    active_trades.clear()]
+                    active_trades.clear()
 
             except Exception as e:
                 print("LOAD ERROR:", str(e))
