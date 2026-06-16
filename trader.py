@@ -22,10 +22,13 @@ TRADES_FILE = "/data/active_trades.json"
 coin_cooldown = {}
 
 def save_trades():
-
     with open(TRADES_FILE, "w") as f:
         json.dump(active_trades, f, indent=4)
+        f.flush()
+        os.fsync(f.fileno())
+
     print(f"SAVED {len(active_trades)} ACTIVE TRADES")
+    print("FILE CONTENT:", active_trades)
 
 def load_trades():
     global active_trades
