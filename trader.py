@@ -329,6 +329,9 @@ def sell_coin(trade):
         save_trades()
 
         if active_trades:
+            active_trade = active_trades[0]
+        else:
+            active_trade = None
 
     except Exception as e:
 
@@ -404,6 +407,11 @@ def manual_sell(symbol):
 
                 active_trades.remove(trade)
                 save_trades()
+
+                if active_trades:
+                    active_trade = active_trades[0]
+                else:
+                    active_trade = None
 
                 print("MANUAL SELL:", symbol)
 
