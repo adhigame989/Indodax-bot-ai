@@ -9,7 +9,7 @@ import scanner
 import time
 
 from scanner import start_scanner
-from trader import start_trader
+from trader import start_trader, load_trades
 from history import get_stats
 
 app = Flask(__name__)
@@ -20,6 +20,10 @@ BOT_START_TIME = datetime.now()
 BOT_RUNNING = False
 BOT_STATUS = "STOPPED"
 
+print("BOOTING BOT...")
+load_trades()
+print(f"LOADED {len(active_trades)} ACTIVE TRADES")
+print("ACTIVE TRADES:", active_trades)
 start_scanner()
 start_trader()
 
