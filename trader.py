@@ -30,6 +30,8 @@ def save_trades():
 
 def load_trades():
     global active_trades
+    
+    print("TRADES FILE:", TRADES_FILE)
 
     if os.path.exists(TRADES_FILE):
         with open(TRADES_FILE, "r") as f:
