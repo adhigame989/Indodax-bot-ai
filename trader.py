@@ -221,7 +221,7 @@ def sell_coin(trade):
     try:
 
         if not trade:
-            return
+            return None
 
         symbol = trade["symbol"]
 
@@ -294,12 +294,12 @@ def sell_coin(trade):
                 )
 
                 print("SELL CANCELLED:", symbol)
-                return
+                return None
 
         except Exception as e:
 
             print("SELL CHECK ERROR:", str(e))
-            return
+            return None
 
         profit_percent = (
             (
@@ -330,14 +330,23 @@ def sell_coin(trade):
             profit_percent
         )
 
-        print("SELL SUCCESS:", symbol)
+        )
 
         if trade in active_trades:
 
             active_trades.remove(
                 trade
-            )
         save_trades()
+        print("SELL SUCCESS:", symbol)
+        
+        return {
+            "sell_price": sell_price,
+            "sell_value": sell_value,
+            "profit_idr": profit_idr,
+            "profit_percent": profit_percent,
+            "pl_label": pl_label
+        }
+        return result
 
         if active_trades:
             active_trade = active_trades[0]
@@ -522,17 +531,17 @@ def monitor_trade(trade):
                 ):
 
                     print("TRAILING SELL:", symbol)
-                    telegram_bot.send_telegram(
-                        f"🪙 TRAILING SELL\n\n"
-                        f"Coin: {symbol}\n"
-                        f"Nilai Jual: Rp {sell_value:,.0f}\n"
-                        f"Sell Price: Rp {sell_price:,.2f}\n"
-                        f"Profit: Rp {profit_idr:,.0f} ({profit_percent:.2f}%)"
-                    )
+                    result = sell_coin(trade)
+                    if result:
+                        telegram_bot.send_telegram(
+                            f"🪙 TRAILING SELL\n\n"
+                            f"Coin: {symbol}\n"
+                            f"Nilai Jual: Rp {result['sell_value']:,.0f}\n"
+                            f"Sell Price: Rp {result['sell_price']:,.2f}\n"
+                            f"Profit: Rp {result['profit_idr']:,.0f} ({result['profit_percent']:.2f}%)"
+                        )
 
-                    sell_coin(trade)
-
-                    return
+                        return
 
             else:
 
@@ -591,17 +600,17 @@ def monitor_trade(trade):
             if current_price <= tp_trailing_price:
 
                 print("TP SELL:", symbol)
-                telegram_bot.send_telegram(
-                    f"🚀 TP CONFIRM SELL\n\n"
-                    f"Coin: {symbol}\n"
-                    f"Nilai Jual: Rp {sell_value:,.0f}\n"
-                    f"Sell Price: Rp {sell_price:,.2f}\n"
-                    f"Profit: Rp {profit_idr:,.0f} ({profit_percent:.2f}%)"
-                )
+                result = sell_coin(trade)
+                if result:
+                    telegram_bot.send_telegram(
+                        f"🚀 TP CONFIRM SELL\n\n"
+                        f"Coin: {symbol}\n"
+                        f"Nilai Jual: Rp {result['sell_value']:,.0f}\n"
+                        f"Sell Price: Rp {result['sell_price']:,.2f}\n"
+                        f"Profit: Rp {result['profit_idr']:,.0f} ({result['profit_percent']:.2f}%)"
+                    )
 
-                sell_coin(trade)
-
-                return
+                    return
         if trade["sl_trigger"]:
 
             if current_price > trade["sl_price"]:
@@ -656,17 +665,17 @@ def monitor_trade(trade):
             ):
 
                 print("SL SELL:", symbol)
-                telegram_bot.send_telegram(
-                    f"💸 SL SELL\n\n"
-                    f"Coin: {symbol}\n"
-                    f"Nilai Jual: Rp {sell_value:,.0f}\n"
-                    f"Sell Price: Rp {sell_price:,.2f}\n"
-                    f"Loss: Rp {profit_idr:,.0f} ({profit_percent:.2f}%)"
-                )
+                result = sell_coin(trade)
+                if result:
+                    telegram_bot.send_telegram(
+                        f"💸 SL SELL\n\n"
+                        f"Coin: {symbol}\n"
+                        f"Nilai Jual: Rp {result['sell_value']:,.0f}\n"
+                        f"Sell Price: Rp {result['sell_price']:,.2f}\n"
+                        f"Profit: Rp {result['profit_idr']:,.0f} ({result['profit_percent']:.2f}%)"
+                    )
 
-                sell_coin(trade)
-
-                return
+                    return
 
         save_trades()
 
