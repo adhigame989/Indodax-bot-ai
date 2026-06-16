@@ -678,8 +678,16 @@ def trade_loop():
 
                 monitor_trade(trade)
 
-            print(
-                "ACTIVE:",len(active_trades),"/",config.MAX_ACTIVE_TRADES)
+            from collections import Counter
+
+            unique_symbols = set(t["symbol"] for t in active_trades)
+
+            layer_counts = Counter(t["symbol"] for t in active_trades)
+
+            print("ACTIVE:",len(unique_symbols),"/",config.MAX_ACTIVE_TRADES)
+
+            for symbol, count in layer_counts.items():
+                print(f"{symbol} Layer {count}/{config.MAX_LAYER_PER_COIN}")
             for coin in scanner.market_data[:]:
                 signal = coin["signal"]
                 symbol = coin["symbol"]
