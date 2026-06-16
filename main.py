@@ -23,7 +23,6 @@ BOT_STATUS = "STOPPED"
 print("BOOTING BOT...")
 load_trades()
 print(f"LOADED {len(active_trades)} ACTIVE TRADES")
-print("ACTIVE TRADES:", active_trades)
 start_scanner()
 start_trader()
 
