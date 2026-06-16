@@ -42,7 +42,6 @@ def load_trades():
                     active_trades.extend(data)
                 else:
                     active_trades.clear()
-                print(f"LOADED {len(active_trades)} ACTIVE TRADES")
 
             except Exception as e:
                 print("LOAD ERROR:", str(e))
