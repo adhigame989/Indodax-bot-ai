@@ -374,6 +374,11 @@ def home():
 
     BOT POSITIONS:<br>
     """
+    unique_positions = len(layer_count)
+
+    html += f"""
+    ACTIVE POSITIONS : {unique_positions}/{config.MAX_ACTIVE_TRADES}<br><br>
+    """
     for symbol, count in layer_count.items():
         html += f"{symbol} : {count}/{config.MAX_LAYER_PER_COIN}<br>"
     
