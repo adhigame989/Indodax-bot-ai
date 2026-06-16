@@ -40,9 +40,10 @@ def load_trades():
                 data = json.load(f)
 
                 if isinstance(data, list):
-                    active_trades = data
+                    active_trades.clear()
+                    active_trades.extend(data)
                 else:
-                    active_trades = []
+                    active_trades.clear()]
 
             except Exception as e:
                 print("LOAD ERROR:", str(e))
