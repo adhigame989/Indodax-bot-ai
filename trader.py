@@ -188,7 +188,7 @@ def buy_coin(symbol):
                 "tp_highest": round(buy_price, 8)
             }
 
-            active_trades.append(trade_data)
+            active_trades.append(trade)
             save_active_trades()
 
             print("ACTIVE TRADE SAVED:", symbol)
