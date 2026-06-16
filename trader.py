@@ -20,8 +20,6 @@ exchange = ccxt.indodax({
 
 active_trades = []
 TRADES_FILE = "active_trades.json"
-active_trade = None
-trade_file = "active_trade.json"
 coin_cooldown = {}
 
 def save_trades():
@@ -42,50 +40,6 @@ def load_trades():
         print(
             f"LOADED {len(active_trades)} ACTIVE TRADES"
         )
-
-
-def save_trade():
-    global active_trade
-    global active_trades
-
-    try:
-        with open(trade_file, "w") as f:
-            json.dump(active_trades, f)
-
-    except Exception as e:
-        print("SAVE TRADE ERROR:", str(e))
-
-
-def load_trade():
-    global active_trade
-    global active_trades
-
-    try:
-        if os.path.exists(trade_file):
-
-            with open(trade_file, "r") as f:
-                active_trades = json.load(f)
-                
-        if active_trades:
-            active_trade = active_trades[0]
-            print("TRADE LOADED")
-
-    except Exception as e:
-        print("LOAD TRADE ERROR:", str(e))
-
-
-def clear_trade():
-    global active_trade
-
-    active_trade = None
-
-    try:
-        if os.path.exists(trade_file):
-            os.remove(trade_file)
-
-    except Exception as e:
-        print("CLEAR TRADE ERROR:", str(e))
-
 
 def get_trade_amount(balance):
 
@@ -114,14 +68,20 @@ def get_trade_amount(balance):
         return config.BASE_TRADE_AMOUNT
 
 def buy_coin(symbol):
-    global active_trade, active_trades
+    global active_trades
 
     with trade_lock:
         try:
-            for t in active_trades:
-                if t["symbol"] == symbol:
-                    print("ALREADY OPEN:", symbol)
-                    return
+            same_coin_count = sum(
+                1 for t in active_trades
+                if t["symbol"] == symbol
+            )
+
+            if same_coin_count >= config.MAX_LAYER_PER_COIN:
+                print(
+                    f"MAX LAYER REACHED: {symbol}"
+                )
+                return
 
             if len(active_trades) >= config.MAX_ACTIVE_TRADES:
                 print(f"MAX TRADE REACHED: {len(active_trades)}/{config.MAX_ACTIVE_TRADES}")
@@ -225,9 +185,6 @@ def buy_coin(symbol):
 
             print("ACTIVE TRADES SAVED:", len(active_trades))
 
-            if active_trades:
-                active_trade = active_trades[0]
-
             save_trades()
 
             print("BUY SUCCESS:", symbol)
@@ -246,8 +203,6 @@ def buy_coin(symbol):
 
 
 def sell_coin(trade):
-
-    global active_trade
 
     try:
 
@@ -375,20 +330,11 @@ def sell_coin(trade):
 
         if active_trades:
 
-            active_trade = active_trades[0]
-
-        else:
-
-            active_trade = None
-
-        save_trades()
-
     except Exception as e:
 
         print("SELL ERROR:", str(e))
 
 def manual_sell(symbol):
-    global active_trade
 
     try:
         for trade in active_trades:
@@ -459,13 +405,6 @@ def manual_sell(symbol):
                 active_trades.remove(trade)
                 save_trades()
 
-                if active_trades:
-                    active_trade = active_trades[0]
-                else:
-                    active_trade = None
-
-                save_trades()
-
                 print("MANUAL SELL:", symbol)
 
                 break
@@ -473,8 +412,6 @@ def manual_sell(symbol):
     except Exception as e:
         print("MANUAL SELL ERROR:", str(e))
 def monitor_trade(trade):
-
-    global active_trade
 
     try:
 
@@ -704,11 +641,7 @@ def monitor_trade(trade):
 
 def trade_loop():
 
-    global active_trade
-
     print("TRADER STARTED")
-
-    load_trade()
 
     while True:
 
@@ -721,7 +654,7 @@ def trade_loop():
 
         try:
 
-            for trade in active_trades:
+            for trade in active_trades[:]:
 
                 monitor_trade(trade)
 
