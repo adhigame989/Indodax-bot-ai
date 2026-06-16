@@ -25,22 +25,26 @@ def save_trades():
 
     with open(TRADES_FILE, "w") as f:
         json.dump(active_trades, f, indent=4)
-
+    print(f"SAVED {len(active_trades)} ACTIVE TRADES")
 
 def load_trades():
-
     global active_trades
 
     if os.path.exists(TRADES_FILE):
-
         with open(TRADES_FILE, "r") as f:
             try:
-                active_trades = json.load(f)
-            except:
+                data = json.load(f)
+
+                if isinstance(data, list):
+                    active_trades = data
+                else:
+                    active_trades = []
+
+            except Exception as e:
+                print("LOAD ERROR:", str(e))
                 active_trades = []
-        print(
-            f"LOADED {len(active_trades)} ACTIVE TRADES"
-        )
+
+    print(f"LOADED {len(active_trades)} ACTIVE TRADES")
 
 def get_trade_amount(balance):
 
