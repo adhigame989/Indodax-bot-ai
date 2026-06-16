@@ -678,7 +678,22 @@ def trade_loop():
 
             print(
                 "ACTIVE:",len(active_trades),"/",config.MAX_ACTIVE_TRADES)
-            if len(active_trades) < config.MAX_ACTIVE_TRADES:
+            unique_symbols = set(
+                t["symbol"] for t in active_trades
+            )
+
+            can_open_new_coin = (
+                len(unique_symbols) < config.MAX_ACTIVE_TRADES
+            )
+            can_add_layer = any(
+                sum(
+                    1 for t in active_trades
+                    if t["symbol"] == coin["symbol"]
+                ) < config.MAX_LAYER_PER_COIN
+                for coin in scanner.market_data
+            )
+
+            if can_open_new_coin or can_add_layer:   
 
                 for coin in scanner.market_data[:]:
 
