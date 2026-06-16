@@ -153,6 +153,7 @@ def buy_coin(symbol):
                         amount
                     )
                 )
+                actual_trade_amount = (actual_amount * buy_price)* 1.0012
 
                 print("ACTUAL AMOUNT:", actual_amount)
 
@@ -207,7 +208,7 @@ def buy_coin(symbol):
             telegram_bot.send_telegram(
                 f"🟢 BUY SUCCESS\n\n"
                 f"Coin: {symbol}\n"
-                f"Modal: Rp {trade_amount:,.0f}\n\n"
+                f"Modal: Rp {actual_trade_amount:,.0f}\n\n"
                 f"Buy Price: Rp {buy_price:,.2f}\n"
                 f"TP: Rp {tp_price:,.2f}\n"
                 f"SL: Rp {sl_price:,.2f}"
