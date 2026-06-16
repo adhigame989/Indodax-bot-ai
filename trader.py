@@ -18,7 +18,8 @@ exchange = ccxt.indodax({
 })
 
 active_trades = []
-TRADES_FILE = "active_trades.json"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+TRADES_FILE = os.path.join(BASE_DIR, "active_trades.json")
 coin_cooldown = {}
 
 def save_trades():
@@ -44,7 +45,9 @@ def load_trades():
                 print("LOAD ERROR:", str(e))
                 active_trades = []
 
+    load_trades()
     print(f"LOADED {len(active_trades)} ACTIVE TRADES")
+    print("TRADES FILE:", TRADES_FILE)
 
 def get_trade_amount(balance):
 
@@ -743,7 +746,6 @@ def trade_loop():
         time.sleep(
             config.TRADER_INTERVAL
         )
-load_trades()
 
 def start_trader():
 
