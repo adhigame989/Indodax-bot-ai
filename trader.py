@@ -262,6 +262,17 @@ def sell_coin(trade):
 
         wallet_amount = balance['free'].get(base_coin,0)
 
+        if wallet_amount <= 0:
+            print(
+                f"{symbol} already sold, cleaning trade"
+            )
+
+            if trade in active_trades:
+                active_trades.remove(trade)
+                save_trades()
+
+            return
+
         amount = min(
             trade["amount"],
             wallet_amount
