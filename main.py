@@ -393,77 +393,77 @@ def home():
     """
     if trader.active_trades:
 
-    grouped_trades = {}
+        grouped_trades = {}
 
-    for t in trader.active_trades:
-        symbol = t["symbol"]
+        for t in trader.active_trades:
+            symbol = t["symbol"]
 
-        if symbol not in grouped_trades:
+            if symbol not in grouped_trades:
             grouped_trades[symbol] = []
 
-        grouped_trades[symbol].append(t)
+            grouped_trades[symbol].append(t)
 
-    for symbol, trades in grouped_trades.items():
-
-        html += f"""
-        <div class="trade-box">
-
-        <h3>{symbol}</h3>
-
-        <div style="
-        display:flex;
-        gap:12px;
-        overflow-x:auto;
-        padding-top:10px;
-        ">
-        """
-
-        for t in trades:
-
-            m = trade_metrics(t)
-
-            color = "green"
-
-            if t.get("profit_percent", 0) < 0:
-                color = "red"
+        for symbol, trades in grouped_trades.items():
 
             html += f"""
+            <div class="trade-box">
+
+            <h3>{symbol}</h3>
+
             <div style="
-            min-width:240px;
-            background:#1e293b;
-            padding:15px;
-            border-radius:14px;
-            border:1px solid #334155;
+            display:flex;
+            gap:12px;
+            overflow-x:auto;
+            padding-top:10px;
             ">
-
-            <div class="{color}"
-            style="
-            font-size:18px;
-            font-weight:bold;
-            margin-bottom:10px;
-            ">
-
-            Rp {t.get('current_value',0):,.0f}
-
-            </div>
-
-            Buy : {rp(t.get('buy_price'))}<br>
-            Now : {rp(t.get('current_price'))}<br><br>
-
-            <span class="{color}">
-            P/L :
-            Rp {m['current_rp']:,.0f}
-            ({t.get('profit_percent')}%)
-            </span>
-
-            <br><br>
-
-            Hold : {m['hold']}
-
-            </div>
             """
 
-        html += "</div></div>"
+            for t in trades:
+
+                m = trade_metrics(t)
+
+                color = "green"
+
+                if t.get("profit_percent", 0) < 0:
+                    color = "red"
+
+                html += f"""
+                <div style="
+                min-width:240px;
+                background:#1e293b;
+                padding:15px;
+                border-radius:14px;
+                border:1px solid #334155;
+                ">
+
+                <div class="{color}"
+                style="
+                font-size:18px;
+                font-weight:bold;
+                margin-bottom:10px;
+                ">
+
+                Rp {t.get('current_value',0):,.0f}
+
+                </div>
+
+                Buy : {rp(t.get('buy_price'))}<br>
+                Now : {rp(t.get('current_price'))}<br><br>
+
+                <span class="{color}">
+                P/L :
+                Rp {m['current_rp']:,.0f}
+                ({t.get('profit_percent')}%)
+                </span>
+
+                <br><br>
+
+                Hold : {m['hold']}
+
+                </div>
+                """
+
+            html += "</div></div>"
     
     html += "<div class='trade-box'><b>TOP SIGNALS</b><br><br>"
     for i, coin in enumerate(scanner.market_data[:10], start=1):
