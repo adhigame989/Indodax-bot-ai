@@ -193,9 +193,11 @@ def buy_coin(symbol):
             }
 
             active_trades.append(trade)
+            coin_cooldown[symbol] = time.time()
             save_trades()
 
             print("ACTIVE TRADE SAVED:", symbol)
+            print("COOLDOWN SET:", symbol)
             print("TOTAL ACTIVE:", len(active_trades))
             print("BUY SUCCESS:", symbol)
 
@@ -706,6 +708,9 @@ def trade_loop():
                     else:
                         del coin_cooldown[symbol]
 
+                print(
+                    f"{symbol} | signal={signal} | layers={same_coin_count} | cooldown={cooldown}"
+                )
                 unique_symbols = set(
                     t["symbol"] for t in active_trades
                 )
