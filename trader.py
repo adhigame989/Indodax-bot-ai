@@ -230,8 +230,10 @@ def sell_coin(trade):
 
         balance = exchange.fetch_balance()
 
-        wallet_amount = balance['free'].get(base_coin,0)
-
+        wallet_amount = (
+            balance["free"].get(base_coin, 0)
+            or balance["free"].get(base_coin.lower(), 0)
+        )
         if wallet_amount <= 0:
             print(
                 f"{symbol} already sold, cleaning trade"
@@ -253,7 +255,7 @@ def sell_coin(trade):
             amount
         )
 
-        ticker = float(exchange.fetch_ticker(symbol))
+        ticker = exchange.fetch_ticker(symbol)
 
         bid_price = ticker['bid']
 
