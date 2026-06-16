@@ -45,10 +45,6 @@ def load_trades():
                 print("LOAD ERROR:", str(e))
                 active_trades = []
 
-    load_trades()
-    print(f"LOADED {len(active_trades)} ACTIVE TRADES")
-    print("TRADES FILE:", TRADES_FILE)
-
 def get_trade_amount(balance):
 
     try:
