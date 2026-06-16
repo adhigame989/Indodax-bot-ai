@@ -659,6 +659,10 @@ def settings_page():
     <input type="number" name="max_active_trades"
     value="{config.MAX_ACTIVE_TRADES}"><br><br>
 
+    Max Layer Per Coin<br>
+    <input type="number" name="max_layer_per_coin"
+    value="{config.MAX_LAYER_PER_COIN}"><br><br>
+
     Take Profit (%)<br>
     <input type="number" step="0.1"
     name="take_profit"
@@ -700,6 +704,8 @@ def save_settings():
     config.BOT_CAPITAL_LIMIT = int(request.form["bot_capital_limit"])
 
     config.MAX_ACTIVE_TRADES = int(request.form["max_active_trades"])
+
+    config.MAX_LAYER_PER_COIN = int(request.form["max_layer_per_coin"])
 
     config.TAKE_PROFIT = float(request.form["take_profit"])
 
