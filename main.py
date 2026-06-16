@@ -399,7 +399,7 @@ def home():
             symbol = t["symbol"]
 
             if symbol not in grouped_trades:
-            grouped_trades[symbol] = []
+                grouped_trades[symbol] = []
 
             grouped_trades[symbol].append(t)
 
