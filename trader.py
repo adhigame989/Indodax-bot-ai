@@ -9,6 +9,7 @@ import scanner
 import telegram_bot
 import json
 import os
+import uuid
 
 BOT_RUNNING = False
 trade_lock = threading.Lock()
@@ -160,6 +161,7 @@ def buy_coin(symbol):
             sl_price = buy_price * (1 - (config.STOP_LOSS / 100))
 
             trade = {
+                "id": str(uuid.uuid4())
                 "symbol": symbol,
                 "buy_price": round(buy_price, 8),
                 "current_price": round(buy_price, 8),
