@@ -9,7 +9,7 @@ import scanner
 import time
 
 from scanner import start_scanner
-from trader import start_trader, load_trades
+from trader import start_trader, load_trades, active_trades
 from history import get_stats
 
 app = Flask(__name__)
