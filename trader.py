@@ -188,13 +188,11 @@ def buy_coin(symbol):
                 "tp_highest": round(buy_price, 8)
             }
 
-            active_trades.append(trade)
-            save_trades()
+            active_trades.append(trade_data)
+            save_active_trades()
 
-            print("ACTIVE TRADES SAVED:", len(active_trades))
-
-            save_trades()
-
+            print("ACTIVE TRADE SAVED:", symbol)
+            print("TOTAL ACTIVE:", len(active_trades))
             print("BUY SUCCESS:", symbol)
 
             telegram_bot.send_telegram(
