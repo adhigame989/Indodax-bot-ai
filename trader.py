@@ -222,6 +222,8 @@ def sell_coin(trade):
 
         if not trade:
             return None
+        if trade not in active_trades:
+            return None
 
         symbol = trade["symbol"]
 
@@ -313,7 +315,7 @@ def sell_coin(trade):
             coin_cooldown[symbol] = time.time()
             print("COOLDOWN SET:", symbol)
 
-        sell_value = sell_price * amount
+        sell_value = sell_price * float(amount)
 
         profit_idr = (
             sell_value -
@@ -343,7 +345,6 @@ def sell_coin(trade):
             "profit_percent": profit_percent,
             "pl_label": pl_label
         }
-        return result
 
         if active_trades:
             active_trade = active_trades[0]
