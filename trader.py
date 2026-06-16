@@ -7,8 +7,6 @@ import config
 import history
 import scanner
 import telegram_bot
-import json
-import os
 import uuid
 
 BOT_RUNNING = False
@@ -36,8 +34,10 @@ def load_trades():
     if os.path.exists(TRADES_FILE):
 
         with open(TRADES_FILE, "r") as f:
-            active_trades = json.load(f)
-
+            try:
+                active_trades = json.load(f)
+            except:
+                active_trades = []
         print(
             f"LOADED {len(active_trades)} ACTIVE TRADES"
         )
@@ -189,7 +189,7 @@ def buy_coin(symbol):
             }
 
             active_trades.append(trade)
-            save_active_trades()
+            save_trades()
 
             print("ACTIVE TRADE SAVED:", symbol)
             print("TOTAL ACTIVE:", len(active_trades))
@@ -244,7 +244,7 @@ def sell_coin(trade):
             amount
         )
 
-        ticker = exchange.fetch_ticker(symbol)
+        ticker = float(exchange.fetch_ticker(symbol))
 
         bid_price = ticker['bid']
 
@@ -346,7 +346,7 @@ def sell_coin(trade):
 def manual_sell(symbol):
 
     try:
-        for trade in active_trades:
+        for trade in active_trades[:]:
             if trade["symbol"] == symbol:
 
                 base_coin = symbol.split("/")[0]
@@ -359,10 +359,10 @@ def manual_sell(symbol):
                     wallet_amount
                 )
 
-                amount = exchange.amount_to_precision(
+                amount = float(exchange.amount_to_precision(
                     symbol,
                     amount
-                )
+                ))
                 
                 ticker = exchange.fetch_ticker(symbol)
 
@@ -676,7 +676,7 @@ def trade_loop():
                 "ACTIVE:",len(active_trades),"/",config.MAX_ACTIVE_TRADES)
             if len(active_trades) < config.MAX_ACTIVE_TRADES:
 
-                for coin in scanner.market_data:
+                for coin in scanner.market_data[:]:
 
                     signal = coin["signal"]
                     symbol = coin["symbol"]
@@ -688,6 +688,9 @@ def trade_loop():
                     )
 
                         if cooldown_age < 1800:
+                            continue
+                        else:
+                            del coin_cooldown[symbol]
 
                             print(f"COOLDOWN SKIP: {symbol}")
 
