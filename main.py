@@ -375,6 +375,7 @@ def home():
 
     SCANNED COINS : {len(scanner.market_data)}<br>
     BTC STATUS : {btc_view}
+    </div>
     <div style="flex:1;">
 
     BOT POSITIONS:<br><br>
@@ -392,6 +393,7 @@ def home():
 
     MANUAL POSITIONS : {manual_positions}<br>
 
+    </div>
     </div>
     </div>
     """
