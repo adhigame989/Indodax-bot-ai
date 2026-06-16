@@ -365,7 +365,7 @@ def scan_market():
 
                         if wick_ratio > 2.5:
                             continue
-
+                    trend_score = 0
                     if latest_rsi > 80:
                         continue
                     if 52 <= latest_rsi <= 68:
@@ -414,7 +414,7 @@ def scan_market():
                         elif breakout_strength > 0.60:
                             breakout_score += 8
 
-                    trend_score = 0
+                    
                     # STEP 9 - Revisit bonus
                     if symbol in failed_breakout_watchlist:
 
@@ -470,6 +470,7 @@ def scan_market():
                     body = abs(df["close"].iloc[-1] - df["open"].iloc[-1])
                     full = df["high"].iloc[-1] - df["low"].iloc[-1]
 
+                    body_ratio = 1
                     if full > 0:
                         body_ratio = body / full
 
