@@ -99,6 +99,9 @@ def topbar():
             <div class="datetime">
                 <div id="live-date"></div>
                 <div id="live-clock"></div>
+                <div class="subtitle">
+                    Last Update: {now.strftime("%H:%M:%S")}
+                </div>
             </div>
 
         </div>
@@ -338,11 +341,6 @@ def home():
         <div class="value red">{loss}</div>
       </div>
 
-      <div class="card">
-        <div class="title">LAST UPDATE</div>
-        <div class="value blue">{now}</div>
-      </div>
-
     </div>
     """
 
@@ -362,6 +360,8 @@ def home():
     html += f"""
     <div class="trade-box">
     <b>MARKET STATUS</b><br><br>
+    <div style="display:flex;gap:20px;">
+    <div style="flex:1;">
 
     TOTAL ASSET : Rp {total_idr:,.0f}<br>
     FREE IDR : Rp {free_idr:,.0f}<br>
@@ -374,13 +374,15 @@ def home():
     TIMEFRAME : {config.TIMEFRAME}<br>
 
     SCANNED COINS : {len(scanner.market_data)}<br>
+    BTC STATUS : {btc_view}
+    <div style="flex:1;">
 
-    BOT POSITIONS:<br>
+    BOT POSITIONS:<br><br>
     """
     unique_positions = len(layer_count)
 
     html += f"""
-    ACTIVE POSITIONS : {unique_positions}/{config.MAX_ACTIVE_TRADES}<br><br>
+    ACTIVE POSITIONS : {unique_positions}/{config.MAX_ACTIVE_TRADES}<br>
     """
     for symbol, count in layer_count.items():
         html += f"{symbol} : {count}/{config.MAX_LAYER_PER_COIN}<br>"
@@ -389,9 +391,8 @@ def home():
     OPEN ORDERS : {open_order_count}<br>
 
     MANUAL POSITIONS : {manual_positions}<br>
-    
-    BTC STATUS : {btc_view}
 
+    </div>
     </div>
     """
     if trader.active_trades:
@@ -467,27 +468,36 @@ def home():
                 """
 
             html += "</div></div>"
-    
-    html += "<div class='trade-box'><b>TOP SIGNALS</b><br><br>"
+    html += """
+    <div class='trade-box'>
+    <div style="display:flex;gap:20px;">
+    <div style="flex:2;">
+    <b>TOP SIGNALS</b><br><br>
+    """
+
     for i, coin in enumerate(scanner.market_data[:10], start=1):
         html += f"#{i} {coin['symbol']} | {coin['signal']} | Score {coin['score']}<br>"
-    html += "</div>"
-    if scanner.market_data:
 
+    html += "</div>"
+
+    if scanner.market_data:
         top = scanner.market_data[0]
 
         html += f"""
-        <div class="trade-box">
-
+        <div style="flex:1;">
         <b>BEST SIGNAL NOW</b><br><br>
 
         Coin : {top['symbol']}<br>
         Signal : {top['signal']}<br>
         Score : {top['score']}<br>
         RSI : {top['rsi']}
-
         </div>
         """
+
+    html += """
+    </div>
+    </div>
+    """
 
     html += """
     <script>
