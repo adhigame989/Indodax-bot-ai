@@ -336,7 +336,7 @@ def sell_coin(trade):
         save_trades()
         print("SELL SUCCESS:", symbol)
         
-        result {
+        result = {
             "sell_price": sell_price,
             "sell_value": sell_value,
             "profit_idr": profit_idr,
