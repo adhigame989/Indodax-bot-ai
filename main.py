@@ -266,9 +266,9 @@ def home():
     profit_color = "yellow"
     layer_count = {}
 
-        for t in trader.active_trades:
-            symbol = t["symbol"]
-            layer_count[symbol] = layer_count.get(symbol, 0) + 1
+    for t in trader.active_trades:
+         symbol = t["symbol"]
+         layer_count[symbol] = layer_count.get(symbol, 0) + 1
 
     if stats["total_profit"] > 0:
         profit_color = "green"
