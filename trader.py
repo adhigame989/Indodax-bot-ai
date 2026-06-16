@@ -330,16 +330,13 @@ def sell_coin(trade):
             profit_percent
         )
 
-        )
-
         if trade in active_trades:
 
-            active_trades.remove(
-                trade
+            active_trades.remove(trade)
         save_trades()
         print("SELL SUCCESS:", symbol)
         
-        return {
+        result {
             "sell_price": sell_price,
             "sell_value": sell_value,
             "profit_idr": profit_idr,
