@@ -28,7 +28,6 @@ def save_trades():
         os.fsync(f.fileno())
 
     print(f"SAVED {len(active_trades)} ACTIVE TRADES")
-    print("FILE CONTENT:", active_trades)
 
 def load_trades():
     global active_trades
@@ -523,6 +522,7 @@ def monitor_trade(trade):
                     >= 30
                 ):
 
+                    print("TRAILING SELL:", symbol)
                     telegram_bot.send_telegram(
                         f"🪙 TRAILING SELL\n\n"
                         f"Coin: {symbol}\n"
@@ -564,6 +564,7 @@ def monitor_trade(trade):
             trade["tp_mode"] = True
             trade["tp_highest"] = current_price
 
+            print("TP ZONE:", symbol)
             telegram_bot.send_telegram(
                 f"🎯 TP ZONE ENTERED\n\n"
                 f"Coin: {symbol}\n"
@@ -590,6 +591,7 @@ def monitor_trade(trade):
 
             if current_price <= tp_trailing_price:
 
+                print("TP SELL:", symbol)
                 telegram_bot.send_telegram(
                     f"🚀 TP CONFIRM SELL\n\n"
                     f"Coin: {symbol}\n"
@@ -630,6 +632,7 @@ def monitor_trade(trade):
 
                 trade["sl_trigger_time"] = time.time()
 
+                print("SL TOUCHED:", symbol)
                 telegram_bot.send_telegram(
                     f"🚨 SL TOUCHED\n\n"
                     f"Coin: {symbol}\n"
@@ -653,6 +656,7 @@ def monitor_trade(trade):
                 >= 60
             ):
 
+                print("SL SELL:", symbol)
                 telegram_bot.send_telegram(
                     f"💸 SL SELL\n\n"
                     f"Coin: {symbol}\n"
