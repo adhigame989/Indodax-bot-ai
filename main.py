@@ -393,27 +393,54 @@ def home():
     """
     if trader.active_trades:
 
-        for t in trader.active_trades:
+    grouped_trades = {}
+
+    for t in trader.active_trades:
+        symbol = t["symbol"]
+
+        if symbol not in grouped_trades:
+            grouped_trades[symbol] = []
+
+        grouped_trades[symbol].append(t)
+
+    for symbol, trades in grouped_trades.items():
+
+        html += f"""
+        <div class="trade-box">
+
+        <h3>{symbol}</h3>
+
+        <div style="
+        display:flex;
+        gap:12px;
+        overflow-x:auto;
+        padding-top:10px;
+        ">
+        """
+
+        for t in trades:
 
             m = trade_metrics(t)
 
             color = "green"
 
-            if t.get(
-                "profit_percent",
-                0
-            ) < 0:
-
+            if t.get("profit_percent", 0) < 0:
                 color = "red"
 
             html += f"""
-            <div class="trade-box">
-
-            <b>{t.get('symbol')}</b>
+            <div style="
+            min-width:240px;
+            background:#1e293b;
+            padding:15px;
+            border-radius:14px;
+            border:1px solid #334155;
+            ">
 
             <div class="{color}"
             style="
-            font-size:20px;font-weight:bold;margin-top:8px;margin-bottom:10px;
+            font-size:18px;
+            font-weight:bold;
+            margin-bottom:10px;
             ">
 
             Rp {t.get('current_value',0):,.0f}
@@ -424,12 +451,9 @@ def home():
             Now : {rp(t.get('current_price'))}<br><br>
 
             <span class="{color}">
-
             P/L :
             Rp {m['current_rp']:,.0f}
-
             ({t.get('profit_percent')}%)
-
             </span>
 
             <br><br>
@@ -438,6 +462,9 @@ def home():
 
             </div>
             """
+
+        html += "</div></div>"
+    
     html += "<div class='trade-box'><b>TOP SIGNALS</b><br><br>"
     for i, coin in enumerate(scanner.market_data[:10], start=1):
         html += f"#{i} {coin['symbol']} | {coin['signal']} | Score {coin['score']}<br>"
@@ -529,78 +556,104 @@ def scanner_page():
     html+="</table></div>"+auto_refresh()+"</body></html>"
     return html
 
-
 @app.route("/position")
 def position_page():
-    html=f"<html><head>{style()}</head><body>{topbar()}"
+    html = f"<html><head>{style()}</head><body>{topbar()}"
+
     if trader.active_trades:
 
-        for t in trader.active_trades:
-            m = trade_metrics(t)
-            p = "green"
+        grouped_trades = {}
 
-            if (
-                t.get(
-                    "profit_percent",
-                    0
-                ) < 0
-            ):
-                p = "red"
+        for t in trader.active_trades:
+            symbol = t["symbol"]
+
+            if symbol not in grouped_trades:
+                grouped_trades[symbol] = []
+
+            grouped_trades[symbol].append(t)
+
+        for symbol, trades in grouped_trades.items():
 
             html += f"""
             <div class='trade-box'>
+            <h3>{symbol}</h3>
 
-            <h3>{t.get('symbol')}</h3>
-
-            <br><br>
-
-            Buy : {rp(t.get('buy_price'))}<br>
-            Now : {rp(t.get('current_price'))}<br><br>
-
-            Amount : {t.get('amount',0):.8f}<br><br>
-            Modal : Rp {t.get('trade_amount', 0):,.0f}<br>
-            Value : Rp {t.get('current_value', t.get('trade_amount', 0)):,.0f}<br><br>
-
-            High : Rp {m['high_rp']:,.0f} ({m['high_pct']:.2f}%)<br>
-            Low : Rp {m['low_rp']:,.0f} ({m['low_pct']:.2f}%)<br><br>
-
-            <span class='{p}'>
-
-            Current : Rp {m['current_rp']:,.0f}
-            ({t.get('profit_percent')}%)
-
-            </span>
-
-            <br><br>
-
-            TP : {rp(t.get('tp_price'))}
-            <br>
-
-            SL : {rp(t.get('sl_price'))}
-            <br>
-
-            Hold : {m['hold']}
-            <br><br>
-
-            <a href="javascript:void(0)"
-            onclick="if(confirm('Yakin mau sell manual {t.get('id')}?')) window.location='/manual_sell/{t.get('id')}';"
-            style="
-            display:inline-block;
-            padding:12px 20px;
-            background:#991b1b;
-            color:white;
-            border-radius:10px;
-            text-decoration:none;
-            font-weight:bold;
+            <div style="
+            display:flex;
+            gap:12px;
+            overflow-x:auto;
+            padding-top:10px;
             ">
-            SELL MANUAL
-            </a>
-
-            </div>
             """
+
+            for t in trades:
+
+                m = trade_metrics(t)
+
+                p = "green"
+
+                if t.get("profit_percent", 0) < 0:
+                    p = "red"
+
+                html += f"""
+                <div style="
+                min-width:260px;
+                background:#1e293b;
+                padding:15px;
+                border-radius:14px;
+                border:1px solid #334155;
+                ">
+
+                <b>Layer</b><br><br>
+
+                Buy : {rp(t.get('buy_price'))}<br>
+                Now : {rp(t.get('current_price'))}<br><br>
+
+                Amount : {t.get('amount',0):.8f}<br><br>
+
+                Modal : Rp {t.get('trade_amount', 0):,.0f}<br>
+                Value : Rp {t.get('current_value', t.get('trade_amount', 0)):,.0f}<br><br>
+
+                High : Rp {m['high_rp']:,.0f} ({m['high_pct']:.2f}%)<br>
+                Low : Rp {m['low_rp']:,.0f} ({m['low_pct']:.2f}%)<br><br>
+
+                <span class='{p}'>
+
+                Current : Rp {m['current_rp']:,.0f}
+                ({t.get('profit_percent')}%)
+
+                </span>
+
+                <br><br>
+
+                TP : {rp(t.get('tp_price'))}<br>
+                SL : {rp(t.get('sl_price'))}<br>
+                Hold : {m['hold']}<br><br>
+
+                <a href="javascript:void(0)"
+                onclick="if(confirm('Yakin mau sell manual {t.get('id')}?')) window.location='/manual_sell/{t.get('id')}';"
+                style="
+                display:inline-block;
+                padding:10px 15px;
+                background:#991b1b;
+                color:white;
+                border-radius:10px;
+                text-decoration:none;
+                font-weight:bold;
+                ">
+                SELL
+                </a>
+
+                </div>
+                """
+
+            html += "</div></div>"
+
     else:
-        html+="<div class='trade-box'>NO ACTIVE TRADE</div>"
-    html+="</body></html>"
+        html += "<div class='trade-box'>NO ACTIVE TRADE</div>"
+
+    html += "</body></html>"
+
     return html
 
 
