@@ -355,37 +355,48 @@ def sell_coin(trade):
 
         print("SELL ERROR:", str(e))
 
-def manual_sell(symbol):
+def manual_sell(trade_id):
 
     try:
         for trade in active_trades[:]:
-            if trade["symbol"] == symbol:
+
+            if trade["id"] == trade_id:
+
+                symbol = trade["symbol"]
 
                 base_coin = symbol.split("/")[0]
 
                 balance = exchange.fetch_balance()
-                wallet_amount = balance["free"].get(base_coin, 0)
+
+                wallet_amount = balance["free"].get(
+                    base_coin, 0
+                )
 
                 amount = min(
                     trade["amount"],
                     wallet_amount
                 )
 
-                amount = float(exchange.amount_to_precision(
+                amount = exchange.amount_to_precision(
                     symbol,
                     amount
-                ))
-                
+                )
+
                 ticker = exchange.fetch_ticker(symbol)
 
                 bid_price = ticker["bid"]
 
-                sell_price = (
-                    bid_price *
-                    (1 - config.SELL_SLIPPAGE)
+                sell_price = bid_price * (
+                    1 - config.SELL_SLIPPAGE
                 )
-                sell_price = float(exchange.price_to_precision(symbol, sell_price))
-                
+
+                sell_price = float(
+                    exchange.price_to_precision(
+                        symbol,
+                        sell_price
+                    )
+                )
+
                 exchange.create_limit_sell_order(
                     symbol,
                     amount,
@@ -401,13 +412,18 @@ def manual_sell(symbol):
                     trade["buy_price"]
                 ) * 100
 
-                sell_value = sell_price * amount
+                sell_value = (
+                    sell_price *
+                    float(amount)
+                )
 
                 profit_idr = (
                     sell_value -
                     trade["entry_value"]
                 )
+
                 pl_label = "Profit"
+
                 if profit_idr < 0:
                     pl_label = "Loss"
 
@@ -430,14 +446,12 @@ def manual_sell(symbol):
                 active_trades.remove(trade)
                 save_trades()
 
-                if active_trades:
-                    active_trade = active_trades[0]
-                else:
-                    active_trade = None
-
                 print("MANUAL SELL:", symbol)
 
-                break
+                return True
+
+    except Exception as e:
+        print("MANUAL SELL ERROR:", str(e))
 
     except Exception as e:
         print("MANUAL SELL ERROR:", str(e))
