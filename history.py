@@ -65,6 +65,7 @@ def add_trade_history(
     buy_price,
     sell_price,
     profit_percent
+    profit_idr
 
 ):
 
@@ -91,6 +92,8 @@ def add_trade_history(
                 profit_percent,
                 2
             ),
+
+            "profit_idr": round(profit_idr, 0),
 
             "time":
             (
@@ -133,6 +136,7 @@ def get_stats():
     loss = 0
 
     total_profit = 0
+    total_profit_idr = 0
 
     for trade in history:
 
@@ -142,6 +146,7 @@ def get_stats():
         )
 
         total_profit += profit
+        total_profit_idr += trade.get("profit_idr", 0)
 
         if profit > 0:
             win += 1
@@ -172,6 +177,8 @@ def get_stats():
 
         "total_profit":
         round(total_profit, 2),
+
+        "total_profit_idr": round(total_profit_idr, 0),
 
         "history":
         history
