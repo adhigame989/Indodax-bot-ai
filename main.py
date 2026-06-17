@@ -328,7 +328,10 @@ def home():
 
       <div class="card">
         <div class="title">PROFIT</div>
-        <div class="value {profit_color}">{stats['total_profit']}%</div>
+        <div class="value {profit_color}">{stats['total_profit']}%
+        </div>
+        <div style="font-size:14px;margin-top:5px;color:#94a3b8;">{rp(stats.get('total_profit_idr',0))}
+        </div>
       </div>
 
       <div class="card">
