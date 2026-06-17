@@ -329,7 +329,7 @@ def sell_coin(trade):
             "SELL",
             trade["buy_price"],
             sell_price,
-            profit_percent
+            profit_percent,
             profit_idr
         )
 
@@ -430,7 +430,7 @@ def manual_sell(trade_id):
                     "MANUAL SELL",
                     trade["buy_price"],
                     sell_price,
-                    profit_percent
+                    profit_percent,
                     profit_idr
                 )
 
