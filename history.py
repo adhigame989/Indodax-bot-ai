@@ -137,18 +137,17 @@ def get_stats():
 
     total_profit = 0
     total_profit_idr = 0
+    total_modal = 0
 
     for trade in history:
 
-        profit = trade.get(
-            "profit_percent",
-            0
-        )
+        profit_idr = trade.get("profit_idr", 0)
+        entry_value = trade.get("entry_value", 0)
 
-        total_profit += profit
-        total_profit_idr += trade.get("profit_idr", 0)
-
-        if profit > 0:
+        total_profit_idr += profit_idr
+        total_modal += entry_value
+        
+        if profit_idr > 0:
             win += 1
         else:
             loss += 1
@@ -161,6 +160,12 @@ def get_stats():
             win / total_trades
         ) * 100
 
+    real_profit_percent = 0
+
+    if total_modal > 0:
+        real_profit_percent = (
+            total_profit_idr / total_modal
+    ) * 100
     return {
 
         "total_trades":
@@ -176,7 +181,7 @@ def get_stats():
         round(winrate, 2),
 
         "total_profit":
-        round(total_profit, 2),
+        round(real_profit_percent, 2),
 
         "total_profit_idr": round(total_profit_idr, 0),
 
