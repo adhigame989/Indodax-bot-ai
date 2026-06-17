@@ -330,7 +330,8 @@ def sell_coin(trade):
             trade["buy_price"],
             sell_price,
             profit_percent,
-            profit_idr
+            profit_idr,
+            trade["entry_value"]
         )
 
         if trade in active_trades:
@@ -431,7 +432,8 @@ def manual_sell(trade_id):
                     trade["buy_price"],
                     sell_price,
                     profit_percent,
-                    profit_idr
+                    profit_idr,
+                    trade["entry_value"]
                 )
 
                 telegram_bot.send_telegram(
