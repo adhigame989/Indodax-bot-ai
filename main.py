@@ -604,7 +604,7 @@ def position_page():
             ">
             """
 
-            for t in trades:
+            for i, t in enumerate(trades):
 
                 m = trade_metrics(t)
 
@@ -622,7 +622,7 @@ def position_page():
                 border:1px solid #334155;
                 ">
 
-                <b>Entry {i+1}</b><br><br>
+                <b>Layer {i+1}</b><br><br>
 
                 Buy : {rp(t.get('buy_price'))}<br>
                 Now : {rp(t.get('current_price'))}<br><br>
