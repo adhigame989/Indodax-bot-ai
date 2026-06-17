@@ -626,7 +626,7 @@ def position_page():
 
                 Amount : {t.get('amount',0):.8f}<br><br>
 
-                Modal : Rp {t.get('trade_amount', 0):,.0f}<br>
+                Modal : Rp {t.get('entry_value', 0):,.0f}<br>
                 Value : Rp {t.get('current_value', t.get('trade_amount', 0)):,.0f}<br><br>
 
                 High : Rp {m['high_rp']:,.0f} ({m['high_pct']:.2f}%)<br>
