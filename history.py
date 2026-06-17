@@ -2,7 +2,8 @@ import json
 import os
 from datetime import datetime, timedelta
 
-HISTORY_FILE = "history.json"
+HISTORY_FILE = "/data/history.json"
+os.makedirs("/data", exist_ok=True)
 
 
 def load_history():
