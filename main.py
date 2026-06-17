@@ -622,7 +622,7 @@ def position_page():
                 border:1px solid #334155;
                 ">
 
-                <b>{{trade_symbol}} {i+1}</b><br><br>
+                <b>{symbol.split('/')[0]} #{i+1}</b><br><br>
 
                 Buy : {rp(t.get('buy_price'))}<br>
                 Now : {rp(t.get('current_price'))}<br><br>
