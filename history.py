@@ -64,7 +64,7 @@ def add_trade_history(
     side,
     buy_price,
     sell_price,
-    profit_percent
+    profit_percent,
     profit_idr
 
 ):
