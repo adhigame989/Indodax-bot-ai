@@ -65,7 +65,8 @@ def add_trade_history(
     buy_price,
     sell_price,
     profit_percent,
-    profit_idr
+    profit_idr,
+    entry_value
 
 ):
 
@@ -94,6 +95,7 @@ def add_trade_history(
             ),
 
             "profit_idr": round(profit_idr, 0),
+            "entry_value": round(entry_value, 0),
 
             "time":
             (
