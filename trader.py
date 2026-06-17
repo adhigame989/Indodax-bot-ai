@@ -345,15 +345,12 @@ def sell_coin(trade):
             "profit_percent": profit_percent,
             "pl_label": pl_label
         }
-
-        if active_trades:
-            active_trade = active_trades[0]
-        else:
-            active_trade = None
+        return result
 
     except Exception as e:
 
         print("SELL ERROR:", str(e))
+        return None
 
 def manual_sell(trade_id):
 
