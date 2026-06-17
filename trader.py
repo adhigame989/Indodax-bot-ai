@@ -151,7 +151,7 @@ def buy_coin(symbol):
                         amount
                     )
                 )
-                actual_trade_amount = (actual_amount * buy_price)* 1.0012
+                actual_trade_amount = actual_amount * buy_price
 
                 print("ACTUAL AMOUNT:", actual_amount)
 
@@ -181,7 +181,7 @@ def buy_coin(symbol):
                 "sl_price": round(sl_price, 8),
                 "amount": actual_amount,
                 "trade_amount": trade_amount,
-                "entry_value": (buy_price * amount)* 1.0012,
+                "entry_value": actual_amount * buy_price
                 "highest_price": round(buy_price, 8),
                 "lowest_price": round(buy_price, 8),
                 "buy_time": time.time(),
