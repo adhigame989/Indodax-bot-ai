@@ -181,7 +181,7 @@ def buy_coin(symbol):
                 "sl_price": round(sl_price, 8),
                 "amount": actual_amount,
                 "trade_amount": trade_amount,
-                "entry_value": actual_amount * buy_price
+                "entry_value": actual_amount * buy_price,
                 "highest_price": round(buy_price, 8),
                 "lowest_price": round(buy_price, 8),
                 "buy_time": time.time(),
