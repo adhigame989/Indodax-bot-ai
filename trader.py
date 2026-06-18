@@ -9,7 +9,8 @@ import scanner
 import telegram_bot
 import uuid
 
-BOT_RUNNING = False
+BOT_RUNNING = True
+BUY_ENABLED = False
 trade_lock = threading.Lock()
 exchange = ccxt.indodax({
     'apiKey': config.API_KEY,
@@ -705,7 +706,7 @@ def trade_loop():
 
         if not BOT_RUNNING:
 
-            print("TRADER PAUSED")
+            print("TRADER STOPPED")
 
             time.sleep(5)
             continue
@@ -770,7 +771,7 @@ def trade_loop():
                 ):
                     continue
 
-                if signal in ["BUY", "STRONG BUY"]:
+                if BUY_ENABLED and signal in ["BUY", "STRONG BUY"]:
                     buy_coin(symbol)
                     break   
 
