@@ -56,6 +56,10 @@ def style():
     .top-header{display:flex;justify-content:space-between;align-items:flex-start;}
     .datetime{text-align:right;color:#94a3b8;font-size:13px;line-height:1.5;}
     .creator{color:#38bdf8;margin-top:6px;}
+    summary{cursor:pointer;font-weight:bold;list-style:none}
+    summary::-webkit-details-marker{display:none}
+    summary::before{content:"▶ ";color:#38bdf8}
+    details[open] summary::before{content:"▼ "}
     </style>
     """
 
@@ -368,8 +372,8 @@ def home():
         btc_view = "🔴 PANIC"
     
     html += f"""
-    <div class="trade-box">
-    <b>MARKET STATUS</b><br><br>
+    <details class="trade-box" open>
+    <summary><b>MARKET STATUS</b></summary><br>
     <div style="display:flex;gap:20px;">
     <div style="flex:1;">
 
@@ -405,7 +409,7 @@ def home():
 
     </div>
     </div>
-    </div>
+    </details>
     """
     if trader.active_trades:
 
@@ -422,9 +426,8 @@ def home():
         for symbol, trades in grouped_trades.items():
 
             html += f"""
-            <div class="trade-box">
-
-            <h3>{symbol}</h3>
+            <details class="trade-box">
+            <summary><h3 style="display:inline;">{symbol}</h3></summary>
 
             <div style="
             display:flex;
@@ -479,13 +482,13 @@ def home():
                 </div>
                 """
 
-            html += "</div></div>"
+            html += "</div></details>"
 
     if manual_positions > 0:
 
         html += """
-        <div class="trade-box">
-        <h3>MANUAL POSITIONS</h3>
+        <details class="trade-box">
+        <summary><h3 style="display:inline;">MANUAL POSITIONS</h3></summary>
 
         <div style="
         display:flex;
@@ -543,9 +546,10 @@ def home():
             except:
                 pass
 
-        html += "</div></div>"
+        html += "</div></details>"
     html += """
-    <div class='trade-box'>
+    <details class='trade-box'>
+    <summary><b>TOP SIGNALS & BEST SIGNAL</b></summary><br>
     <div style="display:flex;gap:20px;">
     <div style="flex:2;">
     <b>TOP SIGNALS</b><br><br>
@@ -572,7 +576,7 @@ def home():
 
     html += """
     </div>
-    </div>
+    </details>
     """
 
     html += """
