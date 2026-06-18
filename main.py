@@ -17,8 +17,7 @@ from datetime import datetime
 
 BOT_START_TIME = datetime.now()
 
-BOT_RUNNING = False
-BOT_STATUS = "STOPPED"
+BOT_STATUS = "PAUSED"
 
 print("BOOTING BOT...")
 load_trades()
