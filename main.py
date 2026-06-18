@@ -523,34 +523,31 @@ def home():
 
 @app.route("/start")
 def start_bot():
-    global BOT_RUNNING
     global BOT_STATUS
-    BOT_RUNNING=True
     BOT_STATUS = "RUNNING"
-    trader.BOT_RUNNING=True
-    scanner.BOT_RUNNING=True
+    trader.BOT_RUNNING = True
+    trader.BUY_ENABLED = True
+    scanner.BOT_RUNNING = True
     return redirect("/")
 
 
 @app.route("/pause")
 def pause_bot():
-    global BOT_RUNNING
     global BOT_STATUS
-    BOT_RUNNING=True
     BOT_STATUS = "PAUSED"
-    trader.BOT_RUNNING=False
-    scanner.BOT_RUNNING=True
+    trader.BOT_RUNNING = True
+    trader.BUY_ENABLED = False
+    scanner.BOT_RUNNING = True
     return redirect("/")
 
 
 @app.route("/stop")
 def stop_bot():
-    global BOT_RUNNING
     global BOT_STATUS
-    BOT_RUNNING = False
     BOT_STATUS = "STOPPED"
-    scanner.BOT_RUNNING = False
     trader.BOT_RUNNING = False
+    trader.BUY_ENABLED = False
+    scanner.BOT_RUNNING = False
     return redirect("/")
 
 @app.route("/manual_sell/<trade_id>")
