@@ -472,6 +472,71 @@ def home():
                 """
 
             html += "</div></div>"
+
+    if manual_positions > 0:
+
+        html += """
+        <div class="trade-box">
+        <h3>MANUAL POSITIONS</h3>
+
+        <div style="
+        display:flex;
+        flex-wrap:wrap;
+        gap:12px;
+        padding-top:10px;
+        ">
+        """
+
+        for coin, amount in balance["total"].items():
+
+            if coin == "IDR":
+                continue
+
+            if amount <= 0:
+                continue
+
+            if coin in bot_symbols:
+                continue
+
+            try:
+                ticker = exchange.fetch_ticker(f"{coin}/IDR")
+                price = ticker["last"]
+                value = amount * price
+
+                html += f"""
+                <div style="
+                flex:1 1 calc(33.33% - 12px);
+                min-width:220px;
+                background:#1e293b;
+                padding:15px;
+                border-radius:14px;
+                border:1px solid #334155;
+                ">
+
+                <div class="blue"
+                style="
+                font-size:18px;
+                font-weight:bold;
+                margin-bottom:10px;
+                ">
+                Rp {value:,.0f}
+                </div>
+
+                Coin : {coin}<br>
+                Amount : {amount:.8f}<br>
+                Now : {rp(price)}<br><br>
+
+                <span class="yellow">
+                Status : Holding
+                </span>
+
+                </div>
+                """
+
+            except:
+                pass
+
+        html += "</div></div>"
     html += """
     <div class='trade-box'>
     <div style="display:flex;gap:20px;">
