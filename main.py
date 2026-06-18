@@ -258,7 +258,8 @@ def home():
         free_idr=balance['free'].get('IDR',0)
         used_idr=balance['used'].get('IDR',0)
 
-        coin_value = 0
+        bot_coin_value = 0
+        manual_coin_value = 0
 
         for coin, amount in balance['total'].items():
 
@@ -272,11 +273,15 @@ def home():
             try:
                 ticker = exchange.fetch_ticker(f"{coin}/IDR")
                 price = ticker["last"]
-                coin_value += amount * price
+                value = amount * price
+                if coin in bot_symbols:
+                    bot_coin_value += value
+                else:
+                    manual_coin_value += value
             except:
                 pass
 
-        total_idr = free_idr + used_idr + coin_value
+        total_idr = free_idr + used_idr + bot_coin_value + manual_coin_value
     except:
         pass
 
@@ -377,9 +382,10 @@ def home():
     <div style="display:flex;gap:20px;">
     <div style="flex:1;">
 
-    TOTAL ASSET : Rp {total_idr:,.0f}<br>
-    FREE IDR : Rp {free_idr:,.0f}<br>
+    TOTAL BOT VALUE : Rp {bot_coin_value:,.0f}<br>
+    TOTAL MANUAL VALUE : Rp {manual_coin_value:,.0f}<br>
     OPEN ORDERS VALUE : Rp {used_idr:,.0f}<br>
+    FREE IDR : Rp {free_idr:,.0f}<br>
 
     BOT : {BOT_STATUS}<br>
 
