@@ -704,7 +704,7 @@ def position_page():
                 Buy : {rp(t.get('buy_price'))}<br>
                 Now : {rp(t.get('current_price'))}<br><br>
 
-                Amount : {fmt_amount(t.get('amount',0))}
+                Amount : {fmt_amount(t.get('amount',0))}<br>
 
                 Modal : Rp {t.get('entry_value', 0):,.0f}<br>
                 Value : Rp {t.get('current_value', t.get('trade_amount', 0)):,.0f}<br><br>
