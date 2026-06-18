@@ -434,13 +434,6 @@ def home():
                 overflow-x:auto;
                 padding-top:10px;
                 ">
-            <div style="
-            display:flex;
-            gap:12px;
-            overflow-x:auto;
-            padding-top:10px;
-            ">
-            """
 
             for t in trades:
 
@@ -487,7 +480,8 @@ def home():
                 </div>
                 """
 
-            html += "</div></details>"
+            html += "</div></div>"
+    html += "</details>"
 
     if manual_positions > 0:
 
