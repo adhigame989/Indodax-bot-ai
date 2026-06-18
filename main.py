@@ -481,8 +481,8 @@ def home():
 
         <div style="
         display:flex;
-        flex-wrap:wrap;
         gap:12px;
+        overflow-x:auto;
         padding-top:10px;
         ">
         """
@@ -505,8 +505,7 @@ def home():
 
                 html += f"""
                 <div style="
-                flex:1 1 calc(33.33% - 12px);
-                min-width:220px;
+                min-width:260px;
                 background:#1e293b;
                 padding:15px;
                 border-radius:14px;
