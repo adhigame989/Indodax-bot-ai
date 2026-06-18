@@ -588,15 +588,10 @@ def home():
 
     html += """
     <script>
-    function updateClock(){
-    const now=new Date();
-    const d=document.getElementById("live-date");
-    const c=document.getElementById("live-clock");
-    if(d){d.innerHTML=now.toLocaleDateString('id-ID');}
-    if(c){c.innerHTML=now.toLocaleTimeString('id-ID')+" WIB";}
-    }
+    function updateClock(){const now=new Date();const d=document.getElementById("live-date");const c=document.getElementById("live-clock");if(d)d.innerHTML=now.toLocaleDateString('id-ID');if(c)c.innerHTML=now.toLocaleTimeString('id-ID')+" WIB";}
     updateClock();
     setInterval(updateClock,1000);
+    document.addEventListener("DOMContentLoaded",function(){document.querySelectorAll("details").forEach((fold,index)=>{const key="fold_"+index;if(localStorage.getItem(key)==="open")fold.setAttribute("open",true);fold.addEventListener("toggle",function(){if(fold.open){localStorage.setItem(key,"open")}else{localStorage.removeItem(key)}});});});
     </script>
     """
     html += auto_refresh()
