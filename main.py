@@ -530,7 +530,7 @@ def home():
                 </div>
 
                 Coin : {coin}<br>
-                Amount : {fmt_amount(amount)}
+                Amount : {fmt_amount(amount)}<br>
                 Now : {rp(price)}<br><br>
 
                 <span class="yellow">
