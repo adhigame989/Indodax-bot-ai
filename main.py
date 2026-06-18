@@ -522,7 +522,7 @@ def home():
                 </div>
 
                 Coin : {coin}<br>
-                Amount : {amount:.8f}<br>
+                Amount : {amount:,.8f}".rstrip("0").rstrip(".") + "<br><br>
                 Now : {rp(price)}<br><br>
 
                 <span class="yellow">
