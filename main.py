@@ -397,7 +397,7 @@ def home():
     BTC STATUS : {btc_view}
     </div>
     <div style="flex:1;">
-    
+    """
     unique_positions = len(layer_count)
 
     html += f"""
