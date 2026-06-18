@@ -706,7 +706,7 @@ def trade_loop():
 
         if not BOT_RUNNING:
 
-            print("TRADER STOPPED")
+            print("TRADER PAUSED")
 
             time.sleep(5)
             continue
