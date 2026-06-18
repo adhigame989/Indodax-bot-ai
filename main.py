@@ -397,13 +397,11 @@ def home():
     BTC STATUS : {btc_view}
     </div>
     <div style="flex:1;">
-
-    BOT POSITIONS:<br><br>
-    """
+    
     unique_positions = len(layer_count)
 
     html += f"""
-    ACTIVE POSITIONS : {unique_positions}/{config.MAX_ACTIVE_TRADES}<br>
+    BOT POSITIONS : {unique_positions}/{config.MAX_ACTIVE_TRADES}<br>
     """
     for symbol, count in layer_count.items():
         html += f"{symbol} : {count}/{config.MAX_LAYER_PER_COIN}<br>"
