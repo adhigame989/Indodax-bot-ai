@@ -386,9 +386,8 @@ def home():
     TOTAL MANUAL VALUE : Rp {manual_coin_value:,.0f}<br>
     OPEN ORDERS VALUE : Rp {used_idr:,.0f}<br>
     FREE IDR : Rp {free_idr:,.0f}<br>
-
-    BOT : {BOT_STATUS}<br>
-
+    </div>
+    <div style="flex:1;">
     UPTIME : {uptime}<br>
 
     TIMEFRAME : {config.TIMEFRAME}<br>
