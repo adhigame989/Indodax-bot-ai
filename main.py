@@ -382,9 +382,9 @@ def home():
     <div style="display:flex;gap:20px;">
     <div style="flex:1;">
 
-    TOTAL BOT VALUE : Rp {bot_coin_value:,.0f}<br>
-    TOTAL MANUAL VALUE : Rp {manual_coin_value:,.0f}<br>
-    OPEN ORDERS VALUE : Rp {used_idr:,.0f}<br>
+    BOT VALUE : Rp {bot_coin_value:,.0f}<br>
+    MANUAL VALUE : Rp {manual_coin_value:,.0f}<br>
+    ORDERS VALUE : Rp {used_idr:,.0f}<br>
     FREE IDR : Rp {free_idr:,.0f}<br>
     </div>
     <div style="flex:1;">
