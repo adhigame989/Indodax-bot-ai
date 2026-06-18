@@ -150,6 +150,14 @@ def rp(value):
     except:
         return "Rp 0"
         
+def fmt_amount(amount):
+
+    try:
+        return f"{float(amount):,.8f}".rstrip("0").rstrip(".")
+
+    except:
+        return "0"
+        
 def trade_metrics(t):
 
     buy = t.get("buy_price", 0)
@@ -522,7 +530,7 @@ def home():
                 </div>
 
                 Coin : {coin}<br>
-                Amount : {amount:,.8f}".rstrip("0").rstrip(".") + "<br><br>
+                Amount : {fmt_amount(amount)}
                 Now : {rp(price)}<br><br>
 
                 <span class="yellow">
@@ -687,7 +695,7 @@ def position_page():
                 Buy : {rp(t.get('buy_price'))}<br>
                 Now : {rp(t.get('current_price'))}<br><br>
 
-                Amount : {t.get('amount',0):.8f}<br><br>
+                Amount : {fmt_amount(t.get('amount',0))}
 
                 Modal : Rp {t.get('entry_value', 0):,.0f}<br>
                 Value : Rp {t.get('current_value', t.get('trade_amount', 0)):,.0f}<br><br>
