@@ -418,17 +418,22 @@ def home():
         for t in trader.active_trades:
             symbol = t["symbol"]
 
-            if symbol not in grouped_trades:
-                grouped_trades[symbol] = []
-
-            grouped_trades[symbol].append(t)
-
-        for symbol, trades in grouped_trades.items():
-
-            html += f"""
+            html += """
             <details class="trade-box">
-            <summary><h3 style="display:inline;">{symbol}</h3></summary>
+            <summary><b>BOT POSITIONS</b></summary><br>
+            """
+            for symbol, trades in grouped_trades.items():
 
+                html += f"""
+                <div class="trade-box">
+                <h3>{symbol}</h3>
+
+                <div style="
+                display:flex;
+                gap:12px;
+                overflow-x:auto;
+                padding-top:10px;
+                ">
             <div style="
             display:flex;
             gap:12px;
