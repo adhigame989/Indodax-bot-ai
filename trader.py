@@ -745,6 +745,7 @@ def trade_loop():
             for coin in scanner.market_data[:]:
                 signal = coin["signal"]
                 symbol = coin["symbol"]
+                score = coin["score"]
 
                 same_coin_count = sum(
                     1 for t in active_trades
@@ -792,9 +793,34 @@ def trade_loop():
                 ):
                     continue
 
-                if BUY_ENABLED and signal in ["BUY", "STRONG BUY"]:
-                    buy_coin(symbol)
-                    break   
+                if BUY_ENABLED:
+
+    # Layer 1
+                    if same_coin_count == 0:
+
+                        if signal in ["BUY", "STRONG BUY"]:
+                            buy_coin(symbol)
+                            break
+
+    # Layer 2
+                    elif same_coin_count == 1:
+
+                        if (
+                            signal in ["BUY", "STRONG BUY"]
+                            and score >= 80
+                        ):
+                            buy_coin(symbol)
+                            break
+
+    # Layer 3
+                    elif same_coin_count == 2:
+
+                        if (
+                            signal == "STRONG BUY"
+                            and score >= 95
+                        ):
+                            buy_coin(symbol)
+                            break
 
         except Exception as e:
 
