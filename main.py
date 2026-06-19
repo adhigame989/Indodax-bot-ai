@@ -742,7 +742,7 @@ def position_page():
                 Hold : {m['hold']}<br><br>
 
                 <a href="javascript:void(0)"
-                onclick="if(confirm('Yakin mau sell manual {t.get('id')}?')) window.location='/manual_sell/{t.get('id')}';"
+                onclick="if(confirm('Yakin mau sell {symbol.split('/')[0]} layer #{i+1}?')) window.location='/manual_sell/{t.get('id')}';"
                 style="
                 display:inline-block;
                 padding:10px 15px;
