@@ -346,11 +346,11 @@ def scan_market():
                     relative_volume_score = 0
 
                     if volume_ratio >= 4:
-                        relative_volume_score = 20
+                        relative_volume_score = 10
                     elif volume_ratio >= 3:
-                        relative_volume_score = 15
+                        relative_volume_score = 7
                     elif volume_ratio >= 2:
-                        relative_volume_score = 8
+                        relative_volume_score = 4
 
                     candle_pump = ((latest_price - latest_open) / latest_open) * 100
 
@@ -438,7 +438,7 @@ def scan_market():
                     if latest_price > ema20.iloc[-1]:
                         trend_score += 10
                     if ema20.iloc[-1] < ema50.iloc[-1]:
-                        trend_score -= 30
+                        trend_score -= 20
                     green_count = 0
 
                     if df["close"].iloc[-1] > df["open"].iloc[-1]:
@@ -451,7 +451,7 @@ def scan_market():
                         green_count += 1
 
                     if green_count < 2:
-                        trend_score -= 20
+                        trend_score -= 10
                     # STEP 9 - Failed breakout memory
                     if (distance_to_breakout < 2
                         and df["close"].iloc[-1] < df["open"].iloc[-1]
@@ -475,7 +475,7 @@ def scan_market():
                         body_ratio = body / full
 
                     if body_ratio < 0.25:
-                        trend_score -= 30
+                        trend_score -= 15
                     
                     final_score = (multi_tf_score + volume_score + breakout_score + trend_score + relative_volume_score)
                     if volume_ratio > 2 and distance_to_breakout < 3:
@@ -505,6 +505,9 @@ def scan_market():
 
                         if final_score >= 80:
                             signal = "STRONG BUY"
+
+                        elif final_score >= 65:
+                            signal = "BUY"
 
                         elif final_score >= 40:
                             signal = "WATCH"
