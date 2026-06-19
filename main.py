@@ -161,6 +161,20 @@ def fmt_amount(amount):
 
     except:
         return "0"
+
+def fmt_price(value):
+    try:
+        value = float(value)
+
+        if value >= 1000:
+            return f"{value:,.0f}".replace(",", ".")
+        elif value >= 1:
+            return f"{value:,.3f}".rstrip("0").rstrip(".").replace(",", ".")
+        else:
+            return f"{value:,.8f}".rstrip("0").rstrip(".").replace(",", ".")
+
+    except:
+        return "0"
         
 def trade_metrics(t):
 
@@ -471,8 +485,8 @@ def home():
                 Rp {t.get('current_value',0):,.0f}
                 </div>
 
-                Buy : {rp(t.get('buy_price'))}<br>
-                Now : {rp(t.get('current_price'))}<br><br>
+                Buy : Rp {fmt_price(t.get('buy_price'))}<br>
+                Now : Rp {fmt_price(t.get('current_price'))}<br><br>
 
                 <span class="{color}">
                 P/L :
@@ -544,7 +558,7 @@ def home():
 
                 Coin : {coin}<br>
                 Amount : {fmt_amount(amount)}<br>
-                Now : {rp(price)}<br><br>
+                Now : Rp {fmt_price(price)}<br><br>
 
                 <span class="yellow">
                 Status : Holding
@@ -701,8 +715,8 @@ def position_page():
 
                 <b>{symbol.split('/')[0]} #{i+1}</b><br><br>
 
-                Buy : {rp(t.get('buy_price'))}<br>
-                Now : {rp(t.get('current_price'))}<br><br>
+                Buy : Rp {fmt_price(t.get('buy_price'))}<br>
+                Now : Rp {fmt_price(t.get('current_price'))}<br><br>
 
                 Amount : {fmt_amount(t.get('amount',0))}<br>
 
