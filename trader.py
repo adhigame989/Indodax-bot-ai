@@ -217,7 +217,7 @@ def buy_coin(symbol):
             print("BUY ERROR:", str(e))
 
 
-def sell_coin(trade):
+def sell_coin(trade, sell_reason=None):
 
     try:
 
@@ -312,9 +312,17 @@ def sell_coin(trade):
             /
             trade["buy_price"]
         ) * 100
-        if profit_percent < 0:
-            coin_cooldown[symbol] = time.time()
-            print("COOLDOWN SET:", symbol)
+        if sell_reason == "SL":
+            coin_cooldown[symbol] = {
+                "start": time.time(),
+                "duration": config.SL_COOLDOWN}
+            print(f"SL COOLDOWN SET: {symbol}")
+
+        elif sell_reason == "TRAILING":
+            coin_cooldown[symbol] = {
+                "start": time.time(),
+                "duration": config.TRAILING_COOLDOWN}
+            print(f"TRAILING COOLDOWN SET: {symbol}")
 
         sell_value = sell_price * float(amount)
 
@@ -552,7 +560,7 @@ def monitor_trade(trade):
                         return
                         
                     print("TRAILING SELL:", symbol)
-                    result = sell_coin(trade)
+                    result = sell_coin(trade,"TRAILING")
                     if result:
                         telegram_bot.send_telegram(
                             f"🪙 TRAILING SELL\n\n"
@@ -686,7 +694,7 @@ def monitor_trade(trade):
             ):
 
                 print("SL SELL:", symbol)
-                result = sell_coin(trade)
+                result = sell_coin(trade, "SL")
                 if result:
                     telegram_bot.send_telegram(
                         f"💸 SL SELL\n\n"
@@ -754,10 +762,16 @@ def trade_loop():
                     cooldown = 300
 
                 if symbol in coin_cooldown:
-                    cooldown_age = now - coin_cooldown[symbol]
+
+                    cooldown_data = coin_cooldown[symbol]
+
+                    cooldown_age = (now -cooldown_data["start"])
+
+                    cooldown = cooldown_data["duration"]
 
                     if cooldown_age < cooldown:
                         print(f"COOLDOWN SKIP: {symbol}")
+
                         continue
                     else:
                         del coin_cooldown[symbol]
