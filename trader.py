@@ -544,6 +544,13 @@ def monitor_trade(trade):
                     >= 30
                 ):
 
+                    locked_profit = ((current_price -trade["buy_price"]
+                        )/trade["buy_price"]) * 100
+
+                    if locked_profit < config.MIN_LOCK_PROFIT:
+                        print(f"TRAILING HOLD: {symbol} | locked {locked_profit:.2f}% < {config.MIN_LOCK_PROFIT}%")
+                        return
+                        
                     print("TRAILING SELL:", symbol)
                     result = sell_coin(trade)
                     if result:
