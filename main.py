@@ -11,6 +11,8 @@ import time
 from scanner import start_scanner
 from trader import start_trader, load_trades, active_trades
 from history import get_stats
+import history
+import json
 
 app = Flask(__name__)
 from datetime import datetime
@@ -777,6 +779,23 @@ def history_page():
       <div class='card'><div class='title'>TOTAL PROFIT</div><div class='value yellow'>{stats['total_profit']}%</div></div>
     </div>
     """
+    html += """
+        <div class="trade-box">
+        <a href="javascript:void(0)"
+        onclick="if(confirm('Reset semua history? Active trade tetap aman.')) window.location='/reset_history';"
+        style="
+        display:inline-block;
+        padding:12px 18px;
+        background:#991b1b;
+        color:white;
+        border-radius:12px;
+        text-decoration:none;
+        font-weight:bold;
+        ">
+        🗑 RESET HISTORY
+        </a>
+        </div>
+        """
     for t in stats['history'][:30]:
 
         waktu = t['time']
@@ -806,6 +825,23 @@ def history_page():
     )
     html+="</body></html>"
     return html
+
+@app.route("/reset_history")
+def reset_history():
+
+    try:
+
+        with open(history.HISTORY_FILE, "w") as f:
+            json.dump([], f)
+
+        print("HISTORY RESET")
+
+    except Exception as e:
+
+        print("RESET ERROR:", str(e))
+
+    return redirect("/history")
+    
 @app.route("/settings")
 def settings_page():
 
