@@ -734,10 +734,14 @@ def scanner_page():
     html=f"<html><head>{style()}</head><body>{topbar()}<div class='table-box'><table><tr><th>Coin</th><th>Signal</th><th>Score</th><th>RSI</th><th>Price</th></tr>"
     for c in scanner.market_data:
         color=""
-        if c['signal']=="BUY" or c['signal']=="STRONG BUY":
+        if c['signal']=="STRONG BUY":
+            color="blue"
+        elif c['signal']=="BUY":
             color="green"
         elif c['signal']=="WATCH":
             color="yellow"
+        else:
+            color=""
         html+=f"<tr><td>{c['symbol']}</td><td class='{color}'>{c['signal']}</td><td>{c['score']}</td><td>{c['rsi']}</td><td>{c['price']}</td></tr>"
     html+="</table></div>"+auto_refresh()+"</body></html>"
     return html
