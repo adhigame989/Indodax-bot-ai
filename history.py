@@ -272,5 +272,12 @@ def get_stats():
 
         "avg_win_score": avg_win_score,
         "avg_loss_score": avg_loss_score,
+        "buy_tp":buy_tp,
+        "buy_sl":buy_sl,
+        "buy_trail":buy_trail,
+
+        "strong_tp":strong_tp,
+        "strong_sl":strong_sl,
+        "strong_trail":strong_trail,
 
     }
