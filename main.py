@@ -784,6 +784,14 @@ def history_page():
 
     avg_win = analytics.get("avg_win_score", 0)
     avg_loss = analytics.get("avg_loss_score", 0)
+    buy_tp = analytics.get("buy_tp", 0)
+    buy_sl = analytics.get("buy_sl", 0)
+    buy_trail = analytics.get("buy_trail", 0)
+
+    strong_tp = analytics.get("strong_tp", 0)
+    strong_sl = analytics.get("strong_sl", 0)
+    strong_trail = analytics.get("strong_trail", 0)
+    
     html+=f"""
     <div class='grid'>
       <div class='card'><div class='title'>TOTAL TRADES</div><div class='value blue'>{stats['total_trades']}</div></div>
@@ -794,19 +802,35 @@ def history_page():
     html += f"""
     <div class="trade-box">
 
-    <b>📊 TRADE REASON ANALYTICS</b><br><br>
+    <div style="display:flex;gap:20px;">
 
-    TP : {tp_count} |
-    SL : {sl_count} |
-    TRAIL : {trail_count} |
+    <div style="flex:1;">
+    <b>📊 TRADE REASON</b><br><br>
+
+    TP : {tp_count}<br>
+    SL : {sl_count}<br>
+    TRAIL : {trail_count}<br>
     MANUAL : {manual_count}<br><br>
 
+    STRONG WR : {strong_wr}%<br><br>
     BUY WR : {buy_wr}%<br>
-    STRONG BUY WR : {strong_wr}%<br><br>
 
-    AVG WIN SCORE : {avg_win}<br>
-    AVG LOSS SCORE : {avg_loss}
+    AVG WIN : {avg_win}<br>
+    AVG LOSS : {avg_loss}
+    </div>
 
+    <div style="flex:1;">
+    <b>📈 REASON PERFORMANCE</b><br><br>
+
+    STRONG → TP : {strong_tp}<br>
+    STRONG → SL : {strong_sl}<br>
+    STRONG → TRAIL : {strong_trail}<br><br>
+    BUY → TP : {buy_tp}<br>
+    BUY → SL : {buy_sl}<br>
+    BUY → TRAIL : {buy_trail}
+
+    </div>
+    </div>
     </div>
     """
 
