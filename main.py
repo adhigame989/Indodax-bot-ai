@@ -484,10 +484,9 @@ def home():
     html += f"""
     BOT POSITIONS : {unique_positions}/{config.MAX_ACTIVE_TRADES}<br>
     """
-    for symbol, count in layer_count.items():
-        html += f"{symbol} : {count}/{config.MAX_LAYER_PER_COIN}<br>"
 
     html += f"""
+    OPEN ORDER : {open_order_count}<br>
     MANUAL POSITIONS : {manual_positions}<br>
 
     </div>
