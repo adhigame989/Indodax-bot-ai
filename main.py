@@ -169,7 +169,7 @@ def fmt_price(value):
         value = float(value)
 
         if value >= 1000:
-            return f"{value:,.0f}".replace(",", ".")
+            return f"{value:,.3f}".rstrip("0").rstrip(".").replace(",", ".")
         elif value >= 1:
             return f"{value:,.3f}".rstrip("0").rstrip(".").replace(",", ".")
         else:
@@ -746,8 +746,8 @@ def position_page():
 
                 <br><br>
 
-                TP : {rp(t.get('tp_price'))}<br>
-                SL : {rp(t.get('sl_price'))}<br>
+                TP : Rp {fmt_price(t.get('tp_price'))}<br>
+                SL : Rp {fmt_price(t.get('sl_price'))}<br>
                 Hold : {m['hold']}<br><br>
 
                 <a href="javascript:void(0)"
