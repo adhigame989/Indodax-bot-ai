@@ -463,6 +463,11 @@ def home():
 
             for t in trades:
 
+                buy_score=t.get("buy_score",0)
+                buy_reason=t.get("buy_reason","BUY")
+                signal_color="green"
+                if buy_reason=="STRONG BUY":
+                    signal_color="blue"
                 m = trade_metrics(t)
 
                 color = "green"
@@ -486,9 +491,10 @@ def home():
                 ">
                 Rp {t.get('current_value',0):,.0f}
                 </div>
+                <span class="{signal_color}">{buy_reason} ({buy_score})</span><br>
 
                 Buy : Rp {fmt_price(t.get('buy_price'))}<br>
-                Now : Rp {fmt_price(t.get('current_price'))}<br><br>
+                Now : Rp {fmt_price(t.get('current_price'))}<br>
 
                 <span class="{color}">
                 P/L :
@@ -700,6 +706,8 @@ def position_page():
             for i, t in enumerate(trades):
 
                 m = trade_metrics(t)
+                buy_score=t.get("buy_score",0)
+                buy_reason=t.get("buy_reason","-")
 
                 p = "green"
 
@@ -719,14 +727,15 @@ def position_page():
 
                 Buy : Rp {fmt_price(t.get('buy_price'))}<br>
                 Now : Rp {fmt_price(t.get('current_price'))}<br><br>
-
+                Reason : {buy_reason}<br>
+                Score : {buy_score}<br><br>
                 Amount : {fmt_amount(t.get('amount',0))}<br>
 
                 Modal : Rp {t.get('entry_value', 0):,.0f}<br>
                 Value : Rp {t.get('current_value', t.get('trade_amount', 0)):,.0f}<br><br>
 
                 High : Rp {m['high_rp']:,.0f} ({m['high_pct']:.2f}%)<br>
-                Low : Rp {m['low_rp']:,.0f} ({m['low_pct']:.2f}%)<br><br>
+                Low : Rp {m['low_rp']:,.0f} ({m['low_pct']:.2f}%)<br>
 
                 <span class='{p}'>
 
