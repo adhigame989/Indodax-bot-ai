@@ -146,6 +146,19 @@ def get_stats():
     total_profit = 0
     total_profit_idr = 0
     total_modal = 0
+    tp_count = 0
+    sl_count = 0
+    trailing_count = 0
+    manual_count = 0
+
+    buy_count = 0
+    strong_buy_count = 0
+
+    buy_win = 0
+    strong_buy_win = 0
+
+    win_scores = []
+    loss_scores = []
 
     for trade in history:
 
@@ -154,6 +167,34 @@ def get_stats():
 
         total_profit_idr += profit_idr
         total_modal += entry_value
+        reason = trade.get("reason", "")
+        buy_reason = trade.get("buy_reason", "")
+        buy_score = trade.get("buy_score", 0)
+
+        if reason == "TP":
+            tp_count += 1
+        elif reason == "SL":
+            sl_count += 1
+        elif reason == "TRAILING":
+            trailing_count += 1
+        elif reason == "MANUAL":
+            manual_count += 1
+
+        if buy_reason == "BUY":
+            buy_count += 1
+            if profit_idr > 0:
+                buy_win += 1
+
+        elif buy_reason == "STRONG BUY":
+            strong_buy_count += 1
+            if profit_idr > 0:
+                strong_buy_win += 1
+
+        if isinstance(buy_score, (int, float)):
+            if profit_idr > 0:
+                win_scores.append(buy_score)
+            else:
+                loss_scores.append(buy_score)
         
         if profit_idr > 0:
             win += 1
@@ -174,26 +215,37 @@ def get_stats():
         real_profit_percent = (
             total_profit_idr / total_modal
     ) * 100
+
+    buy_winrate = round((buy_win / buy_count * 100), 2) if buy_count > 0 else 0
+    strong_buy_winrate = round((strong_buy_win / strong_buy_count * 100), 2) if strong_buy_count > 0 else 0
+
+    avg_win_score = round(sum(win_scores) / len(win_scores), 2) if win_scores else 0
+    avg_loss_score = round(sum(loss_scores) / len(loss_scores), 2) if loss_scores else 0
     return {
 
-        "total_trades":
-        total_trades,
+        "total_trades":total_trades,
 
-        "win":
-        win,
+        "win":win,
 
-        "loss":
-        loss,
+        "loss":loss,
 
-        "winrate":
-        round(winrate, 2),
+        "winrate":round(winrate, 2),
 
-        "total_profit":
-        round(real_profit_percent, 2),
+        "total_profit":round(real_profit_percent, 2),
 
         "total_profit_idr": round(total_profit_idr, 0),
 
-        "history":
-        history
+        "history":history,
+
+        "tp_count": tp_count,
+        "sl_count": sl_count,
+        "trailing_count": trailing_count,
+        "manual_count": manual_count,
+
+        "buy_winrate": buy_winrate,
+        "strong_buy_winrate": strong_buy_winrate,
+
+        "avg_win_score": avg_win_score,
+        "avg_loss_score": avg_loss_score,
 
     }
