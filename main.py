@@ -177,6 +177,71 @@ def fmt_price(value):
 
     except:
         return "0"
+
+def build_trade_bar(buy,current,tp,sl):
+    try:
+        buy=float(buy)
+        current=float(current)
+        tp=float(tp)
+        sl=float(sl)
+
+        if buy <= 0:
+            return ""
+
+        bar_color = "#22c55e"
+        fill_width = 0
+        fill_left = 50
+
+        if current >= buy:
+            progress=((current-buy)/(tp-buy))*50
+            progress=max(0,min(progress,50))
+
+            tp_confirm = buy + ((tp-buy)*0.75)
+
+            if current >= tp_confirm:
+                bar_color = "#38bdf8"
+
+            fill_width = progress
+
+        else:
+            progress=((buy-current)/(buy-sl))*50
+            progress=max(0,min(progress,50))
+
+            bar_color = "#ef4444"
+            fill_left = 50-progress
+            fill_width = progress
+
+        return f"""
+        <div style="
+        position:relative;
+        width:100%;
+        height:10px;
+        background:#334155;
+        border-radius:10px;
+        overflow:hidden;
+        margin-top:8px;
+        margin-bottom:8px;
+        ">
+            <div style="
+            position:absolute;
+            left:{fill_left}%;
+            width:{fill_width}%;
+            height:100%;
+            background:{bar_color};
+            "></div>
+
+            <div style="
+            position:absolute;
+            left:50%;
+            top:0;
+            width:2px;
+            height:100%;
+            background:white;
+            "></div>
+        </div>
+        """
+    except:
+        return ""
         
 def trade_metrics(t):
 
@@ -501,8 +566,14 @@ def home():
                 Rp {m['current_rp']:,.0f}
                 ({t.get('profit_percent')}%)
                 </span>
+                <br>
 
-                <br><br>
+                {build_trade_bar(
+                    t.get("buy_price"),
+                    t.get("current_price"),
+                    t.get("tp_price"),
+                    t.get("sl_price")
+                )}
 
                 Hold : {m['hold']}
 
