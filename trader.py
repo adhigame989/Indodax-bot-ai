@@ -74,7 +74,7 @@ def get_trade_amount(balance):
 
         return config.BASE_TRADE_AMOUNT
 
-def buy_coin(symbol):
+def buy_coin(symbol, signal_type=None, score=None):
     global active_trades
 
     with trade_lock:
@@ -191,6 +191,8 @@ def buy_coin(symbol):
                 "sl_trigger_time": 0,
                 "trailing_trigger": False,
                 "trailing_trigger_time": 0,
+                "buy_reason": signal_type,
+                "buy_score": score,
                 "tp_mode": False,
                 "tp_highest": round(buy_price, 8)
             }
@@ -340,7 +342,10 @@ def sell_coin(trade, sell_reason=None):
             sell_price,
             profit_percent,
             profit_idr,
-            trade["entry_value"]
+            trade["entry_value"],
+            sell_reason,
+            trade.get("buy_reason"),
+            trade.get("buy_score")
         )
 
         if trade in active_trades:
@@ -442,7 +447,10 @@ def manual_sell(trade_id):
                     sell_price,
                     profit_percent,
                     profit_idr,
-                    trade["entry_value"]
+                    trade["entry_value"],
+                    "MANUAL",
+                    trade.get("buy_reason"),
+                    trade.get("buy_score")
                 )
 
                 telegram_bot.send_telegram(
@@ -629,7 +637,7 @@ def monitor_trade(trade):
             if current_price <= tp_trailing_price:
 
                 print("TP SELL:", symbol)
-                result = sell_coin(trade)
+                result = sell_coin(trade, "TP")
                 if result:
                     telegram_bot.send_telegram(
                         f"🚀 TP CONFIRM SELL\n\n"
@@ -799,7 +807,7 @@ def trade_loop():
                     if same_coin_count == 0:
 
                         if signal in ["BUY", "STRONG BUY"]:
-                            buy_coin(symbol)
+                            buy_coin(symbol, signal, score)
                             break
 
     # Layer 2
@@ -809,7 +817,7 @@ def trade_loop():
                             signal in ["BUY", "STRONG BUY"]
                             and score >= 80
                         ):
-                            buy_coin(symbol)
+                            buy_coin(symbol, signal, score)
                             break
 
     # Layer 3
@@ -819,7 +827,7 @@ def trade_loop():
                             signal == "STRONG BUY"
                             and score >= 95
                         ):
-                            buy_coin(symbol)
+                            buy_coin(symbol, signal, score)
                             break
 
         except Exception as e:
