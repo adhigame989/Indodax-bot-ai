@@ -810,6 +810,15 @@ def history_page():
     b100_wr=round((b100.get("win",0)/b100_total)*100,2) if b100_total>0 else 0
     b110_wr=round((b110.get("win",0)/b110_total)*100,2) if b110_total>0 else 0
     b120_wr=round((b120.get("win",0)/b120_total)*100,2) if b120_total>0 else 0
+
+    avg_hold=stats.get("avg_hold",0)
+    fastest_tp=stats.get("fastest_tp",0)
+    longest_hold=stats.get("longest_hold",0)
+    avg_profit=stats.get("avg_profit",0)
+
+    avg_hold_fmt=f"{int(avg_hold//86400)}d {int((avg_hold%86400)//3600)}h" if avg_hold>=86400 else f"{int(avg_hold//3600)}h {int((avg_hold%3600)//60)}m"
+    fastest_tp_fmt=f"{int(fastest_tp//86400)}d {int((fastest_tp%86400)//3600)}h" if fastest_tp>=86400 else f"{int(fastest_tp//3600)}h {int((fastest_tp%3600)//60)}m"
+    longest_hold_fmt=f"{int(longest_hold//86400)}d {int((longest_hold%86400)//3600)}h" if longest_hold>=86400 else f"{int(longest_hold//3600)}h {int((longest_hold%3600)//60)}m"
     
     html+=f"""
     <div class='grid'>
@@ -821,7 +830,7 @@ def history_page():
     html += f"""
     <div class="trade-box">
 
-    <div style="display:flex;gap:20px;">
+    <div style="display:flex;gap:15px;flex-wrap:wrap;">
 
     <div style="flex:1;">
     <b>📊 TRADE REASON</b><br><br>
@@ -848,13 +857,21 @@ def history_page():
     </div>
 
     <div style="flex:1;">
-    <b>📊 SCORE BUCKET</b><br><br>
+    <b>📶 SCORE BUCKET</b><br><br>
 
     80-89 : {b80_total} | {b80_wr}%<br>
     90-99 : {b90_total} | {b90_wr}%<br>
     100-109 : {b100_total} | {b100_wr}%<br>
     110-119 : {b110_total} | {b110_wr}%<br>
     120+ : {b120_total} | {b120_wr}%
+    </div>
+    <div style="flex:1;">
+    <b>⏱ CAPITAL EFFICIENCY</b><br><br>
+
+    AVG HOLD : {avg_hold_fmt}<br>
+    FASTEST TP : {fastest_tp_fmt}<br>
+    LONGEST : {longest_hold_fmt}<br>
+    AVG PROFIT : {avg_profit}%
     </div>
     </div>
     </div>
