@@ -190,11 +190,14 @@ def get_stats():
             if profit_idr > 0:
                 strong_buy_win += 1
 
-        if isinstance(buy_score, (int, float)):
+        try:
+            buy_score = float(buy_score)
             if profit_idr > 0:
                 win_scores.append(buy_score)
             else:
                 loss_scores.append(buy_score)
+        except:
+            pass
         
         if profit_idr > 0:
             win += 1
