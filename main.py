@@ -166,14 +166,23 @@ def fmt_amount(amount):
 
 def fmt_price(value):
     try:
-        value = float(value)
+        value=float(value)
 
-        if value >= 1000:
-            return f"{value:,.3f}".rstrip("0").rstrip(".").replace(",", ".")
+        if value >= 1000000:
+            decimals=0
+        elif value >= 1000:
+            decimals=3
         elif value >= 1:
-            return f"{value:,.3f}".rstrip("0").rstrip(".").replace(",", ".")
+            decimals=3
+        elif value >= 0.01:
+            decimals=6
         else:
-            return f"{value:,.8f}".rstrip("0").rstrip(".").replace(",", ".")
+            decimals=8
+
+        formatted=f"{value:,.{decimals}f}"
+        formatted=formatted.rstrip("0").rstrip(".")
+
+        return formatted.replace(",", "X").replace(".", ",").replace("X",".")
 
     except:
         return "0"
