@@ -341,8 +341,7 @@ def scan_market():
 
                     latest_volume = volume_data.iloc[-1]
                     avg_volume = volume_data.tail(20).mean()
-                    volume_ratio = latest_volume / avg_volume if avg_volume > 0 else 1
-                    
+                    volume_ratio = latest_volume / avg_volume if avg_volume > 0 else 1 
                     relative_volume_score = 0
 
                     if volume_ratio >= 4:
@@ -351,6 +350,18 @@ def scan_market():
                         relative_volume_score = 7
                     elif volume_ratio >= 2:
                         relative_volume_score = 4
+                        
+                    prev_volume = volume_data.iloc[-2]
+                    volume_decay = 0
+
+                    if prev_volume > 0:
+                        volume_decay = ((latest_volume-prev_volume) / prev_volume) * 100
+
+                    if volume_decay < -25:
+                        relative_volume_score -= 10
+
+                    if volume_decay < -40:
+                        relative_volume_score -= 20
 
                     candle_pump = ((latest_price - latest_open) / latest_open) * 100
 
@@ -392,6 +403,11 @@ def scan_market():
                     distance_to_breakout = ((recent_high - latest_price)/ latest_price) * 100
 
                     breakout_score = 0
+                    resistance_touches = 0
+
+                    for h in df["high"].tail(10):
+                        if abs((recent_high-h)/recent_high)*100 <= 1:
+                            resistance_touches += 1
 
                     if distance_to_breakout <= 1:
                         breakout_score = 25
@@ -399,6 +415,8 @@ def scan_market():
                         breakout_score = 10
                     elif distance_to_breakout > 5:
                         breakout_score = -20
+                    if resistance_touches >= 3:
+                        breakout_score -= 15
 
 
 # === BREAKOUT STRENGTH ===
@@ -476,8 +494,27 @@ def scan_market():
 
                     if body_ratio < 0.25:
                         trend_score -= 15
+                        
+                    recent_ranges = []
+
+                    for i in range(-5,0):
+                        candle_range = (
+                            (df["high"].iloc[i]-df["low"].iloc[i])
+                            / df["close"].iloc[i]) * 100
+
+                        recent_ranges.append(candle_range)
+
+                    avg_range = sum(recent_ranges)/len(recent_ranges)
+
+                    volatility_score = 0
+
+                    if 1 <= avg_range <= 4:
+                        volatility_score += 10
+                    elif avg_range > 8:
+                        volatility_score -= 15
                     
-                    final_score = (multi_tf_score + volume_score + breakout_score + trend_score + relative_volume_score)
+                    final_score = (multi_tf_score + volume_score + breakout_score + trend_score + relative_volume_score
+                                  + volatility_score)
                     if volume_ratio > 2 and distance_to_breakout < 3:
                         final_score += 10
 
