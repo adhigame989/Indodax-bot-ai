@@ -159,6 +159,12 @@ def get_stats():
 
     win_scores = []
     loss_scores = []
+
+    hold_times=[]
+    fastest_tp=None
+    longest_hold=0
+    profit_list=[]
+
     buy_tp=0
     buy_sl=0
     buy_trail=0
@@ -185,6 +191,18 @@ def get_stats():
         reason = trade.get("reason", "")
         buy_reason = trade.get("buy_reason", "")
         buy_score = trade.get("buy_score", 0)
+        profit_list.append(trade.get("profit_percent",0))
+        hold_sec=trade.get("hold_seconds",0)
+
+        if hold_sec>0:
+            hold_times.append(hold_sec)
+
+            if hold_sec>longest_hold:
+                longest_hold=hold_sec
+
+            if reason=="TP":
+                if fastest_tp is None or hold_sec<fastest_tp:
+                    fastest_tp=hold_sec
 
         if reason == "TP":
             tp_count += 1
@@ -276,6 +294,9 @@ def get_stats():
 
     avg_win_score = round(sum(win_scores) / len(win_scores), 2) if win_scores else 0
     avg_loss_score = round(sum(loss_scores) / len(loss_scores), 2) if loss_scores else 0
+
+    avg_hold=sum(hold_times)/len(hold_times) if hold_times else 0
+    avg_profit=round(sum(profit_list)/len(profit_list),2) if profit_list else 0
     return {
 
         "total_trades":total_trades,
@@ -311,5 +332,10 @@ def get_stats():
         "strong_trail":strong_trail,
 
         "score_buckets": score_buckets,
+
+        "avg_hold": avg_hold,
+        "fastest_tp": fastest_tp or 0,
+        "longest_hold": longest_hold,
+        "avg_profit": avg_profit,
 
     }
