@@ -192,7 +192,7 @@ def buy_coin(symbol, signal_type=None, score=None):
                 "trailing_trigger": False,
                 "trailing_trigger_time": 0,
                 "buy_reason": signal_type,
-                "buy_score": score,
+                "buy_score": float(score),
                 "tp_mode": False,
                 "tp_highest": round(buy_price, 8)
             }
@@ -442,7 +442,7 @@ def manual_sell(trade_id):
 
                 history.add_trade_history(
                     symbol,
-                    "MANUAL SELL",
+                    "SELL",
                     trade["buy_price"],
                     sell_price,
                     profit_percent,
