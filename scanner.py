@@ -492,24 +492,24 @@ def scan_market():
 
                     if btc_status == "BULLISH":
 
-                        if final_score >= 95:
+                        if final_score >= 130:
                             signal = "STRONG BUY"
 
-                        elif final_score >= 72:
+                        elif final_score >= 100:
                             signal = "BUY"
 
-                        elif final_score >= 50:
+                        elif final_score >= 75:
                             signal = "WATCH"
 
                     elif btc_status == "NEUTRAL":
 
-                        if final_score >= 105:
+                        if final_score >= 145:
                             signal = "STRONG BUY"
 
-                        elif final_score >= 80:
+                        elif final_score >= 115:
                             signal = "BUY"
 
-                        elif final_score >= 55:
+                        elif final_score >= 85:
                             signal = "WATCH"
 
                     spread = ((ask - bid) / ask) * 100
