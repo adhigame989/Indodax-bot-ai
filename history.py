@@ -99,6 +99,9 @@ def add_trade_history(
 
             "profit_idr": round(profit_idr, 0),
             "entry_value": round(entry_value, 0),
+            "reason": reason,
+            "buy_reason": buy_reason,
+            "buy_score": buy_score,
 
             "time":
             (
