@@ -167,6 +167,14 @@ def get_stats():
     strong_sl=0
     strong_trail=0
 
+    score_buckets = {
+        "80_89": {"win": 0, "loss": 0},
+        "90_99": {"win": 0, "loss": 0},
+        "100_109": {"win": 0, "loss": 0},
+        "110_119": {"win": 0, "loss": 0},
+        "120_plus": {"win": 0, "loss": 0},
+    }
+
     for trade in history:
 
         profit_idr = trade.get("profit_idr", 0)
@@ -218,6 +226,29 @@ def get_stats():
                 win_scores.append(buy_score)
             else:
                 loss_scores.append(buy_score)
+
+        try:
+            bs = float(buy_score)
+
+            bucket = None
+
+            if 80 <= bs <= 89:
+                bucket = "80_89"
+            elif 90 <= bs <= 99:
+                bucket = "90_99"
+            elif 100 <= bs <= 109:
+                bucket = "100_109"
+            elif 110 <= bs <= 119:
+                bucket = "110_119"
+            elif bs >= 120:
+                bucket = "120_plus"
+
+            if bucket:
+                if profit_idr > 0:
+                    score_buckets[bucket]["win"] += 1
+                else:
+                    score_buckets[bucket]["loss"] += 1
+
         except:
             pass
         
@@ -279,5 +310,7 @@ def get_stats():
         "strong_tp":strong_tp,
         "strong_sl":strong_sl,
         "strong_trail":strong_trail,
+
+        "score_buckets": score_buckets,
 
     }
