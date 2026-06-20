@@ -772,6 +772,18 @@ def position_page():
 def history_page():
     stats=get_stats()
     html=f"<html><head>{style()}</head><body>{topbar()}"
+    analytics = stats.get("analytics", {})
+
+    tp_count = analytics.get("tp_count", 0)
+    sl_count = analytics.get("sl_count", 0)
+    trail_count = analytics.get("trail_count", 0)
+    manual_count = analytics.get("manual_count", 0)
+
+    buy_wr = analytics.get("buy_winrate", 0)
+    strong_wr = analytics.get("strong_buy_winrate", 0)
+
+    avg_win = analytics.get("avg_win_score", 0)
+    avg_loss = analytics.get("avg_loss_score", 0)
     html+=f"""
     <div class='grid'>
       <div class='card'><div class='title'>TOTAL TRADES</div><div class='value blue'>{stats['total_trades']}</div></div>
@@ -779,6 +791,25 @@ def history_page():
       <div class='card'><div class='title'>TOTAL PROFIT</div><div class='value yellow'>{stats['total_profit']}%</div></div>
     </div>
     """
+    html += f"""
+    <div class="trade-box">
+
+    <b>📊 TRADE REASON ANALYTICS</b><br><br>
+
+    TP : {tp_count} |
+    SL : {sl_count} |
+    TRAIL : {trail_count} |
+    MANUAL : {manual_count}<br><br>
+
+    BUY WR : {buy_wr}%<br>
+    STRONG BUY WR : {strong_wr}%<br><br>
+
+    AVG WIN SCORE : {avg_win}<br>
+    AVG LOSS SCORE : {avg_loss}
+
+    </div>
+    """
+
     html += """
         <div class="trade-box">
         <a href="javascript:void(0)"
