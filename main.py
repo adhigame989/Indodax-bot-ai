@@ -791,7 +791,7 @@ def history_page():
     strong_tp = analytics.get("strong_tp", 0)
     strong_sl = analytics.get("strong_sl", 0)
     strong_trail = analytics.get("strong_trail", 0)
-    score_buckets = analytics.get("score_buckets", {})
+    score_buckets = stats.get("score_buckets", {})
     
     html+=f"""
     <div class='grid'>
