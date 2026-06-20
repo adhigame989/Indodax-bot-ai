@@ -814,15 +814,26 @@ def history_page():
 
         except:
             pass
+        reason = t.get("reason","-")
+        buy_reason = t.get("buy_reason","-")
+        buy_score = t.get("buy_score","-")
+
+        trade_type = t["side"]
+
+        if trade_type == "SELL" and reason:
+            trade_type = f"{trade_type} ({reason})"
+
+        buy_info = f"{buy_reason} ({buy_score})"
 
         html += (
             f"<div class='card'>"
             f"{t['symbol']} | "
-            f"{t['side']} | "
+            f"{buy_info} | "
+            f"{trade_type} | "
             f"{t['profit_percent']}% | "
             f"{waktu}"
             f"</div>"
-    )
+        )
     html+="</body></html>"
     return html
 
