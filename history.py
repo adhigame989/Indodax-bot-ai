@@ -159,6 +159,13 @@ def get_stats():
 
     win_scores = []
     loss_scores = []
+    buy_tp=0
+    buy_sl=0
+    buy_trail=0
+
+    strong_tp=0
+    strong_sl=0
+    strong_trail=0
 
     for trade in history:
 
@@ -189,6 +196,21 @@ def get_stats():
             strong_buy_count += 1
             if profit_idr > 0:
                 strong_buy_win += 1
+        if buy_reason=="BUY":
+            if reason=="TP":
+                buy_tp+=1
+            elif reason=="SL":
+                buy_sl+=1
+            elif reason=="TRAILING":
+                buy_trail+=1
+
+        elif buy_reason=="STRONG BUY":
+            if reason=="TP":
+                strong_tp+=1
+            elif reason=="SL":
+                strong_sl+=1
+            elif reason=="TRAILING":
+                strong_trail+=1
 
         try:
             buy_score = float(buy_score)
