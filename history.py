@@ -227,7 +227,6 @@ def get_stats():
             else:
                 loss_scores.append(buy_score)
 
-        try:
             bs = float(buy_score)
 
             bucket = None
