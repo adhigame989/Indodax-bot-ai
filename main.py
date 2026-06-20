@@ -476,18 +476,13 @@ def home():
     SCANNED COINS : {len(scanner.market_data)}<br>
     BTC STATUS : {btc_view}
     </div>
+    
     <div style="flex:1;">
-    """
     unique_positions = len(layer_count)
 
-    html += f"""
     BOT POSITIONS : {unique_positions}/{config.MAX_ACTIVE_TRADES}<br>
-    """
     for symbol, count in layer_count.items():
         html += f"{symbol} : {count}/{config.MAX_LAYER_PER_COIN}<br>"
-    
-    html += f"""
-    OPEN ORDERS : {open_order_count}<br>
 
     MANUAL POSITIONS : {manual_positions}<br>
 
