@@ -69,7 +69,8 @@ def add_trade_history(
     entry_value,
     reason=None,
     buy_reason=None,
-    buy_score=None
+    buy_score=None,
+    hold_duration=0
 
 ):
 
@@ -102,6 +103,7 @@ def add_trade_history(
             "reason": reason,
             "buy_reason": buy_reason,
             "buy_score": buy_score,
+            "hold_duration": hold_duration,
 
             "time":
             (
