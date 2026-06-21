@@ -803,6 +803,39 @@ def monitor_trade(trade):
                 )
 
         save_trades()
+        # TIMEOUT WEAK
+            hold_seconds = (
+                time.time()
+                -
+                trade.get("buy_time", time.time()))
+
+            hold_hours = hold_seconds / 3600
+
+            current_profit = trade.get("profit_percent",0)
+
+            if (
+                hold_hours >= config.TIMEOUT_WEAK_HOURS
+                and current_profit < config.TIMEOUT_WEAK_PROFIT):
+
+                weak_score = get_sl_weak_score(symbol)
+
+                if weak_score >= 2:
+
+                    print("TIMEOUT WEAK SELL:", symbol)
+
+                    result = sell_coin(trade,"TIMEOUT_WEAK")
+
+                    if result:
+
+                        telegram_bot.send_telegram(
+                            f"⏱ TIMEOUT WEAK SELL\n\n"
+                            f"Coin: {symbol}\n"
+                            f"Hold: {hold_hours:.1f}h\n"
+                            f"Weak Score: {weak_score}/3\n"
+                            f"Profit: {current_profit:.2f}%"
+                        )
+
+                    return
 
     except Exception as e:
 
