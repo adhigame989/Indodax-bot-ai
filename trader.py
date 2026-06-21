@@ -682,18 +682,43 @@ def monitor_trade(trade):
 
             if current_price <= tp_trailing_price:
 
-                print("TP SELL:", symbol)
-                result = sell_coin(trade, "TP")
-                if result:
-                    telegram_bot.send_telegram(
-                        f"🚀 TP CONFIRM SELL\n\n"
-                        f"Coin: {symbol}\n"
-                        f"Nilai Jual: Rp {result['sell_value']:,.0f}\n"
-                        f"Sell Price: Rp {result['sell_price']:,.2f}\n"
-                        f"Profit: Rp {result['profit_idr']:,.0f} ({result['profit_percent']:.2f}%)"
+                real_bid = ticker["bid"]
+
+                tp_gap = ((current_price - real_bid)/ current_price) * 100
+
+                if tp_gap > config.MAX_TP_GAP:
+
+                    print(
+                        f"TP GAP TOO WIDE: {symbol} | "
+                        f"Last={current_price} "
+                        f"Bid={real_bid} "
+                        f"Gap={tp_gap:.2f}%"
                     )
 
-                    return
+                    telegram_bot.send_telegram(
+                        f"⚠️ TP FAKE PUMP HOLD\n\n"
+                        f"Coin: {symbol}\n"
+                        f"Chart: {profit_percent:.2f}%\n"
+                        f"Gap: {tp_gap:.2f}%\n"
+                        f"Status: Hold"
+                    )
+
+                return
+
+    print("TP SELL:", symbol)
+
+    result = sell_coin(trade, "TP")
+
+    if result:
+        telegram_bot.send_telegram(
+            f"🚀 TP CONFIRM SELL\n\n"
+            f"Coin: {symbol}\n"
+            f"Nilai Jual: Rp {result['sell_value']:,.0f}\n"
+            f"Sell Price: Rp {result['sell_price']:,.2f}\n"
+            f"Profit: Rp {result['profit_idr']:,.0f} ({result['profit_percent']:.2f}%)"
+        )
+
+    return
         if trade["sl_trigger"]:
 
             if current_price > trade["sl_price"]:
