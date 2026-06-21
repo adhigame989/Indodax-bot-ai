@@ -16,6 +16,7 @@ import json
 
 app = Flask(__name__)
 from datetime import datetime
+MARKET_PRECISION = {}
 
 BOT_START_TIME = datetime.now()
 
@@ -164,20 +165,19 @@ def fmt_amount(amount):
     except:
         return "0"
 
-def fmt_price(value):
+def fmt_price(value, symbol=None):
     try:
         value = float(value)
 
-        # kalau angka bulat asli
-        if value.is_integer():
-            formatted = f"{value:,.0f}"
+        decimals = 8
 
-        # kalau ada desimal
-        elif value >= 1:
-            formatted = f"{value:,.3f}".rstrip("0").rstrip(".")
+        if symbol and symbol in MARKET_PRECISION:
+            decimals = MARKET_PRECISION[symbol]
 
-        else:
-            formatted = f"{value:,.8f}".rstrip("0").rstrip(".")
+        formatted = f"{value:,.{decimals}f}"
+
+        if decimals > 0:
+            formatted = formatted.rstrip("0").rstrip(".")
 
         return formatted.replace(",", "X").replace(".", ",").replace("X",".")
 
@@ -312,6 +312,10 @@ def home():
         })
 
         balance=exchange.fetch_balance()
+        markets = exchange.load_markets()
+
+        for symbol, market in markets.items():
+            MARKET_PRECISION[symbol] = market["precision"]["price"]
         print("FREE:", balance["free"].get("IDR", 0))
         print("USED:", balance["used"].get("IDR", 0))
         print("TOTAL:", balance["total"].get("IDR", 0))
@@ -562,8 +566,8 @@ def home():
                 </div>
                 <span class="{signal_color}">{buy_reason} ({buy_score})</span><br>
 
-                Buy : Rp {fmt_price(t.get('buy_price'))}<br>
-                Now : Rp {fmt_price(t.get('current_price'))}<br>
+                Buy : Rp {fmt_price(t.get('buy_price'),t.get('symbol'))}<br>
+                Now : Rp {fmt_price(t.get('current_price'),t.get('symbol'))}<br>
 
                 <span class="{color}">
                 P/L :
@@ -804,8 +808,8 @@ def position_page():
 
                 <b>{symbol.split('/')[0]} #{i+1}</b><br><br>
 
-                Buy : Rp {fmt_price(t.get('buy_price'))}<br>
-                Now : Rp {fmt_price(t.get('current_price'))}<br><br>
+                Buy : Rp {fmt_price(t.get('buy_price'),t.get('symbol'))}<br>
+                Now : Rp {fmt_price(t.get('current_price'),t.get('symbol'))}<br><br>
                 Reason : {buy_reason}<br>
                 Score : {buy_score}<br><br>
                 Amount : {fmt_amount(t.get('amount',0))}<br>
@@ -825,8 +829,8 @@ def position_page():
 
                 <br><br>
 
-                TP : Rp {fmt_price(t.get('tp_price'))}<br>
-                SL : Rp {fmt_price(t.get('sl_price'))}<br>
+                TP : Rp {fmt_price(t.get('tp_price'),t.get('symbol'))}<br>
+                SL : Rp {fmt_price(t.get('sl_price'),t.get('symbol'))}<br>
                 Hold : {m['hold']}<br><br>
 
                 <a href="javascript:void(0)"
