@@ -168,12 +168,17 @@ def fmt_price(value):
     try:
         value = float(value)
 
-        if value >= 1000:
-            return f"{value:,.0f}".replace(",", ".")
-        elif value >= 1:
-            return f"{value:,.3f}".rstrip("0").rstrip(".").replace(",", ".")
+        # coin pecahan kecil 
+        if value < 1:
+            return f"{value:.6f}".rstrip("0").rstrip(".")
+
+        # coin harga ratusan 
+        elif value < 1000:
+            return f"{value:.0f}"
+
+        # coin ribuan ke atas 
         else:
-            return f"{value:,.8f}".rstrip("0").rstrip(".").replace(",", ".")
+            return f"{value:,.0f}".replace(",", ".")
 
     except:
         return "0"
