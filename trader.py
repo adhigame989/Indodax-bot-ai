@@ -22,6 +22,52 @@ active_trades = []
 TRADES_FILE = "/data/active_trades.json"
 coin_cooldown = {}
 
+def get_sl_weak_score(symbol):
+    try:
+        ohlcv = exchange.fetch_ohlcv(
+            symbol,
+            timeframe=config.TIMEFRAME,
+            limit=30
+        )
+
+        if not ohlcv:
+            return 0
+
+        import pandas as pd
+        import ta
+
+        df = pd.DataFrame(
+            ohlcv,
+            columns=["time","open","high","low","close","volume"]
+        )
+
+        close = df["close"]
+        volume = df["volume"]
+
+        rsi = ta.momentum.RSIIndicator(close).rsi()
+        ema7 = ta.trend.EMAIndicator(close, window=7).ema_indicator()
+        ema20 = ta.trend.EMAIndicator(close, window=20).ema_indicator()
+
+        weak_score = 0
+
+        # volume weakening
+        if volume.iloc[-1] < volume.iloc[-2]:
+            weak_score += 1
+
+        # EMA weakening
+        if ema7.iloc[-1] < ema20.iloc[-1]:
+            weak_score += 1
+
+        # RSI weakening
+        if rsi.iloc[-1] < rsi.iloc[-2]:
+            weak_score += 1
+
+        return weak_score
+
+    except Exception as e:
+        print("SL WEAK SCORE ERROR:", str(e))
+        return 0
+        
 def save_trades():
     with open(TRADES_FILE, "w") as f:
         json.dump(active_trades, f, indent=4)
@@ -701,18 +747,53 @@ def monitor_trade(trade):
                 >= 60
             ):
 
-                print("SL SELL:", symbol)
-                result = sell_coin(trade, "SL")
-                if result:
-                    telegram_bot.send_telegram(
-                        f"💸 SL SELL\n\n"
-                        f"Coin: {symbol}\n"
-                        f"Nilai Jual: Rp {result['sell_value']:,.0f}\n"
-                        f"Sell Price: Rp {result['sell_price']:,.2f}\n"
-                        f"Profit: Rp {result['profit_idr']:,.0f} ({result['profit_percent']:.2f}%)"
-                    )
+                weak_score = get_sl_weak_score(symbol)
+
+                stop_loss_percent = ((trade["buy_price"] -trade["sl_price"])
+                    /trade["buy_price"]) * 100
+
+                emergency_sl = stop_loss_percent + config.EMERGENCY_SL_EXTRA
+
+                current_loss = ((trade["buy_price"] -current_price)
+                    /trade["buy_price"]) * 100
+
+    # Emergency SL
+                if current_loss >= emergency_sl:
+
+                    print("EMERGENCY SL:", symbol)
+
+                    result = sell_coin(trade, "SL_EMERGENCY")
+
+                    if result:
+                        telegram_bot.send_telegram(
+                            f"🚨 EMERGENCY SL SELL\n\n"
+                            f"Coin: {symbol}\n"
+                            f"Loss: -{current_loss:.2f}%")
 
                     return
+
+    # Smart SL Confirm
+                if weak_score >= 2:
+
+                    print("SMART SL SELL:", symbol)
+
+                    result = sell_coin(trade, "SL")
+
+                    if result:
+                        telegram_bot.send_telegram(
+                            f"💸 SMART SL SELL\n\n"
+                            f"Coin: {symbol}\n"
+                            f"Weak Score: {weak_score}/3\n"
+                            f"Loss: -{current_loss:.2f}%"
+                        )
+
+                    return
+
+    # Recovery hold
+                trade["sl_trigger"] = False
+                trade["sl_trigger_time"] = 0
+
+                print("SL HOLD RECOVERY:", symbol)
 
         save_trades()
 
