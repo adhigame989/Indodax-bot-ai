@@ -183,7 +183,7 @@ def fmt_price(value):
     except:
         return "0"
 
-def build_trade_bar(buy,current,tp,sl):
+def build_trade_bar(buy,current,tp,sl,tp_mode=False,sl_trigger=False,emergency=False):
     try:
         buy=float(buy)
         current=float(current)
@@ -592,7 +592,10 @@ def home():
                     t.get("buy_price"),
                     t.get("current_price"),
                     t.get("tp_price"),
-                    t.get("sl_price")
+                    t.get("sl_price"),
+                    t.get("tp_mode", False),
+                    t.get("sl_trigger", False),
+                    t.get("emergency", False)
                 )}
 
                 Hold : {m['hold']}
