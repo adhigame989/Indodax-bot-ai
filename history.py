@@ -192,7 +192,7 @@ def get_stats():
         buy_reason = trade.get("buy_reason", "")
         buy_score = trade.get("buy_score", 0)
         profit_list.append(trade.get("profit_percent",0))
-        hold_sec=trade.get("hold_seconds",0)
+        hold_sec=trade.get("hold_duration",0)
 
         if hold_sec>0:
             hold_times.append(hold_sec)
