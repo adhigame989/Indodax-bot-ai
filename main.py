@@ -170,9 +170,10 @@ def fmt_price(value, symbol=None):
         value = float(value)
 
         decimals = 8
-
-        if symbol and symbol in MARKET_PRECISION:
-            decimals = MARKET_PRECISION[symbol]
+        if symbol:
+            symbol = symbol.upper()
+            if symbol in MARKET_PRECISION:
+                decimals = MARKET_PRECISION[symbol]
 
         formatted = f"{value:,.{decimals}f}"
 
@@ -315,7 +316,7 @@ def home():
         markets = exchange.load_markets()
 
         for symbol, market in markets.items():
-            MARKET_PRECISION[symbol] = market["precision"]["price"]
+            MARKET_PRECISION[symbol.upper()] = market["precision"]["price"]
         print("FREE:", balance["free"].get("IDR", 0))
         print("USED:", balance["used"].get("IDR", 0))
         print("TOTAL:", balance["total"].get("IDR", 0))
