@@ -794,6 +794,13 @@ def monitor_trade(trade):
                 trade["sl_trigger_time"] = 0
 
                 print("SL HOLD RECOVERY:", symbol)
+                telegram_bot.send_telegram(
+                    f"🛡️ SL HOLD RECOVERY\n\n"
+                    f"Coin: {symbol}\n"
+                    f"Weak Score: {weak_score}/3\n"
+                    f"Loss: -{current_loss:.2f}%\n"
+                    f"Status: Recovery Hold"
+                )
 
         save_trades()
 
