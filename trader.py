@@ -242,6 +242,16 @@ def buy_coin(symbol, signal_type=None, score=None):
                 "tp_mode": False,
                 "tp_highest": round(buy_price, 8)
             }
+            same_coin_count = sum(
+                1 for t in active_trades
+                if t["symbol"] == symbol)
+
+            if same_coin_count == 0:
+                cooldown = 180
+            elif same_coin_count == 1:
+                cooldown = 300
+            else:
+                cooldown = 300
 
             active_trades.append(trade)
             coin_cooldown[symbol] = {"start": time.time(),"duration": cooldown}
