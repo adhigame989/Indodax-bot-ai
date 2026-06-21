@@ -16,7 +16,6 @@ import json
 
 app = Flask(__name__)
 from datetime import datetime
-MARKET_PRECISION = {}
 
 BOT_START_TIME = datetime.now()
 
@@ -165,26 +164,19 @@ def fmt_amount(amount):
     except:
         return "0"
 
-def fmt_price(value, symbol=None):
+def fmt_price(value):
     try:
         value = float(value)
 
-        decimals = 8
-        if symbol:
-            symbol = symbol.upper()
-            if symbol in MARKET_PRECISION:
-                decimals = MARKET_PRECISION[symbol]
+        if value >= 1000:
+            return f"{value:,.0f}".replace(",", ".")
+        elif value >= 1:
+            return f"{value:,.3f}".rstrip("0").rstrip(".").replace(",", ".")
+        else:
+            return f"{value:,.8f}".rstrip("0").rstrip(".").replace(",", ".")
 
-        formatted = f"{value:,.{decimals}f}"
-
-        if decimals > 0:
-            formatted = formatted.rstrip("0").rstrip(".")
-
-        return formatted.replace(",", "X").replace(".", ",").replace("X",".")
-
-    except Exception as e:
-        print("FMT ERROR:", e)
-        return str(value)
+    except:
+        return "0"
 
 def build_trade_bar(buy,current,tp,sl):
     try:
@@ -314,10 +306,6 @@ def home():
         })
 
         balance=exchange.fetch_balance()
-        markets = exchange.load_markets()
-
-        for symbol, market in markets.items():
-            MARKET_PRECISION[symbol.upper()] = market["precision"]["price"]
         print("FREE:", balance["free"].get("IDR", 0))
         print("USED:", balance["used"].get("IDR", 0))
         print("TOTAL:", balance["total"].get("IDR", 0))
@@ -568,8 +556,8 @@ def home():
                 </div>
                 <span class="{signal_color}">{buy_reason} ({buy_score})</span><br>
 
-                Buy : Rp {fmt_price(t.get('buy_price'),t.get('symbol'))}<br>
-                Now : Rp {fmt_price(t.get('current_price'),t.get('symbol'))}<br>
+                Buy : Rp {fmt_price(t.get('buy_price'))}<br>
+                Now : Rp {fmt_price(t.get('current_price'))}<br>
 
                 <span class="{color}">
                 P/L :
@@ -810,8 +798,8 @@ def position_page():
 
                 <b>{symbol.split('/')[0]} #{i+1}</b><br><br>
 
-                Buy : Rp {fmt_price(t.get('buy_price'),t.get('symbol'))}<br>
-                Now : Rp {fmt_price(t.get('current_price'),t.get('symbol'))}<br><br>
+                Buy : Rp {fmt_price(t.get('buy_price'))}<br>
+                Now : Rp {fmt_price(t.get('current_price'))}<br><br>
                 Reason : {buy_reason}<br>
                 Score : {buy_score}<br><br>
                 Amount : {fmt_amount(t.get('amount',0))}<br>
@@ -831,8 +819,8 @@ def position_page():
 
                 <br><br>
 
-                TP : Rp {fmt_price(t.get('tp_price'),t.get('symbol'))}<br>
-                SL : Rp {fmt_price(t.get('sl_price'),t.get('symbol'))}<br>
+                TP : Rp {fmt_price(t.get('tp_price'))}<br>
+                SL : Rp {fmt_price(t.get('sl_price'))}<br>
                 Hold : {m['hold']}<br><br>
 
                 <a href="javascript:void(0)"
