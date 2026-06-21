@@ -881,6 +881,9 @@ def history_page():
     sl_count = analytics.get("sl_count", 0)
     trail_count = analytics.get("trail_count", 0)
     manual_count = analytics.get("manual_count", 0)
+    tw_count = analytics.get("tw_count", 0)
+    ts_count = analytics.get("ts_count", 0)
+    tm_count = analytics.get("tm_count", 0)
 
     buy_wr = analytics.get("buy_winrate", 0)
     strong_wr = analytics.get("strong_buy_winrate", 0)
@@ -941,9 +944,10 @@ def history_page():
     TP : {tp_count}<br>
     SL : {sl_count}<br>
     TRAIL : {trail_count}<br>
+    TOW : {tw_count}<br>
+    TOS : {ts_count}<br>
+    TOM : {tm_count}<br>
     MANUAL : {manual_count}<br><br>
-    STRONG WR : {strong_wr}%<br>
-    BUY WR : {buy_wr}%<br><br>
     AVG WIN : {avg_win}<br>
     AVG LOSS : {avg_loss}
     </div>
@@ -951,12 +955,14 @@ def history_page():
     <div style="flex:1;">
     <b>📈 REASON PERFORMANCE</b><br><br>
 
-    STRONG → TP : {strong_tp}<br>
-    STRONG → SL : {strong_sl}<br>
-    STRONG → TRAIL : {strong_trail}<br><br>
-    BUY → TP : {buy_tp}<br>
-    BUY → SL : {buy_sl}<br>
-    BUY → TRAIL : {buy_trail}
+    SB WR : {strong_wr}%<br>
+    B WR : {buy_wr}%<br><br>
+    SB → TP : {strong_tp}<br>
+    SB → SL : {strong_sl}<br>
+    SB → TRAIL : {strong_trail}<br><br>
+    B → TP : {buy_tp}<br>
+    B → SL : {buy_sl}<br>
+    B → TRAIL : {buy_trail}
     </div>
 
     <div style="flex:1;">
@@ -1033,9 +1039,9 @@ def history_page():
             "SL": "SL",
             "TRAILING_STOP": "TRAIL",
             "TRAIL": "TRAIL",
-            "TIMEOUT_WEAK": "TW",
-            "TIMEOUT_STALE": "TS",
-            "TIMEOUT_MAX": "TM",
+            "TIMEOUT_WEAK": "TOW",
+            "TIMEOUT_STALE": "TOS",
+            "TIMEOUT_MAX": "TOM",
             "MANUAL": "MANUAL"
         }
 
