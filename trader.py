@@ -703,22 +703,22 @@ def monitor_trade(trade):
                         f"Status: Hold"
                     )
 
+                    return
+
+                print("TP SELL:", symbol)
+
+                result = sell_coin(trade, "TP")
+
+                if result:
+                    telegram_bot.send_telegram(
+                        f"🚀 TP CONFIRM SELL\n\n"
+                        f"Coin: {symbol}\n"
+                        f"Nilai Jual: Rp {result['sell_value']:,.0f}\n"
+                        f"Sell Price: Rp {result['sell_price']:,.2f}\n"
+                        f"Profit: Rp {result['profit_idr']:,.0f} ({result['profit_percent']:.2f}%)"
+                    )
+
                 return
-
-    print("TP SELL:", symbol)
-
-    result = sell_coin(trade, "TP")
-
-    if result:
-        telegram_bot.send_telegram(
-            f"🚀 TP CONFIRM SELL\n\n"
-            f"Coin: {symbol}\n"
-            f"Nilai Jual: Rp {result['sell_value']:,.0f}\n"
-            f"Sell Price: Rp {result['sell_price']:,.2f}\n"
-            f"Profit: Rp {result['profit_idr']:,.0f} ({result['profit_percent']:.2f}%)"
-        )
-
-    return
         if trade["sl_trigger"]:
 
             if current_price > trade["sl_price"]:
