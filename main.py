@@ -947,9 +947,8 @@ def history_page():
     TOW : {tw_count}<br>
     TOS : {ts_count}<br>
     TOM : {tm_count}<br>
-    MANUAL : {manual_count}<br><br>
-    AVG WIN : {avg_win}<br>
-    AVG LOSS : {avg_loss}
+    MANUAL : {manual_count}
+    
     </div>
 
     <div style="flex:1;">
@@ -972,7 +971,9 @@ def history_page():
     90-99 : {b90_total} | {b90_wr}%<br>
     100-109 : {b100_total} | {b100_wr}%<br>
     110-119 : {b110_total} | {b110_wr}%<br>
-    120+ : {b120_total} | {b120_wr}%
+    120+ : {b120_total} | {b120_wr}%<br><br>
+    AVG WIN : {avg_win}<br>
+    AVG LOSS : {avg_loss}
     </div>
     <div style="flex:1;">
     <b>⏱ CAPITAL EFFICIENCY</b><br><br>
