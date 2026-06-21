@@ -803,29 +803,25 @@ def position_page():
 
                 <b>{symbol.split('/')[0]} #{i+1}</b><br><br>
 
-                Buy : Rp {fmt_price(t.get('buy_price'))}<br>
-                Now : Rp {fmt_price(t.get('current_price'))}<br><br>
                 Reason : {buy_reason}<br>
                 Score : {buy_score}<br><br>
+
+                Buy : Rp {fmt_price(t.get('buy_price'))}<br>
+                Now : Rp {fmt_price(t.get('current_price'))}<br>
+                TP : Rp {fmt_price(t.get('tp_price'))}<br>
+                SL : Rp {fmt_price(t.get('sl_price'))}<br><br>
+            
                 Amount : {fmt_amount(t.get('amount',0))}<br>
 
                 Modal : Rp {t.get('entry_value', 0):,.0f}<br>
                 Value : Rp {t.get('current_value', t.get('trade_amount', 0)):,.0f}<br><br>
 
-                High : Rp {m['high_rp']:,.0f} ({m['high_pct']:.2f}%)<br>
-                Low : Rp {m['low_rp']:,.0f} ({m['low_pct']:.2f}%)<br>
-
                 <span class='{p}'>
-
                 Current : Rp {m['current_rp']:,.0f}
-                ({t.get('profit_percent')}%)
+                ({t.get('profit_percent')}%)</span><br>
+                High : Rp {m['high_rp']:,.0f} ({m['high_pct']:.2f}%)<br>
+                Low : Rp {m['low_rp']:,.0f} ({m['low_pct']:.2f}%)<br><br>
 
-                </span>
-
-                <br><br>
-
-                TP : Rp {fmt_price(t.get('tp_price'))}<br>
-                SL : Rp {fmt_price(t.get('sl_price'))}<br>
                 Hold : {m['hold']}<br><br>
 
                 <a href="javascript:void(0)"
