@@ -834,6 +834,18 @@ def monitor_trade(trade):
                         f"Weak Score: {weak_score}/3\n"
                         f"Profit: {current_profit:.2f}%"
                     )
+                else:
+
+                    print("TIMEOUT WEAK HOLD:", symbol)
+
+                    telegram_bot.send_telegram(
+                        f"⏳ TIMEOUT WEAK HOLD\n\n"
+                        f"Coin: {symbol}\n"
+                        f"Hold: {hold_hours:.1f}h\n"
+                        f"Weak Score: {weak_score}/3\n"
+                        f"Profit: {current_profit:.2f}%\n"
+                        f"Status: Continue Holding"
+                    )
 
                 return
 
