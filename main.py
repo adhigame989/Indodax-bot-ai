@@ -182,8 +182,9 @@ def fmt_price(value, symbol=None):
 
         return formatted.replace(",", "X").replace(".", ",").replace("X",".")
 
-    except:
-        return "0"
+    except Exception as e:
+        print("FMT ERROR:", e)
+        return str(value)
 
 def build_trade_bar(buy,current,tp,sl):
     try:
