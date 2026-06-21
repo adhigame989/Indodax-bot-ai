@@ -875,7 +875,7 @@ def position_page():
 def history_page():
     stats=get_stats()
     html=f"<html><head>{style()}</head><body>{topbar()}"
-    analytics = stats.get("analytics", {})
+    analytics = stats
 
     tp_count = analytics.get("tp_count", 0)
     sl_count = analytics.get("sl_count", 0)
