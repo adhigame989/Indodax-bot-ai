@@ -244,7 +244,7 @@ def buy_coin(symbol, signal_type=None, score=None):
             }
 
             active_trades.append(trade)
-            coin_cooldown[symbol] = time.time()
+            coin_cooldown[symbol] = {"start": time.time(),"duration": cooldown}
             save_trades()
 
             print("ACTIVE TRADE SAVED:", symbol)
