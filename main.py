@@ -1019,6 +1019,28 @@ def history_page():
         buy_reason = t.get("buy_reason","-")
         buy_score = t.get("buy_score","-")
 
+# SHORT BUY REASON
+        if buy_reason == "STRONG BUY":
+            buy_reason = "SB"
+        elif buy_reason == "BUY":
+            buy_reason = "B"
+
+# SHORT SELL REASON
+        reason_map = {
+            "TAKE_PROFIT": "TP",
+            "TP": "TP",
+            "STOP_LOSS": "SL",
+            "SL": "SL",
+            "TRAILING_STOP": "TRAIL",
+            "TRAIL": "TRAIL",
+            "TIMEOUT_WEAK": "TW",
+            "TIMEOUT_STALE": "TS",
+            "TIMEOUT_MAX": "TM",
+            "MANUAL": "MANUAL"
+        }
+
+        reason = reason_map.get(reason, reason)
+
         trade_type = t["side"]
 
         if trade_type == "SELL" and reason:
@@ -1026,12 +1048,20 @@ def history_page():
 
         buy_info = f"{buy_reason} ({buy_score})"
 
+        hold_sec = int(t.get("hold_duration", 0))
+
+        d = hold_sec // 86400
+        h = (hold_sec % 86400) // 3600
+        m = (hold_sec % 3600) // 60
+
+        hold_text = f"{d}d {h}h {m}m"
         html += (
             f"<div class='card'>"
             f"{t['symbol']} | "
             f"{buy_info} | "
             f"{trade_type} | "
             f"{t['profit_percent']}% | "
+            f"{hold_text} | "
             f"{waktu}"
             f"</div>"
         )
