@@ -352,6 +352,8 @@ def sell_coin(trade, sell_reason=None):
             print("SELL CHECK ERROR:", str(e))
             return None
 
+        hold_duration = int(
+            time.time() - trade.get("buy_time", time.time()))
         profit_percent = (
             (
                 sell_price -
@@ -391,7 +393,8 @@ def sell_coin(trade, sell_reason=None):
             trade["entry_value"],
             sell_reason,
             trade.get("buy_reason"),
-            trade.get("buy_score")
+            trade.get("buy_score"),
+            hold_duration
         )
 
         if trade in active_trades:
@@ -462,6 +465,8 @@ def manual_sell(trade_id):
                     sell_price
                 )
 
+                hold_duration = int(
+                    time.time() - trade.get("buy_time", time.time()))
                 profit_percent = (
                     (
                         sell_price -
@@ -496,7 +501,8 @@ def manual_sell(trade_id):
                     trade["entry_value"],
                     "MANUAL",
                     trade.get("buy_reason"),
-                    trade.get("buy_score")
+                    trade.get("buy_score"),
+                    hold_duration
                 )
 
                 telegram_bot.send_telegram(
