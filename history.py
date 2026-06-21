@@ -149,6 +149,9 @@ def get_stats():
     tp_count = 0
     sl_count = 0
     trailing_count = 0
+    tw_count = 0
+    ts_count = 0
+    tm_count = 0
     manual_count = 0
 
     buy_count = 0
@@ -206,13 +209,16 @@ def get_stats():
 
         if reason in ["TP", "TAKE_PROFIT"]:
             tp_count += 1
-
         elif reason in ["SL", "STOP_LOSS"]:
             sl_count += 1
-
         elif reason in ["TRAIL", "TRAILING", "TRAILING_STOP"]:
             trailing_count += 1
-
+        elif reason == "TIMEOUT_WEAK":
+            tw_count += 1
+        elif reason == "TIMEOUT_STALE":
+            ts_count += 1
+        elif reason == "TIMEOUT_MAX":
+            tm_count += 1
         elif reason == "MANUAL":
             manual_count += 1
 
@@ -320,6 +326,9 @@ def get_stats():
         "sl_count": sl_count,
         "trailing_count": trailing_count,
         "manual_count": manual_count,
+        "tw_count": tw_count,
+        "ts_count": ts_count,
+        "tm_count": tm_count,
 
         "buy_winrate": buy_winrate,
         "strong_buy_winrate": strong_buy_winrate,
