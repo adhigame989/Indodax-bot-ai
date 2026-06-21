@@ -211,7 +211,7 @@ def get_stats():
 
         if reason in ["TP", "TAKE_PROFIT"]:
             tp_count += 1
-        elif reason in ["SL", "STOP_LOSS"]:
+        elif reason in ["SL", "STOP_LOSS", "SL_EMERGENCY"]:
             sl_count += 1
         elif reason in ["TRAIL", "TRAILING", "TRAILING_STOP"]:
             trailing_count += 1
