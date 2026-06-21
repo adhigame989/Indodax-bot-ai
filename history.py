@@ -200,16 +200,19 @@ def get_stats():
             if hold_sec>longest_hold:
                 longest_hold=hold_sec
 
-            if reason=="TP":
+            if reason in ["TP", "TAKE_PROFIT"]:
                 if fastest_tp is None or hold_sec<fastest_tp:
                     fastest_tp=hold_sec
 
-        if reason == "TP":
+        if reason in ["TP", "TAKE_PROFIT"]:
             tp_count += 1
-        elif reason == "SL":
+
+        elif reason in ["SL", "STOP_LOSS"]:
             sl_count += 1
-        elif reason == "TRAILING":
+
+        elif reason in ["TRAIL", "TRAILING", "TRAILING_STOP"]:
             trailing_count += 1
+
         elif reason == "MANUAL":
             manual_count += 1
 
