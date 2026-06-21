@@ -879,7 +879,7 @@ def history_page():
 
     tp_count = analytics.get("tp_count", 0)
     sl_count = analytics.get("sl_count", 0)
-    trail_count = analytics.get("trail_count", 0)
+    trail_count = analytics.get("trailing_count", 0)
     manual_count = analytics.get("manual_count", 0)
     tw_count = analytics.get("tw_count", 0)
     ts_count = analytics.get("ts_count", 0)
