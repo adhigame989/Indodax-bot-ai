@@ -198,23 +198,40 @@ def build_trade_bar(buy,current,tp,sl):
         fill_left = 50
 
         if current >= buy:
-            progress=((current-buy)/(tp-buy))*50
-            progress=max(0,min(progress,50))
 
-            tp_confirm = buy + ((tp-buy)*0.75)
+            progress = ((current - buy) / (tp - buy)) * 50
+            progress = max(0, min(progress, 50))
 
-            if current >= tp_confirm:
+            fill_left = 50
+            fill_width = progress
+
+    # TP confirm mode (biru)
+            if tp_mode:
                 bar_color = "#38bdf8"
 
-            fill_width = progress
+    # Profit normal (ijo)
+            else:
+                bar_color = "#22c55e"
 
         else:
-            progress=((buy-current)/(buy-sl))*50
-            progress=max(0,min(progress,50))
 
-            bar_color = "#ef4444"
-            fill_left = 50-progress
+            progress = ((buy - current) / (buy - sl)) * 50
+            progress = max(0, min(progress, 50))
+
+            fill_left = 50 - progress
             fill_width = progress
+
+    # Emergency SL (hitam)
+            if emergency:
+                bar_color = "#000000"
+
+    # SL Confirm (merah tua)
+            elif sl_trigger:
+                bar_color = "#991b1b"
+
+    # Loss normal (merah)
+            else:
+                bar_color = "#ef4444"
 
         return f"""
         <div style="
