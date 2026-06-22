@@ -702,6 +702,7 @@ def monitor_trade(trade):
                 real_bid = ticker["bid"]
 
                 tp_gap = ((current_price - real_bid)/ current_price) * 100
+                real_bid_profit = ((real_bid - trade["buy_price"])/ trade["buy_price"]) * 100
 
                 if tp_gap > config.MAX_TP_GAP:
 
@@ -718,6 +719,22 @@ def monitor_trade(trade):
                         f"Chart: {profit_percent:.2f}%\n"
                         f"Gap: {tp_gap:.2f}%\n"
                         f"Status: Hold"
+                    )
+
+                    return
+
+                if real_bid_profit < config.MIN_LOCK_PROFIT:
+
+                    print(
+                        f"TP LOCK TOO LOW: {symbol} | "
+                        f"BidProfit={real_bid_profit:.2f}%")
+
+                    telegram_bot.send_telegram(
+                        f"⚠️ TP HOLD (LOW LOCK)\n\n"
+                        f"Coin: {symbol}\n"
+                        f"Chart: {profit_percent:.2f}%\n"
+                        f"Real Bid: {real_bid_profit:.2f}%\n"
+                        f"Min Lock: {config.MIN_LOCK_PROFIT:.2f}%"
                     )
 
                     return
