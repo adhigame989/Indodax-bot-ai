@@ -342,26 +342,35 @@ def sell_coin(trade, sell_reason=None):
 
         try:
 
-            order_info = exchange.fetch_order(
-                order['id'],
-                symbol
-            )
+            order_info = exchange.fetch_order(order['id'],symbol)
+            filled_amount = float(order_info.get("filled", 0))
+            remaining_amount = float(order_info.get("remaining", 0))
 
-            if order_info['status'] != 'closed':
-
-                exchange.cancel_order(
-                    order['id'],
-                    symbol,
-                    {'side': 'sell'}
-                )
-
-                print("SELL CANCELLED:", symbol)
+# kalau ga ada yg kejual sama sekali
+            if filled_amount <= 0:exchange.cancel_order(order["id"],symbol,{"side": "sell"})
+                print("SELL NO FILL:", symbol)
                 return None
 
-        except Exception as e:
+# kalau partial fill
+            if remaining_amount > 0:exchange.cancel_order(order["id"],symbol,{"side": "sell"})
+                print(f"PARTIAL SELL: {symbol} | "f"Filled={filled_amount} | Remaining={remaining_amount}")
 
-            print("SELL CHECK ERROR:", str(e))
-            return None
+            sold_amount = filled_amount
+            sell_value = sell_price * sold_amount
+
+            entry_used = trade["buy_price"] * sold_amount
+            profit_idr = sell_value - entry_used
+
+# update sisa trade
+            trade["amount"] -= sold_amount
+            trade["entry_value"] = trade["buy_price"] * trade["amount"]
+
+# kalau habis total baru remove
+            if trade["amount"] <= 0.00000001:
+                if trade in active_trades:
+                    active_trades.remove(trade)
+
+            save_trades()
 
         hold_duration = int(
             time.time() - trade.get("buy_time", time.time()))
