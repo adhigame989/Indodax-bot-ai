@@ -361,15 +361,15 @@ def sell_coin(trade, sell_reason=None):
 
             trade["amount"]-=sold_amount
             trade["entry_value"]=trade["buy_price"]*trade["amount"]
-        if trade["amount"] <= 0.00000001:
-            if trade in active_trades:
-                active_trades.remove(trade)
+            if trade["amount"] <= 0.00000001:
+                if trade in active_trades:
+                    active_trades.remove(trade)
 
-        save_trades()
+            save_trades()
 
-    except Exception as e:
-        print("SELL CHECK ERROR:", str(e))
-        return None
+        except Exception as e:
+            print("SELL CHECK ERROR:", str(e))
+            return None
 
     
 
