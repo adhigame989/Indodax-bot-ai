@@ -341,36 +341,37 @@ def sell_coin(trade, sell_reason=None):
         time.sleep(10)
 
         try:
+        order_info=exchange.fetch_order(order["id"],symbol)
+        filled_amount=float(order_info.get("filled",0))
+        remaining_amount=float(order_info.get("remaining",0))
 
-            order_info = exchange.fetch_order(order['id'],symbol)
-            filled_amount = float(order_info.get("filled", 0))
-            remaining_amount = float(order_info.get("remaining", 0))
-
-# kalau ga ada yg kejual sama sekali
-            if filled_amount <= 0:exchange.cancel_order(order["id"],symbol,{"side": "sell"})
-                print("SELL NO FILL:", symbol)
+            if filled_amount<=0:
+                exchange.cancel_order(order["id"],symbol,{"side":"sell"})
+                print("SELL NO FILL:",symbol)
                 return None
 
-# kalau partial fill
-            if remaining_amount > 0:exchange.cancel_order(order["id"],symbol,{"side": "sell"})
-                print(f"PARTIAL SELL: {symbol} | "f"Filled={filled_amount} | Remaining={remaining_amount}")
+            if remaining_amount>0:
+                exchange.cancel_order(order["id"],symbol,{"side":"sell"})
+                print(f"PARTIAL SELL: {symbol} | Filled={filled_amount} | Remaining={remaining_amount}")
 
-            sold_amount = filled_amount
-            sell_value = sell_price * sold_amount
+            sold_amount=filled_amount
+            sell_value=sell_price*sold_amount
+            entry_used=trade["buy_price"]*sold_amount
+            profit_idr=sell_value-entry_used
 
-            entry_used = trade["buy_price"] * sold_amount
-            profit_idr = sell_value - entry_used
+            trade["amount"]-=sold_amount
+            trade["entry_value"]=trade["buy_price"]*trade["amount"]
+        if trade["amount"] <= 0.00000001:
+            if trade in active_trades:
+                active_trades.remove(trade)
 
-# update sisa trade
-            trade["amount"] -= sold_amount
-            trade["entry_value"] = trade["buy_price"] * trade["amount"]
+        save_trades()
 
-# kalau habis total baru remove
-            if trade["amount"] <= 0.00000001:
-                if trade in active_trades:
-                    active_trades.remove(trade)
+    except Exception as e:
+        print("SELL CHECK ERROR:", str(e))
+        return None
 
-            save_trades()
+    
 
         hold_duration = int(
             time.time() - trade.get("buy_time", time.time()))
@@ -394,12 +395,6 @@ def sell_coin(trade, sell_reason=None):
                 "duration": config.TRAILING_COOLDOWN}
             print(f"TRAILING COOLDOWN SET: {symbol}")
 
-        sell_value = sell_price * float(amount)
-
-        profit_idr = (
-            sell_value -
-            trade["entry_value"]
-        )
         pl_label = "Profit"
         if profit_idr < 0:
             pl_label = "Loss"
@@ -417,9 +412,6 @@ def sell_coin(trade, sell_reason=None):
             hold_duration
         )
 
-        if trade in active_trades:
-
-            active_trades.remove(trade)
         save_trades()
         print("SELL SUCCESS:", symbol)
         
