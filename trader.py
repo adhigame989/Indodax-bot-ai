@@ -341,9 +341,9 @@ def sell_coin(trade, sell_reason=None):
         time.sleep(10)
 
         try:
-        order_info=exchange.fetch_order(order["id"],symbol)
-        filled_amount=float(order_info.get("filled",0))
-        remaining_amount=float(order_info.get("remaining",0))
+            order_info=exchange.fetch_order(order["id"],symbol)
+            filled_amount=float(order_info.get("filled",0))
+            remaining_amount=float(order_info.get("remaining",0))
 
             if filled_amount<=0:
                 exchange.cancel_order(order["id"],symbol,{"side":"sell"})
