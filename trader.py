@@ -405,7 +405,7 @@ def sell_coin(trade, sell_reason=None):
             sell_price,
             profit_percent,
             profit_idr,
-            trade["entry_value"],
+            entry_used,
             sell_reason,
             trade.get("buy_reason"),
             trade.get("buy_score"),
@@ -531,9 +531,6 @@ def manual_sell(trade_id):
                 print("MANUAL SELL:", symbol)
 
                 return True
-
-    except Exception as e:
-        print("MANUAL SELL ERROR:", str(e))
 
     except Exception as e:
         print("MANUAL SELL ERROR:", str(e))
