@@ -361,7 +361,9 @@ def home():
         free_idr=balance['free'].get('IDR',0)
         used_idr=balance['used'].get('IDR',0)
 
-        bot_coin_value = 0
+        bot_coin_value = sum(t.get("current_value",0)
+            for t in trader.active_trades)
+
         manual_coin_value = 0
 
         for coin, amount in balance['total'].items():
@@ -377,10 +379,13 @@ def home():
                 ticker = exchange.fetch_ticker(f"{coin}/IDR")
                 price = ticker["last"]
                 value = amount * price
-                if coin in bot_symbols:
-                    bot_coin_value += value
-                else:
-                    manual_coin_value += value
+                bot_amount = sum(t.get("amount",0)
+                    for t in trader.active_trades
+                    if t["symbol"].split("/")[0] == coin)
+
+                manual_amount = max(0, amount - bot_amount)
+
+                manual_coin_value += manual_amount * price
             except:
                 pass
 
