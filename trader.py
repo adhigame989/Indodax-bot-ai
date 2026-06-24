@@ -356,11 +356,12 @@ def sell_coin(trade, sell_reason=None):
 
             sold_amount=filled_amount
             sell_value=sell_price*sold_amount
-            entry_used=trade["buy_price"]*sold_amount
+
+            entry_used=(trade["entry_value"]/trade["amount"])*sold_amount
             profit_idr=sell_value-entry_used
 
             trade["amount"]-=sold_amount
-            trade["entry_value"]=trade["buy_price"]*trade["amount"]
+            trade["entry_value"]-=entry_used
             if trade["amount"] <= 0.00000001:
                 if trade in active_trades:
                     active_trades.remove(trade)
