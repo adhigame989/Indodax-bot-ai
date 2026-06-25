@@ -536,9 +536,16 @@ def scan_market():
                         volatility_score += 10
                     elif avg_range > 8:
                         volatility_score -= 15
+                    compression_score = 0
+
+                    if avg_range < 2 and distance_to_breakout < 2:
+                        compression_score += 15
+
+                    elif avg_range < 3 and distance_to_breakout < 3:
+                        compression_score += 8
                     
                     final_score = (multi_tf_score + volume_score + breakout_score  + breakout_confirm_score + trend_score + relative_volume_score
-                                  + volatility_score + momentum_score + volume_consistency)
+                                  + volatility_score + momentum_score + volume_consistency + compression_score)
                     if volume_ratio > 2 and distance_to_breakout < 3:
                         final_score += 10
 
