@@ -364,6 +364,16 @@ def scan_market():
                         relative_volume_score -= 20
 
                     candle_pump = ((latest_price - latest_open) / latest_open) * 100
+                    momentum_score = 0
+
+                    if 1 <= candle_pump <= 3:
+                        momentum_score += 15
+
+                    elif 3 < candle_pump <= 5:
+                        momentum_score += 8
+
+                    elif candle_pump > 6:
+                        momentum_score -= 20
 
                     if candle_pump > 8:
                         continue
@@ -524,7 +534,7 @@ def scan_market():
                         volatility_score -= 15
                     
                     final_score = (multi_tf_score + volume_score + breakout_score  + breakout_confirm_score + trend_score + relative_volume_score
-                                  + volatility_score)
+                                  + volatility_score + momentum_score)
                     if volume_ratio > 2 and distance_to_breakout < 3:
                         final_score += 10
 
