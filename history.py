@@ -179,11 +179,11 @@ def get_stats():
     strong_trail=0
 
     score_buckets = {
-        "95_109": {"win": 0, "loss": 0},
-        "110_124": {"win": 0, "loss": 0},
-        "125_149": {"win": 0, "loss": 0},
-        "150_179": {"win": 0, "loss": 0},
-        "180_plus": {"win": 0, "loss": 0},
+        "40_59": {"win": 0, "loss": 0},
+        "60_79": {"win": 0, "loss": 0},
+        "80_99": {"win": 0, "loss": 0},
+        "100_129": {"win": 0, "loss": 0},
+        "130_plus": {"win": 0, "loss": 0},
     }
 
     for trade in history:
@@ -260,16 +260,16 @@ def get_stats():
 
             bucket = None
 
-            if 95 <= bs <= 109:
-                bucket = "95_109"
-            elif 110 <= bs <= 124:
-                bucket = "110_124"
-            elif 125 <= bs <= 149:
-                bucket = "125_149"
-            elif 150 <= bs <= 179:
-                bucket = "150_179"
-            elif bs >= 180:
-                bucket = "180_plus"
+            if 40 <= bs <= 59:
+                bucket = "40_59"
+            elif 60 <= bs <= 79:
+                bucket = "60_79"
+            elif 80 <= bs <= 99:
+                bucket = "80_99"
+            elif 100 <= bs <= 129:
+                bucket = "100_129"
+            elif bs >= 130:
+                bucket = "130_plus"
 
             if bucket:
                 if profit_idr > 0:
