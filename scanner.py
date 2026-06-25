@@ -428,13 +428,13 @@ def scan_market():
                     if latest_rsi > 80:
                         continue
                     if 52 <= latest_rsi <= 65:
-                        trend_score += 15
+                        rsi_score += 15
                     elif 65 < latest_rsi <= 72:
-                        trend_score += 8
+                        rsi_score += 8
                     elif 45 <= latest_rsi < 52:
                         rsi_score = 5
                     elif latest_rsi < 40:
-                        trend_score = -5
+                        rsi_score = -5
 
                     ema_distance = (
                         (latest_price - latest_ema20)
@@ -516,7 +516,7 @@ def scan_market():
                     if latest_price > ema20.iloc[-1]:
                         trend_score += 6
                     if ema20.iloc[-1] < ema50.iloc[-1]:
-                        trend_score -= 20
+                        trend_score -= 8
                     # STEP 13 - Pullback entry bonus
                     pullback_pct = ((latest_price - ema20.iloc[-1]) / ema20.iloc[-1]) * 100
 
@@ -540,8 +540,8 @@ def scan_market():
                         green_count += 1
 
                     stability_score = 0
-                    if green_count => 2:
-                        trend_score += 5
+                    if green_count >= 2:
+                        stability_score += 5
                     # STEP 12 - Trend stability
                     higher_low_count = 0
 
@@ -555,11 +555,10 @@ def scan_market():
                         higher_low_count += 1
 
                     if higher_low_count >= 2:
-                        trend_score += 5
+                        stability_score += 5
                     elif higher_low_count == 1:
-                        trend_score += 2
-                    else:
-                        trend_score -= 10
+                        stability_score += 2
+                    
                     # STEP 9 - Failed breakout memory
                     if (distance_to_breakout < 2
                         and df["close"].iloc[-1] < df["open"].iloc[-1]
@@ -586,7 +585,6 @@ def scan_market():
                     if body_ratio > 0.45:
                         stability_score += 5
                     elif body_ratio < 0.20:
-                        stability_score:
                         stability_score -= 5
                         
                         
@@ -681,7 +679,7 @@ def scan_market():
                         profile_bonus
                     )
                     penalty_score = (
-                        memory_penalty + abs(liquidity_trap_score)
+                        memory_penalty + abs(liquidity_trap_score))
                     final_score = (base_score + bonus_score - penalty_score) * market_multiplier
 
                     
