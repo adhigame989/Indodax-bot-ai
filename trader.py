@@ -833,6 +833,7 @@ def monitor_trade(trade):
 
             if (time.time()-trade["sl_trigger_time"]>= 60):
 
+                hold_hours = (time.time() - trade["buy_time"]) / 3600
                 weak_score = get_sl_weak_score(symbol)
                 if profit_percent < 0:
                     weak_score += 1
