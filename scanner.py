@@ -352,7 +352,11 @@ def scan_market():
                         relative_volume_score = 4
                         
                     prev_volume = volume_data.iloc[-2]
+                    prev2_volume = volume_data.iloc[-3]
                     volume_decay = 0
+
+                    if latest_volume > prev_volume > prev2_volume:
+                        volume_consistency += 12
 
                     if prev_volume > 0:
                         volume_decay = ((latest_volume-prev_volume) / prev_volume) * 100
@@ -534,7 +538,7 @@ def scan_market():
                         volatility_score -= 15
                     
                     final_score = (multi_tf_score + volume_score + breakout_score  + breakout_confirm_score + trend_score + relative_volume_score
-                                  + volatility_score + momentum_score)
+                                  + volatility_score + momentum_score + volume_consistency)
                     if volume_ratio > 2 and distance_to_breakout < 3:
                         final_score += 10
 
