@@ -501,6 +501,24 @@ def scan_market():
 
                     if green_count < 2:
                         trend_score -= 10
+                    # STEP 12 - Trend stability
+                    higher_low_count = 0
+
+                    if df["low"].iloc[-1] > df["low"].iloc[-2]:
+                        higher_low_count += 1
+
+                    if df["low"].iloc[-2] > df["low"].iloc[-3]:
+                        higher_low_count += 1
+
+                    if df["low"].iloc[-3] > df["low"].iloc[-4]:
+                        higher_low_count += 1
+
+                    if higher_low_count >= 2:
+                        trend_score += 15
+                    elif higher_low_count == 1:
+                        trend_score += 5
+                    else:
+                        trend_score -= 10
                     # STEP 9 - Failed breakout memory
                     if (distance_to_breakout < 2
                         and df["close"].iloc[-1] < df["open"].iloc[-1]
