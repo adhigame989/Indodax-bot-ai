@@ -488,6 +488,17 @@ def scan_market():
                         trend_score += 10
                     if ema20.iloc[-1] < ema50.iloc[-1]:
                         trend_score -= 20
+                    # STEP 13 - Pullback entry bonus
+                    pullback_pct = ((latest_price - ema20.iloc[-1]) / ema20.iloc[-1]) * 100
+
+                    if 0.5 <= pullback_pct <= 2:
+                        trend_score += 15
+
+                    elif 2 < pullback_pct <= 4:
+                        trend_score += 5
+
+                    elif pullback_pct > 7:
+                        trend_score -= 15
                     green_count = 0
 
                     if df["close"].iloc[-1] > df["open"].iloc[-1]:
