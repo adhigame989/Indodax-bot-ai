@@ -570,6 +570,30 @@ def monitor_trade(trade):
             profit_percent,
             2
         )
+        
+        btc_status = scanner.check_btc_market()
+
+        if btc_status == "PANIC":
+            hold_hours = (time.time() - trade["buy_time"]) / 3600
+            weak_score = 0
+
+            if profit_percent < 1:weak_score += 1
+            if current_price < trade["buy_price"]:weak_score += 1
+            if hold_hours > 4:weak_score += 1
+            if weak_score >= 2:
+                print("BTC PANIC WEAK EXIT:", symbol)
+
+                result = sell_coin(trade,"BTC_PANIC_EXIT")
+
+                if result:
+                    telegram_bot.send_telegram(
+                        f"⚠ BTC PANIC EXIT\n\n"
+                        f"Coin: {symbol}\n"
+                        f"Weak Score: {weak_score}/3\n"
+                        f"Profit: {profit_percent:.2f}%"
+                    )
+
+                return
 
         if current_price > trade["highest_price"]:
             trade["highest_price"] = current_price
@@ -773,7 +797,12 @@ def monitor_trade(trade):
                 )
                 return
 
-        if current_price <= trade["sl_price"]:
+        panic_sl_price = trade["sl_price"]
+
+        if btc_status == "PANIC":
+            panic_sl_price = (trade["buy_price"] *(1 - ((config.STOP_LOSS / 2) / 100)))
+
+        if current_price <= panic_sl_price:
 
             if not trade["sl_trigger"]:
 
@@ -791,19 +820,11 @@ def monitor_trade(trade):
 
                 save_trades()
 
-                print(
-                    "SL TRIGGER:",
-                    symbol
-                )
+                print("SL TRIGGER:",symbol)
 
                 return
 
-            if (
-                time.time()
-                -
-                trade["sl_trigger_time"]
-                >= 60
-            ):
+            if (time.time()-trade["sl_trigger_time"]>= 60):
 
                 weak_score = get_sl_weak_score(symbol)
 
@@ -996,6 +1017,11 @@ def trade_loop():
                     continue
 
                 if BUY_ENABLED:
+                    btc_status = scanner.check_btc_market()
+
+                    if btc_status == "PANIC" and same_coin_count > 0:
+                        print(f"BTC PANIC - LAYER BLOCKED: {symbol}")
+                        continue
 
     # Layer 1
                     if same_coin_count == 0:
