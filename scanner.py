@@ -291,6 +291,8 @@ def scan_market():
                     symbol = item["symbol"]
 
                     if btc_status == "PANIC":
+                        failed_breakout_watchlist[symbol] = time.time()
+                        print(f"WATCHLIST BTC PANIC: {symbol}")
                         continue
 
                     data = tickers[symbol]
@@ -305,6 +307,9 @@ def scan_market():
                     spread_pct = ((ask - bid) / last_price) * 100
 
                     if spread_pct > 2:
+                        if item["score"] >= 90:
+                        failed_breakout_watchlist[symbol] = time.time()
+                        print(f"WATCHLIST HIGH SPREAD: {symbol}")
                         continue
 
                     ohlcv = exchange.fetch_ohlcv(
@@ -354,6 +359,7 @@ def scan_market():
                     prev_volume = volume_data.iloc[-2]
                     prev2_volume = volume_data.iloc[-3]
                     volume_decay = 0
+                    volume_consistency = 0
 
                     if latest_volume > prev_volume > prev2_volume:
                         volume_consistency += 12
@@ -366,6 +372,7 @@ def scan_market():
 
                     if volume_decay < -40:
                         relative_volume_score -= 20
+                        failed_breakout_watchlist[symbol] = time.time()
 
                     candle_pump = ((latest_price - latest_open) / latest_open) * 100
                     momentum_score = 0
@@ -598,6 +605,10 @@ def scan_market():
 
                     print("COIN ERROR:", str(e))
 
+            now = time.time()
+            failed_breakout_watchlist = {
+                s:t for s,t in failed_breakout_watchlist.items()
+                if now - t < 3600}
             market_data = sorted(
                 results,
                 key=lambda x: x["score"],
