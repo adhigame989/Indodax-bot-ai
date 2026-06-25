@@ -590,7 +590,9 @@ def monitor_trade(trade):
                         f"⚠ BTC PANIC EXIT\n\n"
                         f"Coin: {symbol}\n"
                         f"Weak Score: {weak_score}/3\n"
-                        f"Profit: {profit_percent:.2f}%"
+                        f"Sell Price: Rp {result['sell_price']:,.2f}\n"
+                        f"Hasil Jual: Rp {result['sell_value']:,.0f}\n"
+                        f"{result['pl_label']}: Rp {abs(result['profit_idr']):,.0f} ({result['profit_percent']:.2f}%)"
                     )
 
                 return
@@ -659,8 +661,8 @@ def monitor_trade(trade):
                         telegram_bot.send_telegram(
                             f"🪙 TRAILING SELL\n\n"
                             f"Coin: {symbol}\n"
-                            f"Nilai Jual: Rp {result['sell_value']:,.0f}\n"
                             f"Sell Price: Rp {result['sell_price']:,.2f}\n"
+                            f"Hasil Jual: Rp {result['sell_value']:,.0f}\n"
                             f"Profit: Rp {result['profit_idr']:,.0f} ({result['profit_percent']:.2f}%)"
                         )
 
@@ -770,8 +772,8 @@ def monitor_trade(trade):
                     telegram_bot.send_telegram(
                         f"🚀 TP CONFIRM SELL\n\n"
                         f"Coin: {symbol}\n"
-                        f"Nilai Jual: Rp {result['sell_value']:,.0f}\n"
                         f"Sell Price: Rp {result['sell_price']:,.2f}\n"
+                        f"Hasil Jual: Rp {result['sell_value']:,.0f}\n"
                         f"Profit: Rp {result['profit_idr']:,.0f} ({result['profit_percent']:.2f}%)"
                     )
 
@@ -847,7 +849,9 @@ def monitor_trade(trade):
                         telegram_bot.send_telegram(
                             f"🚨 EMERGENCY SL SELL\n\n"
                             f"Coin: {symbol}\n"
-                            f"Loss: -{current_loss:.2f}%")
+                            f"Sell Price: Rp {result['sell_price']:,.2f}\n"
+                            f"Hasil Jual: Rp {result['sell_value']:,.0f}\n"
+                            f"{result['pl_label']}: Rp {abs(result['profit_idr']):,.0f} ({result['profit_percent']:.2f}%)"
 
                     return
 
@@ -863,7 +867,9 @@ def monitor_trade(trade):
                             f"💸 SMART SL SELL\n\n"
                             f"Coin: {symbol}\n"
                             f"Weak Score: {weak_score}/3\n"
-                            f"Loss: -{current_loss:.2f}%"
+                            f"Sell Price: Rp {result['sell_price']:,.2f}\n"
+                            f"Hasil Jual: Rp {result['sell_value']:,.0f}\n"
+                            f"{result['pl_label']}: Rp {abs(result['profit_idr']):,.0f} ({result['profit_percent']:.2f}%)"
                         )
 
                     return
@@ -911,7 +917,9 @@ def monitor_trade(trade):
                         f"Coin: {symbol}\n"
                         f"Hold: {hold_hours:.1f}h\n"
                         f"Weak Score: {weak_score}/3\n"
-                        f"Profit: {current_profit:.2f}%"
+                        f"Sell Price: Rp {result['sell_price']:,.2f}\n"
+                        f"Hasil Jual: Rp {result['sell_value']:,.0f}\n"
+                        f"{result['pl_label']}: Rp {abs(result['profit_idr']):,.0f} ({result['profit_percent']:.2f}%)"
                     )
             else:
 
