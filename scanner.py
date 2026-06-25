@@ -262,6 +262,9 @@ def build_market_universe(tickers):
 def scan_market():
 
     global market_data
+    global failed_breakout_watchlist
+    global bad_coin_memory
+    global coin_profile_memory
 
     print("SCANNER STARTED")
 
