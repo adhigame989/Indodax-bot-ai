@@ -15,6 +15,7 @@ market_data = []
 recent_logs = []
 failed_breakout_watchlist = {}
 bad_coin_memory = {}
+coin_profile_memory = {}
 
 BLACKLIST = [
     "USDT/IDR",
@@ -627,6 +628,19 @@ def scan_market():
                     if symbol in bad_coin_memory:
                         memory_penalty = bad_coin_memory[symbol] * 5
                     
+                    profile_bonus = 0
+
+                    if symbol in coin_profile_memory:
+                        winrate = coin_profile_memory[symbol].get("winrate", 0)
+
+                    if winrate >= 70:
+                        profile_bonus += 15
+
+                    elif winrate >= 50:
+                        profile_bonus += 8
+
+                    elif winrate < 35:
+                        profile_bonus -= 10
                     market_multiplier = 1.0
 
                     if btc_status == "BULLISH":
@@ -640,7 +654,7 @@ def scan_market():
     #final score
                     base_score = (multi_tf_score + volume_score + breakout_score  + breakout_confirm_score + trend_score + relative_volume_score
                                   + volatility_score + momentum_score + volume_consistency + compression_score + leader_score + whale_score
-                                   + liquidity_trap_score - memory_penalty)
+                                   + liquidity_trap_score + profile_bonus - memory_penalty)
                     final_score = base_score * market_multipier
 
                     
