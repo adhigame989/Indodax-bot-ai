@@ -401,6 +401,16 @@ def scan_market():
                     recent_low = df["low"].tail(20).min()
 
                     distance_to_breakout = ((recent_high - latest_price)/ latest_price) * 100
+                    breakout_confirm_score = 0
+
+                    last_close = df["close"].iloc[-1]
+                    prev_close = df["close"].iloc[-2]
+
+                    if last_close > recent_high:breakout_confirm_score += 25
+
+                    if prev_close > recent_high:breakout_confirm_score += 15
+
+                    if volume_ratio > 2 and last_close > recent_high:breakout_confirm_score += 20
 
                     breakout_score = 0
                     resistance_touches = 0
@@ -513,7 +523,7 @@ def scan_market():
                     elif avg_range > 8:
                         volatility_score -= 15
                     
-                    final_score = (multi_tf_score + volume_score + breakout_score + trend_score + relative_volume_score
+                    final_score = (multi_tf_score + volume_score + breakout_score  + breakout_confirm_score + trend_score + relative_volume_score
                                   + volatility_score)
                     if volume_ratio > 2 and distance_to_breakout < 3:
                         final_score += 10
