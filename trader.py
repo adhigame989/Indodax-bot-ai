@@ -413,6 +413,24 @@ def sell_coin(trade, sell_reason=None):
             hold_duration
         )
 
+        # STEP 20 - Coin profile memory update
+        if symbol not in scanner.coin_profile_memory:
+            scanner.coin_profile_memory[symbol] = {
+                "win": 0,
+                "loss": 0,
+                "winrate": 0
+            }
+
+        if profit_percent > 0:
+            scanner.coin_profile_memory[symbol]["win"] += 1
+        else:
+            scanner.coin_profile_memory[symbol]["loss"] += 1
+
+        wins = scanner.coin_profile_memory[symbol]["win"]
+        losses = scanner.coin_profile_memory[symbol]["loss"]
+        total = wins + losses
+
+        scanner.coin_profile_memory[symbol]["winrate"] = (wins / total) * 100
         save_trades()
         print("SELL SUCCESS:", symbol)
         
