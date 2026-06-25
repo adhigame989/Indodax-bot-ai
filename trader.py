@@ -577,10 +577,15 @@ def monitor_trade(trade):
             hold_hours = (time.time() - trade["buy_time"]) / 3600
             weak_score = 0
 
-            if profit_percent < 1:weak_score += 1
-            if current_price < trade["buy_price"]:weak_score += 1
-            if hold_hours > 4:weak_score += 1
-            if weak_score >= 2:
+            if profit_percent < 0:
+                weak_score += 1
+            if profit_percent <= config.BTC_PANIC_DEEP_LOSS:
+                weak_score += 1
+            if current_price < trade["buy_price"]:
+                weak_score += 1
+            if hold_hours > config.BTC_PANIC_HOLD_HOURS:
+                weak_score += 1
+            if weak_score >= config.BTC_PANIC_EXIT_SCORE:
                 print("BTC PANIC WEAK EXIT:", symbol)
 
                 result = sell_coin(trade,"BTC_PANIC_EXIT")
@@ -829,6 +834,14 @@ def monitor_trade(trade):
             if (time.time()-trade["sl_trigger_time"]>= 60):
 
                 weak_score = get_sl_weak_score(symbol)
+                if current_profit < 0:
+                    weak_score += 1
+
+                if current_profit <= config.TIMEOUT_DEEP_LOSS:
+                    weak_score += 1
+
+                if hold_hours >= config.TIMEOUT_HARD_HOURS:
+                    weak_score += 1
 
                 stop_loss_percent = ((trade["buy_price"] -trade["sl_price"])
                     /trade["buy_price"]) * 100
@@ -857,7 +870,7 @@ def monitor_trade(trade):
                     return
 
     # Smart SL Confirm
-                if weak_score >= 2:
+                if weak_score >= config.TIMEOUT_EXIT_SCORE:
 
                     print("SMART SL SELL:", symbol)
 
