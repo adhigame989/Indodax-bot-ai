@@ -606,7 +606,7 @@ def monitor_trade(trade):
         # Smart trailing aktif setelah profit cukup
         if (config.TRAILING_STOP
             and profit_percent >= config.TRAILING_START
-        ):
+        and not trade["tp_mode"]):
 
             trailing_stop_price = (
                 trade["highest_price"]
