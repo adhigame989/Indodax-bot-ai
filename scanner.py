@@ -388,6 +388,24 @@ def scan_market():
 
                     if candle_pump > 8:
                         continue
+                    # STEP 15 - Whale activity detector
+                    whale_score = 0
+
+                    if volume_ratio >= 5 and candle_pump <= 2:
+                        whale_score += 20
+
+                    elif volume_ratio >= 3 and candle_pump <= 1:
+                        whale_score += 10
+                    # STEP 16 - Liquidity trap detector
+                    liquidity_trap_score = 0
+                    upper_wick = ((latest_high - latest_price) / latest_price) * 100
+                    body_size = abs((latest_price - latest_open) / latest_open) * 100
+
+                    if upper_wick > body_size * 2 and volume_ratio >= 2:
+                        liquidity_trap_score -= 20
+
+                    elif upper_wick > body_size and volume_ratio >= 3:
+                        liquidity_trap_score -= 10
                     # STEP 7 - Fake pump rejection
                     upper_wick = df["high"].iloc[-1] - max(df["close"].iloc[-1], df["open"].iloc[-1])
                     body = abs(df["close"].iloc[-1] - df["open"].iloc[-1])
@@ -600,7 +618,7 @@ def scan_market():
                         leader_score = 0
                     
                     final_score = (multi_tf_score + volume_score + breakout_score  + breakout_confirm_score + trend_score + relative_volume_score
-                                  + volatility_score + momentum_score + volume_consistency + compression_score + leader_score)
+                                  + volatility_score + momentum_score + volume_consistency + compression_score + leader_score + whale_score + liquidity_trap_score)
                     if volume_ratio > 2 and distance_to_breakout < 3:
                         final_score += 10
 
