@@ -428,9 +428,9 @@ def scan_market():
                     if latest_rsi > 80:
                         continue
                     if 52 <= latest_rsi <= 65:
-                        rsi_score += 15
+                        rsi_score = 15
                     elif 65 < latest_rsi <= 72:
-                        rsi_score += 8
+                        rsi_score = 8
                     elif 45 <= latest_rsi < 52:
                         rsi_score = 5
                     elif latest_rsi < 40:
@@ -487,10 +487,10 @@ def scan_market():
                         breakout_strength = ((latest_price - recent_low)/ price_range)
 
                         if breakout_strength > 0.75:
-                            breakout_score += 15
+                            breakout_score += 8
 
                         elif breakout_strength > 0.60:
-                            breakout_score += 8
+                            breakout_score += 4
 
                     
                     # STEP 9 - Revisit bonus
@@ -573,7 +573,7 @@ def scan_market():
                     wick_range = ((last_high - last_low) / last_close) * 100
 
                     if wick_range > 8:
-                        trend_score -= 40
+                        trend_score -= 12
                         print(f"{symbol} ABNORMAL WICK DETECTED: {wick_range:.2f}%")
                     body = abs(df["close"].iloc[-1] - df["open"].iloc[-1])
                     full = df["high"].iloc[-1] - df["low"].iloc[-1]
