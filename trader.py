@@ -834,10 +834,10 @@ def monitor_trade(trade):
             if (time.time()-trade["sl_trigger_time"]>= 60):
 
                 weak_score = get_sl_weak_score(symbol)
-                if current_profit < 0:
+                if profit_percent < 0:
                     weak_score += 1
 
-                if current_profit <= config.TIMEOUT_DEEP_LOSS:
+                if profit_percent <= config.TIMEOUT_DEEP_LOSS:
                     weak_score += 1
 
                 if hold_hours >= config.TIMEOUT_HARD_HOURS:
@@ -918,7 +918,7 @@ def monitor_trade(trade):
 
             weak_score = get_sl_weak_score(symbol)
 
-            if weak_score >= 2:
+            if weak_score >= config.TIMEOUT_EXIT_SCORE:
                 
                 print("TIMEOUT WEAK SELL:", symbol)
 
