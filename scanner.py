@@ -308,9 +308,9 @@ def scan_market():
 
                     if spread_pct > 2:
                         if item["score"] >= 90:
-                        failed_breakout_watchlist[symbol] = time.time()
-                        print(f"WATCHLIST HIGH SPREAD: {symbol}")
-                        continue
+                            failed_breakout_watchlist[symbol] = time.time()
+                            print(f"WATCHLIST HIGH SPREAD: {symbol}")
+                            continue
 
                     ohlcv = exchange.fetch_ohlcv(
                         symbol,
@@ -579,9 +579,28 @@ def scan_market():
 
                     elif avg_range < 3 and distance_to_breakout < 3:
                         compression_score += 8
+
+                    # STEP 14 - Market leader sync
+                    leader_score = 0
+
+                    try:
+                        btc_data = exchange.fetch_ticker("BTC/IDR")
+                        eth_data = exchange.fetch_ticker("ETH/IDR")
+                        btc_change = btc_data.get("percentage", 0)
+                        eth_change = eth_data.get("percentage", 0)
+                        if btc_change > 1:
+                            leader_score += 10
+                        elif btc_change < -2:
+                            leader_score -= 15
+                        if eth_change > 1:
+                            leader_score += 8
+                        elif eth_change < -2:
+                            leader_score -= 10
+                    except:
+                        leader_score = 0
                     
                     final_score = (multi_tf_score + volume_score + breakout_score  + breakout_confirm_score + trend_score + relative_volume_score
-                                  + volatility_score + momentum_score + volume_consistency + compression_score)
+                                  + volatility_score + momentum_score + volume_consistency + compression_score + leader_score)
                     if volume_ratio > 2 and distance_to_breakout < 3:
                         final_score += 10
 
