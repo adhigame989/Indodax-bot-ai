@@ -852,7 +852,8 @@ def monitor_trade(trade):
                             f"Sell Price: Rp {result['sell_price']:,.2f}\n"
                             f"Hasil Jual: Rp {result['sell_value']:,.0f}\n"
                             f"{result['pl_label']}: Rp {abs(result['profit_idr']):,.0f} ({result['profit_percent']:.2f}%)"
-
+                        )
+                            
                     return
 
     # Smart SL Confirm
