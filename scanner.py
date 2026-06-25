@@ -14,6 +14,7 @@ exchange = ccxt.indodax({
 market_data = []
 recent_logs = []
 failed_breakout_watchlist = {}
+bad_coin_memory = {}
 
 BLACKLIST = [
     "USDT/IDR",
@@ -373,6 +374,7 @@ def scan_market():
                     if volume_decay < -40:
                         relative_volume_score -= 20
                         failed_breakout_watchlist[symbol] = time.time()
+                        bad_coin_memory[symbol] = bad_coin_memory.get(symbol, 0) + 1
 
                     candle_pump = ((latest_price - latest_open) / latest_open) * 100
                     momentum_score = 0
@@ -555,6 +557,7 @@ def scan_market():
                         and df["close"].iloc[-1] < df["open"].iloc[-1]
                         and volume_ratio > 1.2):
                         failed_breakout_watchlist[symbol] = time.time()
+                        bad_coin_memory[symbol] = bad_coin_memory.get(symbol, 0) + 1
                             
                     last_high = df["high"].iloc[-1]
                     last_low = df["low"].iloc[-1]
@@ -619,8 +622,28 @@ def scan_market():
                     except:
                         leader_score = 0
                     
-                    final_score = (multi_tf_score + volume_score + breakout_score  + breakout_confirm_score + trend_score + relative_volume_score
-                                  + volatility_score + momentum_score + volume_consistency + compression_score + leader_score + whale_score + liquidity_trap_score)
+                    memory_penalty = 0
+
+                    if symbol in bad_coin_memory:
+                        memory_penalty = bad_coin_memory[symbol] * 5
+                    
+                    market_multiplier = 1.0
+
+                    if btc_status == "BULLISH":
+                        market_multiplier = 1.15
+
+                    elif btc_status == "NEUTRAL":
+                        market_multiplier = 1.0
+
+                    elif btc_status == "PANIC":
+                        market_multiplier = 0.85
+    #final score
+                    base_score = (multi_tf_score + volume_score + breakout_score  + breakout_confirm_score + trend_score + relative_volume_score
+                                  + volatility_score + momentum_score + volume_consistency + compression_score + leader_score + whale_score
+                                   + liquidity_trap_score - memory_penalty)
+                    final_score = base_score * market_multipier
+
+                    
                     if volume_ratio > 2 and distance_to_breakout < 3:
                         final_score += 10
 
