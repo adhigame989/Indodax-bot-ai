@@ -396,8 +396,10 @@ def scan_market():
 
                     elif volume_ratio >= 3 and candle_pump <= 1:
                         whale_score += 10
+                        
                     # STEP 16 - Liquidity trap detector
                     liquidity_trap_score = 0
+                    latest_high = df["high"].iloc[-1]
                     upper_wick = ((latest_high - latest_price) / latest_price) * 100
                     body_size = abs((latest_price - latest_open) / latest_open) * 100
 
