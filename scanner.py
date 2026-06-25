@@ -666,6 +666,7 @@ def scan_market():
                         trend_score +
                         rsi_score +
                         volume_score +
+                        momentum_score +
                         breakout_score +
                         breakout_confirm_score +
                         stability_score
@@ -673,6 +674,7 @@ def scan_market():
                     bonus_score = (
                         multi_tf_score +
                         relative_volume_score +
+                        volume_consistency +
                         compression_score +
                         leader_score +
                         whale_score +
