@@ -904,23 +904,23 @@ def history_page():
     strong_trail = analytics.get("strong_trail", 0)
     score_buckets=stats.get("score_buckets",{})
 
-    b95=score_buckets.get("95_109",{})
-    b110=score_buckets.get("110_124",{})
-    b125=score_buckets.get("125_149",{})
-    b150=score_buckets.get("150_179",{})
-    b180=score_buckets.get("180_plus",{})
+    b40=score_buckets.get("40_59",{})
+    b60=score_buckets.get("60_79",{})
+    b80=score_buckets.get("80_99",{})
+    b100=score_buckets.get("100_129",{})
+    b130=score_buckets.get("130_plus",{})
     
-    b95_total=b95.get("win",0)+b95.get("loss",0)
-    b110_total=b110.get("win",0)+b110.get("loss",0)
-    b125_total=b125.get("win",0)+b125.get("loss",0)
-    b150_total=b150.get("win",0)+b150.get("loss",0)
-    b180_total=b180.get("win",0)+b180.get("loss",0)
+    b40_total=b40.get("win",0)+b40.get("loss",0)
+    b60_total=b60.get("win",0)+b60.get("loss",0)
+    b80_total=b80.get("win",0)+b80.get("loss",0)
+    b100_total=b100.get("win",0)+b100.get("loss",0)
+    b130_total=b130.get("win",0)+b130.get("loss",0)
 
-    b95_wr=round((b95.get("win",0)/b95_total)*100,2) if b95_total>0 else 0
-    b110_wr=round((b110.get("win",0)/b110_total)*100,2) if b110_total>0 else 0
-    b125_wr=round((b125.get("win",0)/b125_total)*100,2) if b125_total>0 else 0
-    b150_wr=round((b150.get("win",0)/b150_total)*100,2) if b150_total>0 else 0
-    b180_wr=round((b180.get("win",0)/b180_total)*100,2) if b180_total>0 else 0
+    b40_wr=round((b40.get("win",0)/b40_total)*100,2) if b40_total>0 else 0
+    b60_wr=round((b60.get("win",0)/b60_total)*100,2) if b60_total>0 else 0
+    b80_wr=round((b80.get("win",0)/b80_total)*100,2) if b80_total>0 else 0
+    b100_wr=round((b100.get("win",0)/b100_total)*100,2) if b100_total>0 else 0
+    b130_wr=round((b130.get("win",0)/b130_total)*100,2) if b130_total>0 else 0
 
     avg_hold=stats.get("avg_hold",0)
     fastest_tp=stats.get("fastest_tp",0)
@@ -972,11 +972,11 @@ def history_page():
     <div style="flex:1;">
     <b>📶 SCORE BUCKET</b><br><br>
 
-    95-109 : {b95_total} | {b95_wr}%<br>
-    110-124 : {b110_total} | {b110_wr}%<br>
-    125-149 : {b125_total} | {b125_wr}%<br>
-    150-179 : {b150_total} | {b150_wr}%<br>
-    180+ : {b180_total} | {b180_wr}%<br><br>
+    40-59 : {b40_total} | {b40_wr}%<br>
+    60-79 : {b60_total} | {b60_wr}%<br>
+    80-99 : {b80_total} | {b80_wr}%<br>
+    100-129 : {b100_total} | {b100_wr}%<br>
+    130+ : {b130_total} | {b130_wr}%<br><br>
     AVG WIN : {avg_win}<br>
     AVG LOSS : {avg_loss}
     </div>
