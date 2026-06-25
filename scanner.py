@@ -33,19 +33,19 @@ def get_volume_acceleration_score(latest_volume, avg_volume):
     ratio = latest_volume / avg_volume
 
     if ratio >= 4:
-        return 35
+        return 10
 
     if ratio >= 3:
-        return 25
+        return 7
 
     if ratio >= 2:
-        return 15
+        return 5
 
     if ratio >= 1.5:
-        return 8
+        return 3
 
     if ratio < 0.8:
-        return -10
+        return -5
 
     return 0
 
@@ -103,38 +103,38 @@ def get_multi_tf_score(symbol):
         ema50_15m = ta.trend.EMAIndicator(close_15m, window=50).ema_indicator()
 
         if ema20_15m.iloc[-1] > ema50_15m.iloc[-1]:
-            score_15m += 40
+            score_15m += 15
 
         if close_15m.iloc[-1] > ema20_15m.iloc[-1]:
-            score_15m += 30
+            score_15m += 10
 
         if 45 <= rsi_15m.iloc[-1] <= 68:
-            score_15m += 30
+            score_15m += 10
 
         rsi_1h = ta.momentum.RSIIndicator(close_1h).rsi()
         ema20_1h = ta.trend.EMAIndicator(close_1h, window=20).ema_indicator()
         ema50_1h = ta.trend.EMAIndicator(close_1h, window=50).ema_indicator()
 
         if ema20_1h.iloc[-1] > ema50_1h.iloc[-1]:
-            score_1h += 40
+            score_1h += 15
 
         if close_1h.iloc[-1] > ema20_1h.iloc[-1]:
-            score_1h += 30
+            score_1h += 10
 
         if 45 <= rsi_1h.iloc[-1] <= 68:
-            score_1h += 30
+            score_1h += 10
 
         ema20_4h = ta.trend.EMAIndicator(close_4h, window=20).ema_indicator()
         ema50_4h = ta.trend.EMAIndicator(close_4h, window=50).ema_indicator()
 
         if ema20_4h.iloc[-1] > ema50_4h.iloc[-1]:
-            score_4h += 20
+            score_4h += 10
 
         final_score = (
             score_15m +
             score_1h +
             score_4h
-        ) / 2.2
+        ) / 10
 
         return round(final_score, 2)
 
@@ -398,10 +398,10 @@ def scan_market():
                     whale_score = 0
 
                     if volume_ratio >= 5 and candle_pump <= 2:
-                        whale_score += 20
+                        whale_score += 5
 
                     elif volume_ratio >= 3 and candle_pump <= 1:
-                        whale_score += 10
+                        whale_score += 3
                         
                     # STEP 16 - Liquidity trap detector
                     liquidity_trap_score = 0
@@ -424,14 +424,17 @@ def scan_market():
                         if wick_ratio > 2.5:
                             continue
                     trend_score = 0
+                    rsi_score = 0
                     if latest_rsi > 80:
                         continue
-                    if 52 <= latest_rsi <= 68:
-                        trend_score += 10
-                    elif 68 < latest_rsi <= 75:
-                        trend_score += 5
+                    if 52 <= latest_rsi <= 65:
+                        trend_score += 15
+                    elif 65 < latest_rsi <= 72:
+                        trend_score += 8
+                    elif 45 <= latest_rsi < 52:
+                        rsi_score = 5
                     elif latest_rsi < 40:
-                        trend_score -= 10
+                        trend_score = -5
 
                     ema_distance = (
                         (latest_price - latest_ema20)
@@ -453,11 +456,11 @@ def scan_market():
                     last_close = df["close"].iloc[-1]
                     prev_close = df["close"].iloc[-2]
 
-                    if last_close > recent_high:breakout_confirm_score += 25
+                    if last_close > recent_high:breakout_confirm_score += 5
 
-                    if prev_close > recent_high:breakout_confirm_score += 15
+                    if prev_close > recent_high:breakout_confirm_score += 3
 
-                    if volume_ratio > 2 and last_close > recent_high:breakout_confirm_score += 20
+                    if volume_ratio > 2 and last_close > recent_high:breakout_confirm_score += 5
 
                     breakout_score = 0
                     resistance_touches = 0
@@ -467,11 +470,11 @@ def scan_market():
                             resistance_touches += 1
 
                     if distance_to_breakout <= 1:
-                        breakout_score = 25
-                    elif distance_to_breakout <= 3:
                         breakout_score = 10
+                    elif distance_to_breakout <= 3:
+                        breakout_score = 5
                     elif distance_to_breakout > 5:
-                        breakout_score = -20
+                        breakout_score = -5
                     if resistance_touches >= 3:
                         breakout_score -= 15
 
@@ -500,31 +503,31 @@ def scan_market():
                         else:
                             del failed_breakout_watchlist[symbol]
                     if ema_slope > 0.4:
-                        trend_score += 10
+                        trend_score += 6
 
                     elif ema_slope < 0:
-                        trend_score -= 10
+                        trend_score -= 6
                     if ema7.iloc[-1] > ema20.iloc[-1]:
-                        trend_score += 10
+                        trend_score += 8
 
                     if ema20.iloc[-1] > ema50.iloc[-1]:
                         trend_score += 10
 
                     if latest_price > ema20.iloc[-1]:
-                        trend_score += 10
+                        trend_score += 6
                     if ema20.iloc[-1] < ema50.iloc[-1]:
                         trend_score -= 20
                     # STEP 13 - Pullback entry bonus
                     pullback_pct = ((latest_price - ema20.iloc[-1]) / ema20.iloc[-1]) * 100
 
                     if 0.5 <= pullback_pct <= 2:
-                        trend_score += 15
+                        trend_score += 8
 
                     elif 2 < pullback_pct <= 4:
-                        trend_score += 5
+                        trend_score += 4
 
                     elif pullback_pct > 7:
-                        trend_score -= 15
+                        trend_score -= 8
                     green_count = 0
 
                     if df["close"].iloc[-1] > df["open"].iloc[-1]:
@@ -536,8 +539,9 @@ def scan_market():
                     if df["close"].iloc[-3] > df["open"].iloc[-3]:
                         green_count += 1
 
-                    if green_count < 2:
-                        trend_score -= 10
+                    stability_score = 0
+                    if green_count => 2:
+                        trend_score += 5
                     # STEP 12 - Trend stability
                     higher_low_count = 0
 
@@ -551,9 +555,9 @@ def scan_market():
                         higher_low_count += 1
 
                     if higher_low_count >= 2:
-                        trend_score += 15
-                    elif higher_low_count == 1:
                         trend_score += 5
+                    elif higher_low_count == 1:
+                        trend_score += 2
                     else:
                         trend_score -= 10
                     # STEP 9 - Failed breakout memory
@@ -579,8 +583,12 @@ def scan_market():
                     if full > 0:
                         body_ratio = body / full
 
-                    if body_ratio < 0.25:
-                        trend_score -= 15
+                    if body_ratio > 0.45:
+                        stability_score += 5
+                    elif body_ratio < 0.20:
+                        stability_score:
+                        stability_score -= 5
+                        
                         
                     recent_ranges = []
 
@@ -656,10 +664,25 @@ def scan_market():
                     elif btc_status == "PANIC":
                         market_multiplier = 0.85
     #final score
-                    base_score = (multi_tf_score + volume_score + breakout_score  + breakout_confirm_score + trend_score + relative_volume_score
-                                  + volatility_score + momentum_score + volume_consistency + compression_score + leader_score + whale_score
-                                   + liquidity_trap_score + profile_bonus - memory_penalty)
-                    final_score = base_score * market_multiplier
+                    base_score = (
+                        trend_score +
+                        rsi_score +
+                        volume_score +
+                        breakout_score +
+                        breakout_confirm_score +
+                        stability_score
+                    )
+                    bonus_score = (
+                        multi_tf_score +
+                        relative_volume_score +
+                        compression_score +
+                        leader_score +
+                        whale_score +
+                        profile_bonus
+                    )
+                    penalty_score = (
+                        memory_penalty + abs(liquidity_trap_score)
+                    final_score = (base_score + bonus_score - penalty_score) * market_multiplier
 
                     
                     if volume_ratio > 2 and distance_to_breakout < 3:
@@ -676,24 +699,34 @@ def scan_market():
 
                     if btc_status == "BULLISH":
 
-                        if final_score >= 125:
+                        if final_score >= 85:
                             signal = "STRONG BUY"
 
-                        elif final_score >= 95:
+                        elif final_score >= 70:
                             signal = "BUY"
 
-                        elif final_score >= 70:
+                        elif final_score >= 55:
                             signal = "WATCH"
 
                     elif btc_status == "NEUTRAL":
 
-                        if final_score >= 135:
+                        if final_score >= 90:
                             signal = "STRONG BUY"
 
-                        elif final_score >= 105:
+                        elif final_score >= 75:
                             signal = "BUY"
 
+                        elif final_score >= 60:
+                            signal = "WATCH"
+                    elif btc_status == "PANIC":
+
+                        if final_score >= 95:
+                            signal = "STRONG BUY"
+
                         elif final_score >= 80:
+                            signal = "BUY"
+
+                        elif final_score >= 65:
                             signal = "WATCH"
 
                     spread = ((ask - bid) / ask) * 100
