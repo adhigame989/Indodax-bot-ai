@@ -373,10 +373,10 @@ def scan_market():
                         volume_decay = ((latest_volume-prev_volume) / prev_volume) * 100
 
                     if volume_decay < -25:
-                        relative_volume_score -= 10
+                        relative_volume_score -= 4
 
                     if volume_decay < -40:
-                        relative_volume_score -= 20
+                        relative_volume_score -= 8
                         failed_breakout_watchlist[symbol] = time.time()
                         bad_coin_memory[symbol] = bad_coin_memory.get(symbol, 0) + 1
 
@@ -434,7 +434,7 @@ def scan_market():
                     elif 45 <= latest_rsi < 52:
                         rsi_score = 4
                     elif latest_rsi < 40:
-                        rsi_score = -6
+                        rsi_score = -3
 
                     ema_distance = (
                         (latest_price - latest_ema20)
@@ -623,18 +623,18 @@ def scan_market():
                         if btc_change > 1:
                             leader_score += 6
                         elif btc_change < -2:
-                            leader_score -= 8
+                            leader_score -= 4
                         if eth_change > 1:
                             leader_score += 5
                         elif eth_change < -2:
-                            leader_score -= 6
+                            leader_score -= 3
                     except:
                         leader_score = 0
                     
                     memory_penalty = 0
 
                     if symbol in bad_coin_memory:
-                        memory_penalty = bad_coin_memory[symbol] * 5
+                        memory_penalty = min(bad_coin_memory[symbol] * 2,10)
                     
                     profile_bonus = 0
                     winrate = 0
@@ -680,8 +680,8 @@ def scan_market():
                         profile_bonus
                     )
                     penalty_score = (
-                        memory_penalty + abs(liquidity_trap_score))
-                    final_score = (base_score + bonus_score - penalty_score) * market_multiplier
+                        memory_penalty )
+                    final_score = (base_score + bonus_score + liquidity_trap_score - penalty_score) * market_multiplier
 
                     
                     if volume_ratio > 2 and distance_to_breakout < 3:
