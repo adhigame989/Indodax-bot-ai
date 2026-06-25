@@ -310,7 +310,7 @@ def scan_market():
                         if item["score"] >= 90:
                             failed_breakout_watchlist[symbol] = time.time()
                             print(f"WATCHLIST HIGH SPREAD: {symbol}")
-                            continue
+                        continue
 
                     ohlcv = exchange.fetch_ohlcv(
                         symbol,
