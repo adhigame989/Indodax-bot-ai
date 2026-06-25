@@ -629,6 +629,7 @@ def scan_market():
                         memory_penalty = bad_coin_memory[symbol] * 5
                     
                     profile_bonus = 0
+                    winrate = 0
 
                     if symbol in coin_profile_memory:
                         winrate = coin_profile_memory[symbol].get("winrate", 0)
@@ -655,7 +656,7 @@ def scan_market():
                     base_score = (multi_tf_score + volume_score + breakout_score  + breakout_confirm_score + trend_score + relative_volume_score
                                   + volatility_score + momentum_score + volume_consistency + compression_score + leader_score + whale_score
                                    + liquidity_trap_score + profile_bonus - memory_penalty)
-                    final_score = base_score * market_multipier
+                    final_score = base_score * market_multiplier
 
                     
                     if volume_ratio > 2 and distance_to_breakout < 3:
