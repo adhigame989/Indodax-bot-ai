@@ -1,14 +1,8 @@
 import os
 
-API_KEY = os.environ.get(
-    "API_KEY",
-    ""
-)
+API_KEY = os.environ.get("API_KEY","")
 
-SECRET_KEY = os.environ.get(
-    "SECRET_KEY",
-    ""
-)
+SECRET_KEY = os.environ.get("SECRET_KEY","")
 
 BASE_TRADE_AMOUNT = 50000
 
@@ -25,6 +19,8 @@ MAX_LAYER_PER_COIN = 3
 TAKE_PROFIT = 5
 
 STOP_LOSS = 5
+
+SL_RECOVER_BUFFER = 0.5
 
 EMERGENCY_SL_EXTRA = 4
 
