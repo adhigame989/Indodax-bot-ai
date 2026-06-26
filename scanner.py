@@ -390,7 +390,7 @@ def scan_market():
                         momentum_score += 5
 
                     elif candle_pump > 6:
-                        momentum_score -= 15
+                        momentum_score -= 8
 
                     if candle_pump > 8:
                         continue
@@ -410,10 +410,10 @@ def scan_market():
                     body_size = abs((latest_price - latest_open) / latest_open) * 100
 
                     if upper_wick > body_size * 2 and volume_ratio >= 2:
-                        liquidity_trap_score -= 20
+                        liquidity_trap_score -= 10
 
                     elif upper_wick > body_size and volume_ratio >= 3:
-                        liquidity_trap_score -= 10
+                        liquidity_trap_score -= 5
                     # STEP 7 - Fake pump rejection
                     upper_wick = df["high"].iloc[-1] - max(df["close"].iloc[-1], df["open"].iloc[-1])
                     body = abs(df["close"].iloc[-1] - df["open"].iloc[-1])
@@ -476,7 +476,7 @@ def scan_market():
                     elif distance_to_breakout > 5:
                         breakout_score = -4
                     if resistance_touches >= 3:
-                        breakout_score -= 10
+                        breakout_score -= 6
 
 
 # === BREAKOUT STRENGTH ===
@@ -527,7 +527,7 @@ def scan_market():
                         trend_score += 3
 
                     elif pullback_pct > 7:
-                        trend_score -= 6
+                        trend_score -= 5
                     green_count = 0
 
                     if df["close"].iloc[-1] > df["open"].iloc[-1]:
@@ -585,7 +585,7 @@ def scan_market():
                     if body_ratio > 0.45:
                         stability_score += 3
                     elif body_ratio < 0.20:
-                        stability_score -= 4
+                        stability_score -= 2
                         
                         
                     recent_ranges = []
@@ -621,11 +621,11 @@ def scan_market():
                         btc_change = btc_data.get("percentage", 0)
                         eth_change = eth_data.get("percentage", 0)
                         if btc_change > 1:
-                            leader_score += 6
+                            leader_score += 4
                         elif btc_change < -2:
                             leader_score -= 4
                         if eth_change > 1:
-                            leader_score += 5
+                            leader_score += 3
                         elif eth_change < -2:
                             leader_score -= 3
                     except:
@@ -684,11 +684,11 @@ def scan_market():
                     final_score = (base_score + bonus_score + liquidity_trap_score - penalty_score) * market_multiplier
 
                     
-                    if volume_ratio > 2 and distance_to_breakout < 3:
-                        final_score += 6
-
                     if volume_ratio > 3 and distance_to_breakout < 2:
-                        final_score += 12
+                        final_score += 10
+
+                    if volume_ratio > 2 and distance_to_breakout < 3:
+                        final_score += 5
 
                     print(f"{symbol} BreakoutDist={distance_to_breakout:.2f}% BreakoutScore={breakout_score}")
                     print(f"{symbol} TrendScore={trend_score}")
