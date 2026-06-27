@@ -241,7 +241,8 @@ def buy_coin(symbol, signal_type=None, score=None):
                 "buy_score": float(score),
                 "tp_mode": False,
                 "tp_highest": round(buy_price, 8),
-                "timeout_weak_notified": False
+                "timeout_weak_notified": False,
+                "timeout_weak_last_score": 0
             }
             same_coin_count = sum(
                 1 for t in active_trades
@@ -959,21 +960,34 @@ def monitor_trade(trade):
                     )
             else:
 
-                if not trade.get("timeout_weak_notified", False):
+                last_score = trade.get("timeout_weak_last_score",0)
+
+                if (not trade.get("timeout_weak_notified", False)
+                    or weak_score != last_score):
+
                     print("TIMEOUT WEAK HOLD:", symbol)
 
                     telegram_bot.send_telegram(
                         f"⏳ TIMEOUT WEAK HOLD\n\n"
                         f"Coin: {symbol}\n"
                         f"Hold: {hold_hours:.1f}h\n"
-                        f"Weak Score: {weak_score}/3\n"
+                        f"Weak Score: {weak_score}/6\n"
                         f"Profit: {current_profit:.2f}%\n"
                         f"Status: Continue Holding"
                     )
-                    trade["timeout_weak_notified"] = True
+
+                    qtrade["timeout_weak_notified"] = True
+                    trade["timeout_weak_last_score"] = weak_score
+
                     save_trades()
 
             return
+        if trade.get("timeout_weak_notified", False):
+
+            trade["timeout_weak_notified"] = False
+            trade["timeout_weak_last_score"] = 0
+
+            save_trades()
 
     except Exception as e:
 
