@@ -1001,7 +1001,7 @@ def monitor_trade(trade):
                 trade["sl_hold_last_notify"] = time.time()
 
             save_trades()
-return
+            return
         # TIMEOUT WEAK
         hold_seconds = (
             time.time()
