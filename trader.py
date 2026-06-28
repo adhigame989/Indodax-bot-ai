@@ -38,28 +38,57 @@ def get_sl_weak_score(symbol):
 
         df = pd.DataFrame(
             ohlcv,
-            columns=["time","open","high","low","close","volume"]
+            columns=[
+                "time",
+                "open",
+                "high",
+                "low",
+                "close",
+                "volume"
+            ]
         )
 
         close = df["close"]
         volume = df["volume"]
 
-        rsi = ta.momentum.RSIIndicator(close).rsi()
-        ema7 = ta.trend.EMAIndicator(close, window=7).ema_indicator()
-        ema20 = ta.trend.EMAIndicator(close, window=20).ema_indicator()
+        rsi = ta.momentum.RSIIndicator(
+            close
+        ).rsi()
+
+        ema7 = ta.trend.EMAIndicator(
+            close,
+            window=7
+        ).ema_indicator()
+
+        ema20 = ta.trend.EMAIndicator(
+            close,
+            window=20
+        ).ema_indicator()
 
         weak_score = 0
 
-        # volume weakening
+        # 1. Volume weakening
         if volume.iloc[-1] < volume.iloc[-2]:
             weak_score += 1
 
-        # EMA weakening
+        # 2. EMA weakening
         if ema7.iloc[-1] < ema20.iloc[-1]:
             weak_score += 1
 
-        # RSI weakening
+        # 3. RSI weakening
         if rsi.iloc[-1] < rsi.iloc[-2]:
+            weak_score += 1
+
+        # 4. Price below EMA20
+        if close.iloc[-1] < ema20.iloc[-1]:
+            weak_score += 1
+
+        # 5. Bearish candle
+        if close.iloc[-1] < df["open"].iloc[-1]:
+            weak_score += 1
+
+        # 6. Lower low
+        if df["low"].iloc[-1] < df["low"].iloc[-2]:
             weak_score += 1
 
         return weak_score
@@ -491,11 +520,20 @@ def manual_sell(trade_id):
                     )
                 )
 
-                exchange.create_limit_sell_order(
-                    symbol,
-                    amount,
-                    sell_price
-                )
+                order = exchange.create_limit_sell_order(
+                    symbol,amount,sell_price)
+
+                time.sleep(10)
+
+                order_info = exchange.fetch_order(order["id"],symbol)
+
+                filled_amount = float(order_info.get("filled", 0))
+
+                if filled_amount <= 0:exchange.cancel_order(
+                    order["id"],symbol,{"side": "sell"})
+
+                    print("MANUAL SELL NO FILL:", symbol)
+                    return False
 
                 hold_duration = int(
                     time.time() - trade.get("buy_time", time.time()))
@@ -508,15 +546,11 @@ def manual_sell(trade_id):
                     trade["buy_price"]
                 ) * 100
 
-                sell_value = (
-                    sell_price *
-                    float(amount)
-                )
+                sell_value = (sell_price *filled_amount)
 
-                profit_idr = (
-                    sell_value -
-                    trade["entry_value"]
-                )
+                entry_used = (trade["entry_value"] /trade["amount"]) * filled_amount
+
+                profit_idr = (sell_value -entry_used)
 
                 pl_label = "Profit"
 
@@ -938,6 +972,14 @@ def monitor_trade(trade):
             and current_profit < config.TIMEOUT_WEAK_PROFIT):
 
             weak_score = get_sl_weak_score(symbol)
+                if current_profit < 0:
+                    weak_score += 1
+
+                if current_profit <= config.TIMEOUT_DEEP_LOSS:
+                    weak_score += 1
+
+                if hold_hours >= config.TIMEOUT_HARD_HOURS:
+                    weak_score += 1
 
             if weak_score >= config.TIMEOUT_EXIT_SCORE:
                 
