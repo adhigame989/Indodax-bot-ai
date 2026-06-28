@@ -242,12 +242,8 @@ def buy_coin(symbol, signal_type=None, score=None):
                 base_coin = symbol.split("/")[0].lower()
                 receive_key = f"receive_{base_coin}"
 
-                actual_amount = float(
-                    order_info["info"]["return"]["order"].get(
-                        receive_key,
-                        amount
-                    )
-                )
+                filled_amount = float(order_info.get("filled", amount))
+                actual_amount = filled_amount
                 actual_trade_amount = actual_amount * buy_price
 
                 print("ACTUAL AMOUNT:", actual_amount)
@@ -361,10 +357,8 @@ def sell_coin(trade, sell_reason=None):
 
             return
 
-        amount = min(
-            trade["amount"],
+        amount =
             wallet_amount
-        )
 
         amount = exchange.amount_to_precision(
             symbol,
