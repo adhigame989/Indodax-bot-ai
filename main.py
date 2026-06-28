@@ -649,14 +649,15 @@ def home():
                     t for t in trader.active_trades
                     if t["symbol"].split("/")[0] == coin]
 
-                bot_value = sum(
-                    t.get("entry_value", t.get("entry_value",0))
+                bot_amount = sum(
+                    t.get("amount",0)
                     for t in bot_trades)
+                manual_amount = max(0, amount - bot_amount)
 
                 wallet_value = amount * price
-                manual_value = wallet_value - bot_value
-
-                if manual_value <= 100:
+                manual_value = manual_amount * price
+                
+                if manual_value =< 100:
                     continue
 
                 html += f"""
@@ -674,7 +675,7 @@ def home():
                 font-weight:bold;
                 margin-bottom:10px;
                 ">
-                Rp {value:,.0f}
+                Rp {manual_value:,.0f}
                 </div>
 
                 Coin : {coin}<br>
