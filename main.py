@@ -353,11 +353,16 @@ def home():
             if amount <= 0:
                 continue
 
-            if coin in bot_symbols:
-                continue
+            bot_amount = sum(
+                t.get("amount", 0)
+                for t in trader.active_trades
+                if t["symbol"].split("/")[0] == coin)
 
-            manual_positions += 1
+            manual_amount = max(0, amount - bot_amount)
 
+            if manual_amount > 0:
+                manual_positions += 1
+                
         free_idr=balance['free'].get('IDR',0)
         used_idr=balance['used'].get('IDR',0)
 
@@ -637,13 +642,20 @@ def home():
             if amount <= 0:
                 continue
 
-            if coin in bot_symbols:
+            bot_amount = sum(
+                t.get("amount", 0)
+                for t in trader.active_trades
+                if t["symbol"].split("/")[0] == coin)
+
+            manual_amount = max(0, amount - bot_amount)
+
+            if manual_amount <= 0:
                 continue
 
             try:
                 ticker = exchange.fetch_ticker(f"{coin}/IDR")
                 price = ticker["last"]
-                value = amount * price
+                value = manual_amount * price
 
                 html += f"""
                 <div style="
@@ -664,7 +676,7 @@ def home():
                 </div>
 
                 Coin : {coin}<br>
-                Amount : {fmt_amount(amount)}<br>
+                Amount : {fmt_amount(manual_amount)}<br>
                 Now : Rp {fmt_price(price)}<br><br>
 
                 <span class="yellow">
