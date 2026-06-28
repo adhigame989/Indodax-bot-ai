@@ -292,7 +292,11 @@ def buy_coin(symbol, signal_type=None, score=None):
                 "tp_mode": False,
                 "tp_highest": round(buy_price, 8),
                 "timeout_weak_notified": False,
-                "timeout_weak_last_score": 0
+                "timeout_weak_last_score": 0,
+                "timeout_weak_last_notify": 0,
+
+                "sl_hold_last_score": 0,
+                "sl_hold_last_notify": 0,
             }
             same_coin_count = sum(
                 1 for t in active_trades
@@ -971,21 +975,33 @@ def monitor_trade(trade):
 
                     return
 
-    # Recovery hold
+                # Recovery hold
                 trade["sl_trigger"] = False
                 trade["sl_trigger_time"] = 0
-                save_trades()
 
-                print("SL HOLD RECOVERY:", symbol)
-                telegram_bot.send_telegram(
-                    f"🛡️ SL HOLD RECOVERY\n\n"
-                    f"Coin: {display_symbol}\n"
-                    f"Weak Score: {weak_score}/6\n"
-                    f"Loss: -{current_loss:.2f}%\n"
-                    f"Status: Recovery Hold"
+                last_score = trade.get("sl_hold_last_score", 0)
+                last_notify = trade.get("sl_hold_last_notify", 0)
+
+                score_changed = weak_score != last_score
+                enough_time = (time.time() - last_notify) >= 900   # 15 menit
+
+                if score_changed and enough_time:
+
+                    print("SL HOLD RECOVERY:", symbol)
+
+                    telegram_bot.send_telegram(
+                        f"🛡️ SL HOLD RECOVERY\n\n"
+                        f"Coin: {display_symbol}\n"
+                        f"Weak Score: {weak_score}/6\n"
+                        f"Loss: -{current_loss:.2f}%\n"
+                        f"Status: Recovery Hold"
                 )
 
-                return
+                trade["sl_hold_last_score"] = weak_score
+                trade["sl_hold_last_notify"] = time.time()
+
+            save_trades()
+return
         # TIMEOUT WEAK
         hold_seconds = (
             time.time()
@@ -1025,10 +1041,13 @@ def monitor_trade(trade):
                     )
             else:
 
-                last_score = trade.get("timeout_weak_last_score",0)
+                last_score = trade.get("timeout_weak_last_score", 0)
+                last_notify = trade.get("timeout_weak_last_notify", 0)
 
-                if (not trade.get("timeout_weak_notified", False)
-                    or weak_score != last_score):
+                score_changed = weak_score != last_score
+                enough_time = (time.time() - last_notify) >= 900   # 15 menit
+
+                if score_changed and enough_time:
 
                     print("TIMEOUT WEAK HOLD:", symbol)
 
@@ -1043,14 +1062,16 @@ def monitor_trade(trade):
 
                     trade["timeout_weak_notified"] = True
                     trade["timeout_weak_last_score"] = weak_score
+                    trade["timeout_weak_last_notify"] = time.time()
 
-                    save_trades()
+                save_trades()
 
             return
         if trade.get("timeout_weak_notified", False):
 
             trade["timeout_weak_notified"] = False
             trade["timeout_weak_last_score"] = 0
+            trade["timeout_weak_last_notify"] = 0
 
             save_trades()
 
