@@ -641,24 +641,23 @@ def home():
 
             if amount <= 0:
                 continue
-
-            bot_trades = [
-                t for t in trader.active_trades
-                if t["symbol"].split("/")[0] == coin]
-
-            bot_value = sum(
-                t.get("entry_value", 0)
-                for t in bot_trades)
-
-            manual_value = (amount * price) - bot_value
-
-            if manual_value <= 100:
-                continue
-
             try:
                 ticker = exchange.fetch_ticker(f"{coin}/IDR")
                 price = ticker["last"]
-                value = manual_amount * price
+
+                bot_trades = [
+                    t for t in trader.active_trades
+                    if t["symbol"].split("/")[0] == coin]
+
+                bot_value = sum(
+                    t.get("entry_value", t.get("entry_value",0))
+                    for t in bot_trades)
+
+                wallet_value = amount * price
+                manual_value = wallet_value - bot_value
+
+                if manual_value <= 100:
+                    continue
 
                 html += f"""
                 <div style="
