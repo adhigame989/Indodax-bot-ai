@@ -672,7 +672,7 @@ def home():
                 font-weight:bold;
                 margin-bottom:10px;
                 ">
-                Rp {manual_value:,.0f}
+                Rp {value:,.0f}
                 </div>
 
                 Coin : {coin}<br>
