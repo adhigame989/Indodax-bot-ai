@@ -260,16 +260,16 @@ def get_stats():
 
             bucket = None
 
-            if 40 <= bs <= 59:
-                bucket = "40_59"
-            elif 60 <= bs <= 79:
-                bucket = "60_79"
-            elif 80 <= bs <= 99:
-                bucket = "80_99"
-            elif 100 <= bs <= 129:
-                bucket = "100_129"
-            elif bs >= 130:
-                bucket = "130_plus"
+            if score < 40:
+                bucket = "WAIT"
+            elif score < 60:
+                bucket = "WATCH"
+            elif score < 80:
+                bucket = "BUY"
+            elif score < 100:
+                bucket = "STRONG BUY"
+            else:
+                bucket = "ELITE"
 
             if bucket:
                 if profit_idr > 0:
