@@ -918,23 +918,23 @@ def history_page():
     strong_trail = analytics.get("strong_trail", 0)
     score_buckets=stats.get("score_buckets",{})
 
-    b40=score_buckets.get("40_59",{})
+    b0=score_buckets.get("0_24",{})
+    b25=score_buckets.get("25_44",{})
+    b45=score_buckets.get("45_59",{})
     b60=score_buckets.get("60_79",{})
-    b80=score_buckets.get("80_99",{})
-    b100=score_buckets.get("100_129",{})
-    b130=score_buckets.get("130_plus",{})
+    b80=score_buckets.get("80_plus",{})
     
-    b40_total=b40.get("win",0)+b40.get("loss",0)
+    b0_total=b0.get("win",0)+b0_total("loss",0)
+    b25_total=b25.get("win",0)+b25.get("loss",0)
+    b45_total=b45.get("win",0)+b45.get("loss",0)
     b60_total=b60.get("win",0)+b60.get("loss",0)
     b80_total=b80.get("win",0)+b80.get("loss",0)
-    b100_total=b100.get("win",0)+b100.get("loss",0)
-    b130_total=b130.get("win",0)+b130.get("loss",0)
 
-    b40_wr=round((b40.get("win",0)/b40_total)*100,2) if b40_total>0 else 0
+    b0_wr=round((b0.get("win",0)/b0_total)*100,2) if b0_total>0 else 0
+    b25_wr=round((b25.get("win",0)/b25_total)*100,2) if b25_total>0 else 0
+    b45_wr=round((b45.get("win",0)/b45_total)*100,2) if b45_total>0 else 0
     b60_wr=round((b60.get("win",0)/b60_total)*100,2) if b60_total>0 else 0
     b80_wr=round((b80.get("win",0)/b80_total)*100,2) if b80_total>0 else 0
-    b100_wr=round((b100.get("win",0)/b100_total)*100,2) if b100_total>0 else 0
-    b130_wr=round((b130.get("win",0)/b130_total)*100,2) if b130_total>0 else 0
 
     avg_hold=stats.get("avg_hold",0)
     fastest_tp=stats.get("fastest_tp",0)
@@ -986,11 +986,11 @@ def history_page():
     <div style="flex:1;">
     <b>📶 SCORE BUCKET</b><br><br>
 
-    40-59 : {b40_total} | {b40_wr}%<br>
+    0-24 : {b0_total} | {b0_wr}%<br>
+    25-44 : {b25_total} | {b25_wr}%<br>
+    45-59 : {b45_total} | {b45_wr}%<br>
     60-79 : {b60_total} | {b60_wr}%<br>
-    80-99 : {b80_total} | {b80_wr}%<br>
-    100-129 : {b100_total} | {b100_wr}%<br>
-    130+ : {b130_total} | {b130_wr}%<br><br>
+    80+ : {b80_total} | {b80_wr}%<br><br>
     AVG WIN : {avg_win}<br>
     AVG LOSS : {avg_loss}
     </div>
