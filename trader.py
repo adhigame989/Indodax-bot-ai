@@ -564,7 +564,7 @@ def manual_sell(trade_id):
                     sell_price,
                     profit_percent,
                     profit_idr,
-                    trade["entry_value"],
+                    entry_used
                     "MANUAL",
                     trade.get("buy_reason"),
                     trade.get("buy_score"),
