@@ -658,7 +658,7 @@ def monitor_trade(trade):
                 trade,
                 profit_percent
             )
-            if weak_score >= config.BTC_PANIC_EXIT_SCORE:
+            if weak_score >= config.WEAK_SELL_SCORE:
                 print("BTC PANIC WEAK EXIT:", symbol)
 
                 result = sell_coin(trade,"BTC_PANIC_EXIT")
@@ -949,7 +949,7 @@ def monitor_trade(trade):
                     return
 
     # Smart SL Confirm
-                if weak_score >= config.SL_EXIT_SCORE:
+                if weak_score >= config.WEAK_SELL_SCORE:
 
                     print("SMART SL SELL:", symbol)
 
@@ -959,7 +959,7 @@ def monitor_trade(trade):
                         telegram_bot.send_telegram(
                             f"💸 SMART SL SELL\n\n"
                             f"Coin: {symbol}\n"
-                            f"Weak Score: {weak_score}/6\n"
+                            f"Weak Score: {weak_score}/9\n"
                             f"Sell Price: Rp {result['sell_price']:,.2f}\n"
                             f"Hasil Jual: Rp {result['sell_value']:,.0f}\n"
                             f"{result['pl_label']}: Rp {abs(result['profit_idr']):,.0f} ({result['profit_percent']:.2f}%)"
@@ -975,7 +975,7 @@ def monitor_trade(trade):
                 telegram_bot.send_telegram(
                     f"🛡️ SL HOLD RECOVERY\n\n"
                     f"Coin: {symbol}\n"
-                    f"Weak Score: {weak_score}/6\n"
+                    f"Weak Score: {weak_score}/9\n"
                     f"Loss: -{current_loss:.2f}%\n"
                     f"Status: Recovery Hold"
                 )
@@ -1001,7 +1001,7 @@ def monitor_trade(trade):
                     profit_percent
             )
 
-            if weak_score >= config.TIMEOUT_EXIT_SCORE:
+            if weak_score >= config.WEAK_SELL_SCORE:
                 
                 print("TIMEOUT WEAK SELL:", symbol)
 
