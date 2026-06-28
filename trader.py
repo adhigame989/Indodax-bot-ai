@@ -594,9 +594,7 @@ def monitor_trade(trade):
 
         if btc_status == "PANIC":
             hold_hours = (time.time() - trade["buy_time"]) / 3600
-            weak_score = 0
-
-        get_sl_weak_score(symbol)
+            weak_score = get_sl_weak_score(symbol)
 
             if profit_percent < 0:
                 weak_score += 1
