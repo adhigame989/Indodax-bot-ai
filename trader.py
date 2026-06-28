@@ -97,6 +97,27 @@ def get_sl_weak_score(symbol):
         print("SL WEAK SCORE ERROR:", str(e))
         return 0
         
+def get_total_weak_score(symbol, trade, profit_percent):
+    weak_score = get_sl_weak_score(symbol)
+
+    hold_hours = (
+        time.time() - trade["buy_time"]
+    ) / 3600
+
+    # Extra 1
+    if profit_percent < 0:
+        weak_score += 1
+
+    # Extra 2
+    if profit_percent <= config.TIMEOUT_DEEP_LOSS:
+        weak_score += 1
+
+    # Extra 3
+    if hold_hours >= config.TIMEOUT_HARD_HOURS:
+        weak_score += 1
+
+    return weak_score
+
 def save_trades():
     with open(TRADES_FILE, "w") as f:
         json.dump(active_trades, f, indent=4)
@@ -632,15 +653,11 @@ def monitor_trade(trade):
         btc_status = scanner.check_btc_market()
 
         if btc_status == "PANIC":
-            hold_hours = (time.time() - trade["buy_time"]) / 3600
-            weak_score = get_sl_weak_score(symbol)
-
-            if profit_percent < 0:
-                weak_score += 1
-            if profit_percent <= config.BTC_PANIC_DEEP_LOSS:
-                weak_score += 1
-            if hold_hours > config.BTC_PANIC_HOLD_HOURS:
-                weak_score += 1
+            weak_score = get_total_weak_score(
+                symbol,
+                trade,
+                profit_percent
+            )
             if weak_score >= config.BTC_PANIC_EXIT_SCORE:
                 print("BTC PANIC WEAK EXIT:", symbol)
 
@@ -899,16 +916,11 @@ def monitor_trade(trade):
 
             if (time.time()-trade["sl_trigger_time"]>= 60):
 
-                hold_hours = (time.time() - trade["buy_time"]) / 3600
-                weak_score = get_sl_weak_score(symbol)
-                if profit_percent < 0:
-                    weak_score += 1
-
-                if profit_percent <= config.TIMEOUT_DEEP_LOSS:
-                    weak_score += 1
-
-                if hold_hours >= config.TIMEOUT_HARD_HOURS:
-                    weak_score += 1
+                weak_score = get_total_weak_score(
+                    symbol,
+                    trade,
+                    profit_percent
+                )
 
                 stop_loss_percent = ((trade["buy_price"] -trade["sl_price"])
                     /trade["buy_price"]) * 100
@@ -983,15 +995,11 @@ def monitor_trade(trade):
             hold_hours >= config.TIMEOUT_WEAK_HOURS
             and current_profit < config.TIMEOUT_WEAK_PROFIT):
 
-            weak_score = get_sl_weak_score(symbol)
-            if current_profit < 0:
-                weak_score += 1
-
-            if current_profit <= config.TIMEOUT_DEEP_LOSS:
-                weak_score += 1
-
-            if hold_hours >= config.TIMEOUT_HARD_HOURS:
-                weak_score += 1
+            weak_score = get_total_weak_score(
+                    symbol,
+                    trade,
+                    profit_percent
+            )
 
             if weak_score >= config.TIMEOUT_EXIT_SCORE:
                 
