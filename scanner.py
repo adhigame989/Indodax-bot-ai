@@ -33,19 +33,19 @@ def get_volume_acceleration_score(latest_volume, avg_volume):
     ratio = latest_volume / avg_volume
 
     if ratio >= 4:
-        return 10
+        return 8
 
     if ratio >= 3:
-        return 7
+        return 6
 
     if ratio >= 2:
-        return 5
+        return 4
 
     if ratio >= 1.5:
-        return 3
+        return 2
 
     if ratio < 0.8:
-        return -5
+        return -3
 
     return 0
 
@@ -355,11 +355,11 @@ def scan_market():
                     relative_volume_score = 0
 
                     if volume_ratio >= 4:
-                        relative_volume_score = 8
+                        relative_volume_score = 6
                     elif volume_ratio >= 3:
-                        relative_volume_score = 5
+                        relative_volume_score = 4
                     elif volume_ratio >= 2:
-                        relative_volume_score = 3
+                        relative_volume_score = 2
                         
                     prev_volume = volume_data.iloc[-2]
                     prev2_volume = volume_data.iloc[-3]
@@ -373,10 +373,10 @@ def scan_market():
                         volume_decay = ((latest_volume-prev_volume) / prev_volume) * 100
 
                     if volume_decay < -25:
-                        relative_volume_score -= 4
+                        relative_volume_score -= 2
 
                     if volume_decay < -40:
-                        relative_volume_score -= 8
+                        relative_volume_score -= 4
                         failed_breakout_watchlist[symbol] = time.time()
                         bad_coin_memory[symbol] = bad_coin_memory.get(symbol, 0) + 1
 
@@ -384,13 +384,13 @@ def scan_market():
                     momentum_score = 0
 
                     if 1 <= candle_pump <= 3:
-                        momentum_score += 10
+                        momentum_score += 8
 
                     elif 3 < candle_pump <= 5:
-                        momentum_score += 5
+                        momentum_score += 4
 
                     elif candle_pump > 6:
-                        momentum_score -= 8
+                        momentum_score -= 5
 
                     if candle_pump > 8:
                         continue
@@ -410,10 +410,10 @@ def scan_market():
                     body_size = abs((latest_price - latest_open) / latest_open) * 100
 
                     if upper_wick > body_size * 2 and volume_ratio >= 2:
-                        liquidity_trap_score -= 10
+                        liquidity_trap_score -= 6
 
                     elif upper_wick > body_size and volume_ratio >= 3:
-                        liquidity_trap_score -= 5
+                        liquidity_trap_score -= 3
                     # STEP 7 - Fake pump rejection
                     upper_wick = df["high"].iloc[-1] - max(df["close"].iloc[-1], df["open"].iloc[-1])
                     body = abs(df["close"].iloc[-1] - df["open"].iloc[-1])
@@ -428,13 +428,15 @@ def scan_market():
                     if latest_rsi > 80:
                         continue
                     if 52 <= latest_rsi <= 65:
-                        rsi_score = 12
+                        rsi_score = 10
                     elif 65 < latest_rsi <= 72:
                         rsi_score = 6
                     elif 45 <= latest_rsi < 52:
                         rsi_score = 4
+                    elif 40 <= lates_rsi < 45:
+                        rsi_score = 2
                     elif latest_rsi < 40:
-                        rsi_score = -3
+                        rsi_score = -2
 
                     ema_distance = (
                         (latest_price - latest_ema20)
@@ -470,13 +472,13 @@ def scan_market():
                             resistance_touches += 1
 
                     if distance_to_breakout <= 1:
-                        breakout_score = 8
+                        breakout_score = 10
                     elif distance_to_breakout <= 3:
-                        breakout_score = 4
+                        breakout_score = 6
                     elif distance_to_breakout > 5:
-                        breakout_score = -4
+                        breakout_score = -2
                     if resistance_touches >= 3:
-                        breakout_score -= 6
+                        breakout_score -= 3
 
 
 # === BREAKOUT STRENGTH ===
@@ -503,20 +505,20 @@ def scan_market():
                         else:
                             del failed_breakout_watchlist[symbol]
                     if ema_slope > 0.4:
-                        trend_score += 4
+                        trend_score += 5
 
                     elif ema_slope < 0:
-                        trend_score -= 4
+                        trend_score -= 2
                     if ema7.iloc[-1] > ema20.iloc[-1]:
-                        trend_score += 8
+                        trend_score += 6
 
                     if ema20.iloc[-1] > ema50.iloc[-1]:
-                        trend_score += 10
+                        trend_score += 8
 
                     if latest_price > ema20.iloc[-1]:
-                        trend_score += 5
+                        trend_score += 4
                     if ema20.iloc[-1] < ema50.iloc[-1]:
-                        trend_score -= 8
+                        trend_score -= 4
                     # STEP 13 - Pullback entry bonus
                     pullback_pct = ((latest_price - ema20.iloc[-1]) / ema20.iloc[-1]) * 100
 
@@ -573,7 +575,7 @@ def scan_market():
                     wick_range = ((last_high - last_low) / last_close) * 100
 
                     if wick_range > 8:
-                        trend_score -= 12
+                        trend_score -= 6
                         print(f"{symbol} ABNORMAL WICK DETECTED: {wick_range:.2f}%")
                     body = abs(df["close"].iloc[-1] - df["open"].iloc[-1])
                     full = df["high"].iloc[-1] - df["low"].iloc[-1]
@@ -602,9 +604,9 @@ def scan_market():
                     volatility_score = 0
 
                     if 1 <= avg_range <= 4:
-                        volatility_score += 10
+                        volatility_score += 6
                     elif avg_range > 8:
-                        volatility_score -= 15
+                        volatility_score -= 6
                     compression_score = 0
 
                     if avg_range < 2 and distance_to_breakout < 2:
@@ -634,7 +636,7 @@ def scan_market():
                     memory_penalty = 0
 
                     if symbol in bad_coin_memory:
-                        memory_penalty = min(bad_coin_memory[symbol] * 2,10)
+                        memory_penalty = min(bad_coin_memory[symbol] * 5)
                     
                     profile_bonus = 0
                     winrate = 0
@@ -685,10 +687,10 @@ def scan_market():
 
                     
                     if volume_ratio > 3 and distance_to_breakout < 2:
-                        final_score += 10
+                        final_score += 6
 
                     if volume_ratio > 2 and distance_to_breakout < 3:
-                        final_score += 5
+                        final_score += 3
 
                     print(f"{symbol} BreakoutDist={distance_to_breakout:.2f}% BreakoutScore={breakout_score}")
                     print(f"{symbol} TrendScore={trend_score}")
@@ -698,34 +700,34 @@ def scan_market():
 
                     if btc_status == "BULLISH":
 
-                        if final_score >= 90:
+                        if final_score >= 82:
                             signal = "STRONG BUY"
 
-                        elif final_score >= 72:
+                        elif final_score >= 64:
                             signal = "BUY"
 
-                        elif final_score >= 55:
+                        elif final_score >= 48:
                             signal = "WATCH"
 
                     elif btc_status == "NEUTRAL":
 
-                        if final_score >= 100:
+                        if final_score >= 88:
                             signal = "STRONG BUY"
 
                         elif final_score >= 80:
                             signal = "BUY"
 
-                        elif final_score >= 60:
+                        elif final_score >= 50:
                             signal = "WATCH"
                     elif btc_status == "PANIC":
 
-                        if final_score >= 155:
+                        if final_score >= 95:
                             signal = "STRONG BUY"
 
-                        elif final_score >= 95:
+                        elif final_score >= 75:
                             signal = "BUY"
 
-                        elif final_score >= 75:
+                        elif final_score >= 58:
                             signal = "WATCH"
 
                     spread = ((ask - bid) / ask) * 100
