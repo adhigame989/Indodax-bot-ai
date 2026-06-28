@@ -993,7 +993,7 @@ def monitor_trade(trade):
                         f"⏱ TIMEOUT WEAK SELL\n\n"
                         f"Coin: {symbol}\n"
                         f"Hold: {hold_hours:.1f}h\n"
-                        f"Weak Score: {weak_score}/6\n"
+                        f"Weak Score: {weak_score}/9\n"
                         f"Sell Price: Rp {result['sell_price']:,.2f}\n"
                         f"Hasil Jual: Rp {result['sell_value']:,.0f}\n"
                         f"{result['pl_label']}: Rp {abs(result['profit_idr']):,.0f} ({result['profit_percent']:.2f}%)"
@@ -1011,7 +1011,7 @@ def monitor_trade(trade):
                         f"⏳ TIMEOUT WEAK HOLD\n\n"
                         f"Coin: {symbol}\n"
                         f"Hold: {hold_hours:.1f}h\n"
-                        f"Weak Score: {weak_score}/6\n"
+                        f"Weak Score: {weak_score}/9\n"
                         f"Profit: {current_profit:.2f}%\n"
                         f"Status: Continue Holding"
                     )
