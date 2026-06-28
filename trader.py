@@ -525,6 +525,8 @@ def manual_sell(trade_id):
 
                 symbol = trade["symbol"]
 
+                display_symbol = get_display_symbol(trade)
+                
                 base_coin = symbol.split("/")[0]
 
                 balance = exchange.fetch_balance()
@@ -634,6 +636,8 @@ def monitor_trade(trade):
             return
 
         symbol = trade["symbol"]
+
+        display_symbol = get_display_symbol(trade)
 
         ticker = exchange.fetch_ticker(symbol)
 
@@ -982,6 +986,7 @@ def monitor_trade(trade):
     # Recovery hold
                 trade["sl_trigger"] = False
                 trade["sl_trigger_time"] = 0
+                save_trades()
 
                 print("SL HOLD RECOVERY:", symbol)
                 telegram_bot.send_telegram(
@@ -992,7 +997,7 @@ def monitor_trade(trade):
                     f"Status: Recovery Hold"
                 )
 
-        save_trades()
+                return
         # TIMEOUT WEAK
         hold_seconds = (
             time.time()
