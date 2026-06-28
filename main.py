@@ -642,10 +642,16 @@ def home():
             if amount <= 0:
                 continue
 
+            bot_trades = [
+                t for t in trader.active_trades
+                if t["symbol"].split("/")[0] == coin]
+
             bot_amount = sum(
                 t.get("amount", 0)
-                for t in trader.active_trades
-                if t["symbol"].split("/")[0] == coin)
+                for t in bot_trades)
+
+            if bot_trades and amount <= bot_amount:
+                continue
 
             manual_amount = max(0, amount - bot_amount)
 
