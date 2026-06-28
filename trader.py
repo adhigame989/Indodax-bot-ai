@@ -79,18 +79,6 @@ def get_sl_weak_score(symbol):
         if rsi.iloc[-1] < rsi.iloc[-2]:
             weak_score += 1
 
-        # 4. Price below EMA20
-        if close.iloc[-1] < ema20.iloc[-1]:
-            weak_score += 1
-
-        # 5. Bearish candle
-        if close.iloc[-1] < df["open"].iloc[-1]:
-            weak_score += 1
-
-        # 6. Lower low
-        if df["low"].iloc[-1] < df["low"].iloc[-2]:
-            weak_score += 1
-
         return weak_score
 
     except Exception as e:
@@ -683,7 +671,7 @@ def monitor_trade(trade):
                     telegram_bot.send_telegram(
                         f"⚠ BTC PANIC EXIT\n\n"
                         f"Coin: {display_symbol}\n"
-                        f"Weak Score: {weak_score}/9\n"
+                        f"Weak Score: {weak_score}/6\n"
                         f"Sell Price: Rp {result['sell_price']:,.2f}\n"
                         f"Hasil Jual: Rp {result['sell_value']:,.0f}\n"
                         f"{result['pl_label']}: Rp {abs(result['profit_idr']):,.0f} ({result['profit_percent']:.2f}%)"
@@ -975,7 +963,7 @@ def monitor_trade(trade):
                         telegram_bot.send_telegram(
                             f"💸 SMART SL SELL\n\n"
                             f"Coin: {display_symbol}\n"
-                            f"Weak Score: {weak_score}/9\n"
+                            f"Weak Score: {weak_score}/6\n"
                             f"Sell Price: Rp {result['sell_price']:,.2f}\n"
                             f"Hasil Jual: Rp {result['sell_value']:,.0f}\n"
                             f"{result['pl_label']}: Rp {abs(result['profit_idr']):,.0f} ({result['profit_percent']:.2f}%)"
@@ -992,7 +980,7 @@ def monitor_trade(trade):
                 telegram_bot.send_telegram(
                     f"🛡️ SL HOLD RECOVERY\n\n"
                     f"Coin: {display_symbol}\n"
-                    f"Weak Score: {weak_score}/9\n"
+                    f"Weak Score: {weak_score}/6\n"
                     f"Loss: -{current_loss:.2f}%\n"
                     f"Status: Recovery Hold"
                 )
@@ -1030,7 +1018,7 @@ def monitor_trade(trade):
                         f"⏱ TIMEOUT WEAK SELL\n\n"
                         f"Coin: {display_symbol}\n"
                         f"Hold: {hold_hours:.1f}h\n"
-                        f"Weak Score: {weak_score}/9\n"
+                        f"Weak Score: {weak_score}/6\n"
                         f"Sell Price: Rp {result['sell_price']:,.2f}\n"
                         f"Hasil Jual: Rp {result['sell_value']:,.0f}\n"
                         f"{result['pl_label']}: Rp {abs(result['profit_idr']):,.0f} ({result['profit_percent']:.2f}%)"
@@ -1048,7 +1036,7 @@ def monitor_trade(trade):
                         f"⏳ TIMEOUT WEAK HOLD\n\n"
                         f"Coin: {display_symbol}\n"
                         f"Hold: {hold_hours:.1f}h\n"
-                        f"Weak Score: {weak_score}/9\n"
+                        f"Weak Score: {weak_score}/6\n"
                         f"Profit: {current_profit:.2f}%\n"
                         f"Status: Continue Holding"
                     )
