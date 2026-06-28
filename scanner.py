@@ -433,7 +433,7 @@ def scan_market():
                         rsi_score = 6
                     elif 45 <= latest_rsi < 52:
                         rsi_score = 4
-                    elif 40 <= lates_rsi < 45:
+                    elif 40 <= latest_rsi < 45:
                         rsi_score = 2
                     elif latest_rsi < 40:
                         rsi_score = -2
@@ -636,7 +636,7 @@ def scan_market():
                     memory_penalty = 0
 
                     if symbol in bad_coin_memory:
-                        memory_penalty = min(bad_coin_memory[symbol] * 5)
+                        memory_penalty = min(bad_coin_memory[symbol], 5)
                     
                     profile_bonus = 0
                     winrate = 0
