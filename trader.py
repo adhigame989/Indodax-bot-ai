@@ -534,8 +534,8 @@ def manual_sell(trade_id):
 
                 filled_amount = float(order_info.get("filled", 0))
 
-                if filled_amount <= 0:exchange.cancel_order(
-                    order["id"],symbol,{"side": "sell"})
+                if filled_amount <= 0:
+                    exchange.cancel_order(order["id"],symbol,{"side": "sell"})
 
                     print("MANUAL SELL NO FILL:", symbol)
                     return False
@@ -569,7 +569,7 @@ def manual_sell(trade_id):
                     sell_price,
                     profit_percent,
                     profit_idr,
-                    entry_used
+                    entry_used,
                     "MANUAL",
                     trade.get("buy_reason"),
                     trade.get("buy_score"),
@@ -650,7 +650,7 @@ def monitor_trade(trade):
                     telegram_bot.send_telegram(
                         f"⚠ BTC PANIC EXIT\n\n"
                         f"Coin: {symbol}\n"
-                        f"Weak Score: {weak_score}/6\n"
+                        f"Weak Score: {weak_score}/9\n"
                         f"Sell Price: Rp {result['sell_price']:,.2f}\n"
                         f"Hasil Jual: Rp {result['sell_value']:,.0f}\n"
                         f"{result['pl_label']}: Rp {abs(result['profit_idr']):,.0f} ({result['profit_percent']:.2f}%)"
@@ -984,14 +984,14 @@ def monitor_trade(trade):
             and current_profit < config.TIMEOUT_WEAK_PROFIT):
 
             weak_score = get_sl_weak_score(symbol)
-                if current_profit < 0:
-                    weak_score += 1
+            if current_profit < 0:
+                weak_score += 1
 
-                if current_profit <= config.TIMEOUT_DEEP_LOSS:
-                    weak_score += 1
+            if current_profit <= config.TIMEOUT_DEEP_LOSS:
+                weak_score += 1
 
-                if hold_hours >= config.TIMEOUT_HARD_HOURS:
-                    weak_score += 1
+            if hold_hours >= config.TIMEOUT_HARD_HOURS:
+                weak_score += 1
 
             if weak_score >= config.TIMEOUT_EXIT_SCORE:
                 
