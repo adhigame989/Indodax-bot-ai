@@ -657,7 +657,7 @@ def home():
                 wallet_value = amount * price
                 manual_value = manual_amount * price
                 
-                if manual_value =< 100:
+                if manual_value <= 100:
                     continue
 
                 html += f"""
