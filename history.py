@@ -179,11 +179,11 @@ def get_stats():
     strong_trail=0
 
     score_buckets = {
-        "0_39": {"win": 0, "loss": 0},
-        "40_59": {"win": 0, "loss": 0},
+        "0_24": {"win": 0, "loss": 0},
+        "25_44": {"win": 0, "loss": 0},
+        "45_59": {"win": 0, "loss": 0},
         "60_79": {"win": 0, "loss": 0},
-        "80_99": {"win": 0, "loss": 0},
-        "100_plus": {"win": 0, "loss": 0},
+        "80_plus": {"win": 0, "loss": 0},
     }
     
 
@@ -261,16 +261,16 @@ def get_stats():
 
             bucket = None
 
-            if bs < 40:
-                bucket = "0_39"
+            if bs < 25:
+                bucket = "0_24"
             elif bs < 60:
-                bucket = "40_59"
+                bucket = "25_44"
             elif bs < 80:
-                bucket = "60_79"
+                bucket = "45_59"
             elif bs < 100:
-                bucket = "80_99"
+                bucket = "60_79"
             else:
-                bucket = "100_plus"
+                bucket = "80_plus"
 
             if bucket:
                 if profit_idr > 0:
