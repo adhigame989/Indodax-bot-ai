@@ -611,7 +611,7 @@ def monitor_trade(trade):
                     telegram_bot.send_telegram(
                         f"⚠ BTC PANIC EXIT\n\n"
                         f"Coin: {symbol}\n"
-                        f"Weak Score: {weak_score}/3\n"
+                        f"Weak Score: {weak_score}/6\n"
                         f"Sell Price: Rp {result['sell_price']:,.2f}\n"
                         f"Hasil Jual: Rp {result['sell_value']:,.0f}\n"
                         f"{result['pl_label']}: Rp {abs(result['profit_idr']):,.0f} ({result['profit_percent']:.2f}%)"
