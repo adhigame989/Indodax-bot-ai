@@ -596,11 +596,11 @@ def monitor_trade(trade):
             hold_hours = (time.time() - trade["buy_time"]) / 3600
             weak_score = 0
 
+        get_sl_weak_score(symbol)
+
             if profit_percent < 0:
                 weak_score += 1
             if profit_percent <= config.BTC_PANIC_DEEP_LOSS:
-                weak_score += 1
-            if current_price < trade["buy_price"]:
                 weak_score += 1
             if hold_hours > config.BTC_PANIC_HOLD_HOURS:
                 weak_score += 1
@@ -903,7 +903,7 @@ def monitor_trade(trade):
                         telegram_bot.send_telegram(
                             f"💸 SMART SL SELL\n\n"
                             f"Coin: {symbol}\n"
-                            f"Weak Score: {weak_score}/3\n"
+                            f"Weak Score: {weak_score}/6\n"
                             f"Sell Price: Rp {result['sell_price']:,.2f}\n"
                             f"Hasil Jual: Rp {result['sell_value']:,.0f}\n"
                             f"{result['pl_label']}: Rp {abs(result['profit_idr']):,.0f} ({result['profit_percent']:.2f}%)"
@@ -919,7 +919,7 @@ def monitor_trade(trade):
                 telegram_bot.send_telegram(
                     f"🛡️ SL HOLD RECOVERY\n\n"
                     f"Coin: {symbol}\n"
-                    f"Weak Score: {weak_score}/3\n"
+                    f"Weak Score: {weak_score}/6\n"
                     f"Loss: -{current_loss:.2f}%\n"
                     f"Status: Recovery Hold"
                 )
@@ -953,7 +953,7 @@ def monitor_trade(trade):
                         f"⏱ TIMEOUT WEAK SELL\n\n"
                         f"Coin: {symbol}\n"
                         f"Hold: {hold_hours:.1f}h\n"
-                        f"Weak Score: {weak_score}/3\n"
+                        f"Weak Score: {weak_score}/6\n"
                         f"Sell Price: Rp {result['sell_price']:,.2f}\n"
                         f"Hasil Jual: Rp {result['sell_value']:,.0f}\n"
                         f"{result['pl_label']}: Rp {abs(result['profit_idr']):,.0f} ({result['profit_percent']:.2f}%)"
@@ -976,7 +976,7 @@ def monitor_trade(trade):
                         f"Status: Continue Holding"
                     )
 
-                    qtrade["timeout_weak_notified"] = True
+                    trade["timeout_weak_notified"] = True
                     trade["timeout_weak_last_score"] = weak_score
 
                     save_trades()
