@@ -425,6 +425,11 @@ def sell_coin(trade, sell_reason=None):
                 "start": time.time(),
                 "duration": config.TRAILING_COOLDOWN}
             print(f"TRAILING COOLDOWN SET: {symbol}")
+       
+        elif sell_reason == "BTC_PANIC_EXIT":
+            coin_cooldown[symbol] = {
+                "start": time.time(),
+                "duration": config.SL_COOLDOWN}
 
         pl_label = "Profit"
         if profit_idr < 0:
@@ -763,6 +768,13 @@ def monitor_trade(trade):
             save_trades()
 
         # TP Confirmation Mode
+        if (trade["tp_mode"]
+            and profit_percent < config.MIN_LOCK_PROFIT):
+            trade["tp_mode"] = False
+            trade["tp_highest"] = trade["buy_price"]
+            print("TP MODE RESET:", symbol)
+            save_trades()
+                
         if trade["tp_mode"]:
 
             if current_price > trade["tp_highest"]:
@@ -925,7 +937,7 @@ def monitor_trade(trade):
                     return
 
     # Smart SL Confirm
-                if weak_score >= config.TIMEOUT_EXIT_SCORE:
+                if weak_score >= config.SL_EXIT_SCORE:
 
                     print("SMART SL SELL:", symbol)
 
