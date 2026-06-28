@@ -118,6 +118,18 @@ def get_total_weak_score(symbol, trade, profit_percent):
 
     return weak_score
 
+def get_display_symbol(trade):
+    symbol = trade["symbol"]
+
+    same_coin_trades = sorted(
+        [t for t in active_trades if t["symbol"] == symbol],
+        key=lambda x: x["buy_time"]
+    )
+
+    layer_index = same_coin_trades.index(trade) + 1
+
+    return f"{symbol} ({layer_index})"
+
 def save_trades():
     with open(TRADES_FILE, "w") as f:
         json.dump(active_trades, f, indent=4)
@@ -599,7 +611,7 @@ def manual_sell(trade_id):
 
                 telegram_bot.send_telegram(
                     f"🧾 MANUAL SELL\n\n"
-                    f"Coin: {symbol}\n"
+                    f"Coin: {display_symbol}\n"
                     f"Nilai Jual: Rp {sell_value:,.0f}\n"
                     f"Sell Price: Rp {sell_price:,.2f}\n"
                     f"{pl_label}: Rp {profit_idr:,.0f} ({profit_percent:.2f}%)"
@@ -666,7 +678,7 @@ def monitor_trade(trade):
                 if result:
                     telegram_bot.send_telegram(
                         f"⚠ BTC PANIC EXIT\n\n"
-                        f"Coin: {symbol}\n"
+                        f"Coin: {display_symbol}\n"
                         f"Weak Score: {weak_score}/9\n"
                         f"Sell Price: Rp {result['sell_price']:,.2f}\n"
                         f"Hasil Jual: Rp {result['sell_value']:,.0f}\n"
@@ -705,7 +717,7 @@ def monitor_trade(trade):
 
                     telegram_bot.send_telegram(
                         f"📉 TRAILING TOUCHED\n\n"
-                        f"Coin: {symbol}\n"
+                        f"Coin: {display_symbol}\n"
                         f"Price: Rp {current_price:,.2f}\n"
                         f"Buffer: 30 sec started"
                     )
@@ -738,7 +750,7 @@ def monitor_trade(trade):
                     if result:
                         telegram_bot.send_telegram(
                             f"🪙 TRAILING SELL\n\n"
-                            f"Coin: {symbol}\n"
+                            f"Coin: {display_symbol}\n"
                             f"Sell Price: Rp {result['sell_price']:,.2f}\n"
                             f"Hasil Jual: Rp {result['sell_value']:,.0f}\n"
                             f"Profit: Rp {result['profit_idr']:,.0f} ({result['profit_percent']:.2f}%)"
@@ -755,7 +767,7 @@ def monitor_trade(trade):
 
                     telegram_bot.send_telegram(
                         f"✅ TRAILING RECOVERED\n\n"
-                        f"Coin: {symbol}\n"
+                        f"Coin: {display_symbol}\n"
                         f"Price back above trailing"
                     )
 
@@ -778,7 +790,7 @@ def monitor_trade(trade):
             print("TP ZONE:", symbol)
             telegram_bot.send_telegram(
                 f"🎯 TP ZONE ENTERED\n\n"
-                f"Coin: {symbol}\n"
+                f"Coin: {display_symbol}\n"
                 f"Profit: {profit_percent:.2f}%"
             )
 
@@ -825,7 +837,7 @@ def monitor_trade(trade):
 
                     telegram_bot.send_telegram(
                         f"⚠️ TP FAKE PUMP HOLD\n\n"
-                        f"Coin: {symbol}\n"
+                        f"Coin: {display_symbol}\n"
                         f"Chart: {profit_percent:.2f}%\n"
                         f"Gap: {tp_gap:.2f}%\n"
                         f"Status: Hold"
@@ -841,7 +853,7 @@ def monitor_trade(trade):
 
                     telegram_bot.send_telegram(
                         f"⚠️ TP HOLD (LOW LOCK)\n\n"
-                        f"Coin: {symbol}\n"
+                        f"Coin: {display_symbol}\n"
                         f"Chart: {profit_percent:.2f}%\n"
                         f"Real Bid: {real_bid_profit:.2f}%\n"
                         f"Min Lock: {config.MIN_LOCK_PROFIT:.2f}%"
@@ -856,7 +868,7 @@ def monitor_trade(trade):
                 if result:
                     telegram_bot.send_telegram(
                         f"🚀 TP CONFIRM SELL\n\n"
-                        f"Coin: {symbol}\n"
+                        f"Coin: {display_symbol}\n"
                         f"Sell Price: Rp {result['sell_price']:,.2f}\n"
                         f"Hasil Jual: Rp {result['sell_value']:,.0f}\n"
                         f"Profit: Rp {result['profit_idr']:,.0f} ({result['profit_percent']:.2f}%)"
@@ -876,7 +888,7 @@ def monitor_trade(trade):
 
                 telegram_bot.send_telegram(
                     f"✅ SL RECOVERED\n\n"
-                    f"Coin: {symbol}\n"
+                    f"Coin: {display_symbol}\n"
                     f"Recover Price: Rp {recover_price:,.2f}\n"
                     f"Status: Stable above SL buffer"
                 )
@@ -903,7 +915,7 @@ def monitor_trade(trade):
                 print("SL TOUCHED:", symbol)
                 telegram_bot.send_telegram(
                     f"🚨 SL TOUCHED\n\n"
-                    f"Coin: {symbol}\n"
+                    f"Coin: {display_symbol}\n"
                     f"Price: Rp {current_price:,.2f}\n"
                     f"Buffer: 60 sec started"
                 )
@@ -940,7 +952,7 @@ def monitor_trade(trade):
                     if result:
                         telegram_bot.send_telegram(
                             f"🚨 EMERGENCY SL SELL\n\n"
-                            f"Coin: {symbol}\n"
+                            f"Coin: {display_symbol}\n"
                             f"Sell Price: Rp {result['sell_price']:,.2f}\n"
                             f"Hasil Jual: Rp {result['sell_value']:,.0f}\n"
                             f"{result['pl_label']}: Rp {abs(result['profit_idr']):,.0f} ({result['profit_percent']:.2f}%)"
@@ -958,7 +970,7 @@ def monitor_trade(trade):
                     if result:
                         telegram_bot.send_telegram(
                             f"💸 SMART SL SELL\n\n"
-                            f"Coin: {symbol}\n"
+                            f"Coin: {display_symbol}\n"
                             f"Weak Score: {weak_score}/9\n"
                             f"Sell Price: Rp {result['sell_price']:,.2f}\n"
                             f"Hasil Jual: Rp {result['sell_value']:,.0f}\n"
@@ -974,7 +986,7 @@ def monitor_trade(trade):
                 print("SL HOLD RECOVERY:", symbol)
                 telegram_bot.send_telegram(
                     f"🛡️ SL HOLD RECOVERY\n\n"
-                    f"Coin: {symbol}\n"
+                    f"Coin: {display_symbol}\n"
                     f"Weak Score: {weak_score}/9\n"
                     f"Loss: -{current_loss:.2f}%\n"
                     f"Status: Recovery Hold"
@@ -1011,7 +1023,7 @@ def monitor_trade(trade):
 
                     telegram_bot.send_telegram(
                         f"⏱ TIMEOUT WEAK SELL\n\n"
-                        f"Coin: {symbol}\n"
+                        f"Coin: {display_symbol}\n"
                         f"Hold: {hold_hours:.1f}h\n"
                         f"Weak Score: {weak_score}/9\n"
                         f"Sell Price: Rp {result['sell_price']:,.2f}\n"
@@ -1029,7 +1041,7 @@ def monitor_trade(trade):
 
                     telegram_bot.send_telegram(
                         f"⏳ TIMEOUT WEAK HOLD\n\n"
-                        f"Coin: {symbol}\n"
+                        f"Coin: {display_symbol}\n"
                         f"Hold: {hold_hours:.1f}h\n"
                         f"Weak Score: {weak_score}/9\n"
                         f"Profit: {current_profit:.2f}%\n"
