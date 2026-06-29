@@ -231,7 +231,7 @@ def build_market_universe(tickers):
             score = 0
 
             if percentage and percentage > 0:
-                score += percentage * 2
+                score += percentage * 0.8
 
             score += volume / config.MIN_VOLUME
 
@@ -501,7 +501,7 @@ def scan_market():
                         watch_age = time.time() - failed_breakout_watchlist[symbol]
 
                         if watch_age <= 7200:  # 2 jam
-                            trend_score += 8
+                            trend_score += 4
                         else:
                             del failed_breakout_watchlist[symbol]
                     if ema_slope > 0.4:
@@ -644,6 +644,9 @@ def scan_market():
                     if symbol in coin_profile_memory:
                         winrate = coin_profile_memory[symbol].get("winrate", 0)
 
+                    if symbol in bad_coin_memory:
+                        bad_coin_memory[symbol] *= 0.8
+                        
                     if winrate >= 70:
                         profile_bonus += 8
 
@@ -655,10 +658,10 @@ def scan_market():
                     market_multiplier = 1.0
 
                     if btc_status == "BULLISH":
-                        market_multiplier = 1.15
+                        market_multiplier = 1.08
 
                     elif btc_status == "NEUTRAL":
-                        market_multiplier = 1.0
+                        market_multiplier = 0.92
 
                     elif btc_status == "PANIC":
                         market_multiplier = 0.85
