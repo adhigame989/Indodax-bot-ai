@@ -649,7 +649,7 @@ def home():
 
             manual_amount = max(0, amount - bot_amount)
 
-            if manual_amount <= 0:
+            if manual_amount <= 0.00000001:
                 continue
 
             try:
