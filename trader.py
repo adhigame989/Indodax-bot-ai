@@ -240,8 +240,7 @@ def buy_coin(symbol, signal_type=None, score=None):
                 )
 
                 base_coin = symbol.split("/")[0].lower()
-                receive_key = f"receive_{base_coin}"
-
+                
                 filled_raw = order_info.get("filled", 0)
 
                 try:
