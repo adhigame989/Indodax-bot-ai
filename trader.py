@@ -240,15 +240,15 @@ def buy_coin(symbol, signal_type=None, score=None):
                 )
 
                 base_coin = symbol.split("/")[0].lower()
-                
-                filled_raw = order_info.get("filled", 0)
+                receive_key = f"receive_{base_coin}"
 
-                try:
-                    filled_amount = float(filled_raw or amount)
-                except:
-                    filled_amount = amount
-
-                actual_amount = filled_amount
+                actual_amount = float(
+                    order_info["info"]["return"]["order"].get(
+                        receive_key,
+                        amount
+                    )
+                )
+                actual_trade_amount = actual_amount * buy_price
 
                 print("ACTUAL AMOUNT:", actual_amount)
 
