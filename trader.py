@@ -357,7 +357,7 @@ def sell_coin(trade, sell_reason=None):
 
             return
 
-        amount = wallet_amount
+        amount = min(trade["amount"],wallet_amount)
 
         amount = exchange.amount_to_precision(
             symbol,
