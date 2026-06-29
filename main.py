@@ -639,7 +639,7 @@ def home():
             if coin == "IDR":
                 continue
 
-            if amount <= 0:
+            if amount <= 0.00000001:
                 continue
 
             bot_amount = sum(
