@@ -714,7 +714,7 @@ def scan_market():
                         if final_score >= 88:
                             signal = "STRONG BUY"
 
-                        elif final_score >= 80:
+                        elif final_score >= 68:
                             signal = "BUY"
 
                         elif final_score >= 50:
@@ -724,7 +724,7 @@ def scan_market():
                         if final_score >= 95:
                             signal = "STRONG BUY"
 
-                        elif final_score >= 75:
+                        elif final_score >= 72:
                             signal = "BUY"
 
                         elif final_score >= 58:
