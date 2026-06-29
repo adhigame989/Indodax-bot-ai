@@ -870,11 +870,8 @@ def monitor_trade(trade):
                 return
         if trade["sl_trigger"]:
 
-            recover_price = trade["sl_price"] * (
-                1 + config.SL_RECOVER_BUFFER / 100
-            )
-
-            if current_price > recover_price:
+            recover_threshold = trade["sl_price"] * (1 + config.SL_RECOVER_BUFFER)
+            if current_price > recover_threshold:
 
                 trade["sl_trigger"] = False
                 trade["sl_trigger_time"] = 0
@@ -882,14 +879,13 @@ def monitor_trade(trade):
                 telegram_bot.send_telegram(
                     f"✅ SL RECOVERED\n\n"
                     f"Coin: {display_symbol}\n"
-                    f"Recover Price: Rp {recover_price:,.2f}\n"
+                    f"Recover Price: Rp {current_price:,.2f}\n"
                     f"Status: Stable above SL buffer"
                 )
 
                 save_trades()
 
-                print(
-                    "PRICE RECOVERED:",symbol)
+                print("PRICE RECOVERED:", symbol)
                 return
 
         panic_sl_price = trade["sl_price"]
