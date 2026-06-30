@@ -189,8 +189,9 @@ def check_btc_market():
         print("BTC FILTER ERROR:", str(e))
         return "NEUTRAL"
 
-
 def build_market_universe(tickers):
+
+    global failed_breakout_watchlist
 
     candidates = []
 
@@ -230,16 +231,102 @@ def build_market_universe(tickers):
 
             score = 0
 
+            # 1. Momentum (lebih ringan)
             if percentage and percentage > 0:
-                score += percentage * 0.8
+                score += percentage * 0.5
 
-            score += volume / config.MIN_VOLUME
+            # 2. Relative volume (lebih smooth)
+            volume_factor = volume / config.MIN_VOLUME
 
+            if volume_factor >= 8:
+                score += 12
+            elif volume_factor >= 5:
+                score += 8
+            elif volume_factor >= 3:
+                score += 5
+            elif volume_factor >= 1:
+                score += 2
+
+            # 3. Tight spread bonus
             if spread < 0.5:
-                score += 15
+                score += 8
 
-            if volume > (config.MIN_VOLUME * 5):
-                score += 20
+            # 4. Persistence bonus
+            if symbol in failed_breakout_watchlist:
+                score += 4
+
+            # 5. Pre-breakout pressure
+            try:
+                ohlcv = exchange.fetch_ohlcv(
+                    symbol,
+                    timeframe="15m",
+                    limit=30
+                )
+
+                if ohlcv:
+
+                    df = pd.DataFrame(
+                        ohlcv,
+                        columns=[
+                            "time",
+                            "open",
+                            "high",
+                            "low",
+                            "close",
+                            "volume"
+                        ]
+                    )
+
+                    latest_price = df["close"].iloc[-1]
+                    recent_high = df["high"].tail(20).max()
+                    recent_low = df["low"].tail(20).min()
+
+                    distance_to_breakout = (
+                        (recent_high - latest_price)
+                        / latest_price
+                    ) * 100
+
+                    avg_range = (
+                        (
+                            (df["high"].tail(5)
+                            - df["low"].tail(5))
+                            / df["close"].tail(5)
+                        ) * 100
+                    ).mean()
+
+                    # Resistance pressure
+                    if distance_to_breakout <= 1:
+                        score += 10
+                    elif distance_to_breakout <= 2:
+                        score += 6
+                    elif distance_to_breakout <= 3:
+                        score += 3
+
+                    # Tight compression
+                    if avg_range < 2 and distance_to_breakout < 2:
+                        score += 6
+                    elif avg_range < 3 and distance_to_breakout < 3:
+                        score += 3
+
+                    # Volume acceleration
+                    latest_vol = df["volume"].iloc[-1]
+                    avg_vol = df["volume"].tail(10).mean()
+
+                    if avg_vol > 0:
+
+                        vol_acc = latest_vol / avg_vol
+
+                        if vol_acc >= 4:
+                            score += 12
+                        elif vol_acc >= 3:
+                            score += 8
+                        elif vol_acc >= 2:
+                            score += 5
+                        elif vol_acc >= 1.5:
+                            score += 2
+
+            except:
+                pass
 
             candidates.append({
                 "symbol": symbol,
@@ -247,7 +334,7 @@ def build_market_universe(tickers):
                 "volume": volume
             })
 
-        except Exception:
+        except:
             continue
 
     candidates = sorted(
@@ -257,7 +344,6 @@ def build_market_universe(tickers):
     )
 
     return candidates[:config.SCAN_LIMIT]
-
 
 def scan_market():
 
