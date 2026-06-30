@@ -630,7 +630,7 @@ def monitor_trade(trade):
 
         ticker = exchange.fetch_ticker(symbol)
 
-        current_price = ticker['last']
+        current_price = ticker['bid']
 
         trade["current_price"] = round(
             current_price,
@@ -680,15 +680,15 @@ def monitor_trade(trade):
 
                 return
 
-        if current_price > trade["highest_price"]:
-            trade["highest_price"] = current_price
+        if ticker ["high"] > trade["highest_price"]:
+            trade["highest_price"] = ticker ["high"]
 
         if current_price < trade["lowest_price"]:
             trade["lowest_price"] = current_price
 
         # Smart trailing aktif setelah profit cukup
         if (config.TRAILING_STOP
-            and profit_percent >= config.TRAILING_START
+            and ((trade["highest_price"] - trade["buy_price"]) / trade["buy_price"] * 100) >= config.TRAILING_START
         and not trade["tp_mode"]):
 
             trailing_stop_price = (
