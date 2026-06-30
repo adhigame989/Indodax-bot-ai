@@ -297,6 +297,7 @@ def buy_coin(symbol, signal_type=None, score=None):
 
                 "sl_hold_last_score": 0,
                 "sl_hold_last_notify": 0,
+                "sl_cooldown_until": 0,
             }
             same_coin_count = sum(
                 1 for t in active_trades
@@ -893,6 +894,8 @@ def monitor_trade(trade):
         if btc_status == "PANIC":
             panic_sl_price = (trade["buy_price"] *(1 - ((config.STOP_LOSS / 2) / 100)))
 
+        if trade.get("sl_cooldown_until", 0) > time.time():
+            return
         if current_price <= panic_sl_price:
 
             if not trade["sl_trigger"]:
@@ -971,6 +974,7 @@ def monitor_trade(trade):
                 # Recovery hold
                 trade["sl_trigger"] = False
                 trade["sl_trigger_time"] = 0
+                trade["sl_cooldown_until"] = (time.time() + config.SL_COOLDOWN)
 
                 last_score = trade.get("sl_hold_last_score", 0)
                 last_notify = trade.get("sl_hold_last_notify", 0)
