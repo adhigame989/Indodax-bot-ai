@@ -319,6 +319,10 @@ def home():
     free_idr=0
     used_idr=0
     total_idr=0
+    bot_coin_value = 0
+    manual_coin_value = 0
+    open_order_count = 0
+    manual_positions = 0
 
     try:
         exchange=ccxt.indodax({
