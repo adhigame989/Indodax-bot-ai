@@ -926,7 +926,7 @@ def history_page():
     b60=score_buckets.get("60_79",{})
     b80=score_buckets.get("80_plus",{})
     
-    b0_total=b0.get("win",0)+b0_total("loss",0)
+    b0_total=b0.get("win",0)+b0.get("loss",0)
     b25_total=b25.get("win",0)+b25.get("loss",0)
     b45_total=b45.get("win",0)+b45.get("loss",0)
     b60_total=b60.get("win",0)+b60.get("loss",0)
