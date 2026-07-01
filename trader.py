@@ -21,6 +21,7 @@ exchange = ccxt.indodax({
 active_trades = []
 TRADES_FILE = "/data/active_trades.json"
 coin_cooldown = {}
+ignored_partials = {}
 
 def get_sl_weak_score(symbol):
     try:
@@ -251,6 +252,19 @@ def buy_coin(symbol, signal_type=None, score=None):
                 actual_trade_amount = actual_amount * buy_price
 
                 print("ACTUAL AMOUNT:", actual_amount)
+                if actual_trade_amount < (trade_amount * 0.5):
+
+                    print("IGNORED PARTIAL BUY:", symbol)
+
+                    ignored_partials[symbol] = {
+                        "amount": actual_amount,
+                        "value": actual_trade_amount,
+                        "buy_price": buy_price,
+                        "time": time.time()
+                    }
+
+                    save_trades()
+                    return
 
                 if order_info["status"] != "closed":
                     exchange.cancel_order(
@@ -268,6 +282,25 @@ def buy_coin(symbol, signal_type=None, score=None):
 
             tp_price = buy_price * (1 + (config.TAKE_PROFIT / 100))
             sl_price = buy_price * (1 - (config.STOP_LOSS / 100))
+
+            # Merge dust lama kalau ada
+            if symbol in ignored_partials:
+
+                old_partial = ignored_partials[symbol]
+
+                old_amount = old_partial["amount"]
+                old_value = old_partial["value"]
+
+                actual_amount += old_amount
+                actual_trade_amount += old_value
+
+                print(
+                    f"MERGED PARTIAL: {symbol} | "
+                    f"+{old_amount} | "
+                    f"Rp {old_value:,.0f}"
+                )
+
+                del ignored_partials[symbol]
 
             trade = {
                 "id": str(uuid.uuid4()),
