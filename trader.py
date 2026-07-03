@@ -331,6 +331,8 @@ def buy_coin(symbol, signal_type=None, score=None):
                 "sl_hold_last_score": 0,
                 "sl_hold_last_notify": 0,
                 "sl_cooldown_until": 0,
+                "trailing_hold_last_score": 0,
+                "trailing_hold_last_notify": 0,
             }
             same_coin_count = sum(
                 1 for t in active_trades
@@ -872,20 +874,36 @@ def monitor_trade(trade):
                     locked_profit = ((current_price -trade["buy_price"]
                         )/trade["buy_price"]) * 100
 
-                    if locked_profit < config.MIN_LOCK_PROFIT:
-                        print(f"TRAILING HOLD: {symbol} | locked {locked_profit:.2f}% < {config.MIN_LOCK_PROFIT}%")
+                    weak_score = get_total_weak_score(
+                        symbol,
+                        trade,
+                        profit_percent)
+
+                    if weak_score < config.WEAK_SELL_SCORE:
+
                         trade["trailing_trigger"] = False
                         trade["trailing_trigger_time"] = 0
+                        
+                        last_score = trade.get("trailing_hold_last_score", 0)
+                        last_notify = trade.get("trailing_hold_last_notify", 0)
+                        
+                        score_changed = weak_score != last_score
+                        enough_time = (time.time() - last_notify) >= 900   # 15 menit
+                        if score_changed and enough_time:
+                            print("TRAILING HOLD:", symbol)
 
-                        telegram_bot.send_telegram(
-                            f"🛡️ TRAILING HOLD\n\n"
-                            f"Coin: {display_symbol}\n"
-                            f"Locked Profit: {locked_profit:.2f}%\n"
-                            f"Min Lock: {config.MIN_LOCK_PROFIT:.2f}%\n"
-                            f"Status: Hold")
+                            telegram_bot.send_telegram(
+                                f"🛡️ TRAILING HOLD\n\n"
+                                f"Coin: {display_symbol}\n"
+                                f"Weak Score: {weak_score}/6\n"
+                                f"Profit: {profit_percent:.2f}%\n"
+                                f"Status: Continue Holding")
 
-                        save_trades()
+                        trade["trailing_hold_last_score"] = weak_score
+                        trade["trailing_hold_last_notify"] = time.time()
+                            save_trades()
                         return
+    return
                         
                     print("TRAILING SELL:", symbol)
                     result = sell_coin(trade,"TRAILING")
