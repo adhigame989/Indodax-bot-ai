@@ -883,13 +883,15 @@ def monitor_trade(trade):
 
                         trade["trailing_trigger"] = False
                         trade["trailing_trigger_time"] = 0
-                        
+
                         last_score = trade.get("trailing_hold_last_score", 0)
                         last_notify = trade.get("trailing_hold_last_notify", 0)
-                        
+
                         score_changed = weak_score != last_score
-                        enough_time = (time.time() - last_notify) >= 900   # 15 menit
+                        enough_time = (time.time() - last_notify) >= 900
+
                         if score_changed and enough_time:
+
                             print("TRAILING HOLD:", symbol)
 
                             telegram_bot.send_telegram(
@@ -897,10 +899,12 @@ def monitor_trade(trade):
                                 f"Coin: {display_symbol}\n"
                                 f"Weak Score: {weak_score}/6\n"
                                 f"Profit: {profit_percent:.2f}%\n"
-                                f"Status: Continue Holding")
+                                f"Status: Continue Holding"
+                            )
 
                             trade["trailing_hold_last_score"] = weak_score
                             trade["trailing_hold_last_notify"] = time.time()
+
                         save_trades()
                         return
                         
