@@ -714,8 +714,8 @@ def monitor_trade(trade):
 
                 return
 
-        if ticker ["high"] > trade["highest_price"]:
-            trade["highest_price"] = ticker ["high"]
+        if current_price > trade["highest_price"]:
+            trade["highest_price"] = current_price
 
         if current_price < trade["lowest_price"]:
             trade["lowest_price"] = current_price
