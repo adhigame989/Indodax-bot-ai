@@ -891,8 +891,10 @@ def monitor_trade(trade):
 
             else:
 
-                if trade["trailing_trigger"]:
+                recover_buffer = trailing_stop_price * 1.003   # 0.3%
 
+                if (trade["trailing_trigger"]
+                    and current_price > recover_buffer):
                     trade["trailing_trigger"] = False
                     trade["trailing_trigger_time"] = 0
 
