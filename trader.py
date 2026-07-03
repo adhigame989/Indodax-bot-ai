@@ -881,9 +881,6 @@ def monitor_trade(trade):
 
                     if weak_score < config.WEAK_SELL_SCORE:
 
-                        trade["trailing_trigger"] = False
-                        trade["trailing_trigger_time"] = 0
-
                         last_score = trade.get("trailing_hold_last_score", 0)
                         last_notify = trade.get("trailing_hold_last_notify", 0)
 
@@ -905,7 +902,8 @@ def monitor_trade(trade):
                             trade["trailing_hold_last_score"] = weak_score
                             trade["trailing_hold_last_notify"] = time.time()
 
-                        save_trades()
+                            save_trades()
+
                         return
                         
                     print("TRAILING SELL:", symbol)
