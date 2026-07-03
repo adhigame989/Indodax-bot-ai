@@ -720,85 +720,7 @@ def monitor_trade(trade):
         if current_price < trade["lowest_price"]:
             trade["lowest_price"] = current_price
 
-        # Smart trailing aktif setelah profit cukup
-        if (config.TRAILING_STOP
-            and ((trade["highest_price"] - trade["buy_price"]) / trade["buy_price"] * 100) >= config.TRAILING_START
-        and not trade["tp_mode"]):
-
-            trailing_stop_price = (
-                trade["highest_price"]
-                *
-                (
-                    1 - (
-                        config.TRAILING_GAP / 100
-                    )
-                )
-            )
-
-            if current_price <= trailing_stop_price:
-
-                if not trade["trailing_trigger"]:
-
-                    trade["trailing_trigger"] = True
-                    trade["trailing_trigger_time"] = time.time()
-
-                    telegram_bot.send_telegram(
-                        f"📉 TRAILING TOUCHED\n\n"
-                        f"Coin: {display_symbol}\n"
-                        f"Price: Rp {current_price:,.2f}\n"
-                        f"Buffer: 30 sec started"
-                    )
-
-                    save_trades()
-
-                    print(
-                        "TRAILING TRIGGER:",
-                        symbol
-                    )
-
-                    return
-
-                if (
-                    time.time()
-                    -
-                    trade["trailing_trigger_time"]
-                    >= 30
-                ):
-
-                    locked_profit = ((current_price -trade["buy_price"]
-                        )/trade["buy_price"]) * 100
-
-                    if locked_profit < config.MIN_LOCK_PROFIT:
-                        print(f"TRAILING HOLD: {symbol} | locked {locked_profit:.2f}% < {config.MIN_LOCK_PROFIT}%")
-                        return
-                        
-                    print("TRAILING SELL:", symbol)
-                    result = sell_coin(trade,"TRAILING")
-                    if result:
-                        telegram_bot.send_telegram(
-                            f"🪙 TRAILING SELL\n\n"
-                            f"Coin: {display_symbol}\n"
-                            f"Sell Price: Rp {result['sell_price']:,.2f}\n"
-                            f"Hasil Jual: Rp {result['sell_value']:,.0f}\n"
-                            f"Profit: Rp {result['profit_idr']:,.0f} ({result['profit_percent']:.2f}%)"
-                        )
-
-                        return
-
-            else:
-
-                if trade["trailing_trigger"]:
-
-                    trade["trailing_trigger"] = False
-                    trade["trailing_trigger_time"] = 0
-
-                    telegram_bot.send_telegram(
-                        f"✅ TRAILING RECOVERED\n\n"
-                        f"Coin: {display_symbol}\n"
-                        f"Price back above trailing"
-                    )
-
-                    save_trades()
+        
         # Dynamic TP Buffer
         tp_buffer_percent = (
             config.TAKE_PROFIT *
@@ -902,6 +824,85 @@ def monitor_trade(trade):
                     )
 
                 return
+        # Smart trailing aktif setelah profit cukup
+        if (config.TRAILING_STOP
+            and ((trade["highest_price"] - trade["buy_price"]) / trade["buy_price"] * 100) >= config.TRAILING_START
+        and not trade["tp_mode"]):
+
+            trailing_stop_price = (
+                trade["highest_price"]
+                *
+                (
+                    1 - (
+                        config.TRAILING_GAP / 100
+                    )
+                )
+            )
+
+            if current_price <= trailing_stop_price:
+
+                if not trade["trailing_trigger"]:
+
+                    trade["trailing_trigger"] = True
+                    trade["trailing_trigger_time"] = time.time()
+
+                    telegram_bot.send_telegram(
+                        f"📉 TRAILING TOUCHED\n\n"
+                        f"Coin: {display_symbol}\n"
+                        f"Price: Rp {current_price:,.2f}\n"
+                        f"Buffer: 30 sec started"
+                    )
+
+                    save_trades()
+
+                    print(
+                        "TRAILING TRIGGER:",
+                        symbol
+                    )
+
+                    return
+
+                if (
+                    time.time()
+                    -
+                    trade["trailing_trigger_time"]
+                    >= 30
+                ):
+
+                    locked_profit = ((current_price -trade["buy_price"]
+                        )/trade["buy_price"]) * 100
+
+                    if locked_profit < config.MIN_LOCK_PROFIT:
+                        print(f"TRAILING HOLD: {symbol} | locked {locked_profit:.2f}% < {config.MIN_LOCK_PROFIT}%")
+                        return
+                        
+                    print("TRAILING SELL:", symbol)
+                    result = sell_coin(trade,"TRAILING")
+                    if result:
+                        telegram_bot.send_telegram(
+                            f"🪙 TRAILING SELL\n\n"
+                            f"Coin: {display_symbol}\n"
+                            f"Sell Price: Rp {result['sell_price']:,.2f}\n"
+                            f"Hasil Jual: Rp {result['sell_value']:,.0f}\n"
+                            f"Profit: Rp {result['profit_idr']:,.0f} ({result['profit_percent']:.2f}%)"
+                        )
+
+                        return
+
+            else:
+
+                if trade["trailing_trigger"]:
+
+                    trade["trailing_trigger"] = False
+                    trade["trailing_trigger_time"] = 0
+
+                    telegram_bot.send_telegram(
+                        f"✅ TRAILING RECOVERED\n\n"
+                        f"Coin: {display_symbol}\n"
+                        f"Price back above trailing"
+                    )
+
+                    save_trades()
         if trade["sl_trigger"]:
 
             recover_threshold = trade["sl_price"] * (1 + config.SL_RECOVER_BUFFER)
