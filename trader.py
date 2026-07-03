@@ -676,6 +676,17 @@ def monitor_trade(trade):
             current_price *
             trade["amount"]
         )
+        print("\n========== DEBUG P/L ==========")
+        print("COIN      :", symbol)
+        print("BUY PRICE :", trade["buy_price"])
+        print("AMOUNT    :", trade["amount"])
+        print("ENTRY VAL :", trade.get("entry_value", 0))
+        print("BID       :", ticker["bid"])
+        print("ASK       :", ticker["ask"])
+        print("LAST      :", ticker["last"])
+        print("NOW PRICE :", current_price)
+        print("NOW VALUE :", current_price * trade["amount"])
+        print("==============================\n")
 
         profit_percent = (
             (
@@ -690,6 +701,8 @@ def monitor_trade(trade):
             profit_percent,
             2
         )
+        print("PROFIT % :", profit_percent)
+        print("PROFIT Rp:", profit_idr)
         
         btc_status = scanner.check_btc_market()
 
