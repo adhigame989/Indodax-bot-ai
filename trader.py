@@ -899,8 +899,8 @@ def monitor_trade(trade):
                                 f"Profit: {profit_percent:.2f}%\n"
                                 f"Status: Continue Holding")
 
-                        trade["trailing_hold_last_score"] = weak_score
-                        trade["trailing_hold_last_notify"] = time.time()
+                    trade["trailing_hold_last_score"] = weak_score
+                    trade["trailing_hold_last_notify"] = time.time()
                         save_trades()
                         return
                         
