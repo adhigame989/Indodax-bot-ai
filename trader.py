@@ -874,6 +874,17 @@ def monitor_trade(trade):
 
                     if locked_profit < config.MIN_LOCK_PROFIT:
                         print(f"TRAILING HOLD: {symbol} | locked {locked_profit:.2f}% < {config.MIN_LOCK_PROFIT}%")
+                        trade["trailing_trigger"] = False
+                        trade["trailing_trigger_time"] = 0
+
+                        telegram_bot.send_telegram(
+                            f"🛡️ TRAILING HOLD\n\n"
+                            f"Coin: {display_symbol}\n"
+                            f"Locked Profit: {locked_profit:.2f}%\n"
+                            f"Min Lock: {config.MIN_LOCK_PROFIT:.2f}%\n"
+                            f"Status: Hold")
+
+                        save_trades()
                         return
                         
                     print("TRAILING SELL:", symbol)
