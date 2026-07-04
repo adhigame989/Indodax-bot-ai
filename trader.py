@@ -670,12 +670,12 @@ def monitor_trade(trade):
 
         trade["current_price"] = round(
             current_price,
-            8
-        )
+            8)
         trade["current_value"] = (
             current_price *
-            trade["amount"]
-        )
+            trade["amount"])
+        profit_idr = trade["current_value"] - trade["entry_value"]
+        trade["profit_idr"] = round(profit_idr)
         print("\n========== DEBUG P/L ==========")
         print("COIN      :", symbol)
         print("BUY PRICE :", trade["buy_price"])
