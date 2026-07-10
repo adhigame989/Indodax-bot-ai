@@ -1,6 +1,7 @@
 import ccxt
 import time
 import threading
+import os
 import json
 import config
 import history
