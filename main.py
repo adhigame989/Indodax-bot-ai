@@ -333,8 +333,7 @@ def home():
             pass
         manual_positions = 0
 
-            for t in trader.active_trades
-        }
+        for t in trader.active_trades
         for coin, amount in balance["total"].items():
 
             if coin == "IDR":
