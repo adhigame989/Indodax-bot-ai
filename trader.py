@@ -2,7 +2,6 @@ import ccxt
 import time
 import threading
 import json
-import os
 import config
 import history
 import scanner
@@ -701,8 +700,6 @@ def monitor_trade(trade):
             profit_percent,
             2
         )
-        print("PROFIT % :", profit_percent)
-        print("PROFIT Rp:", profit_idr)
         
         btc_status = scanner.check_btc_market()
 
