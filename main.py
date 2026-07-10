@@ -15,7 +15,6 @@ import history
 import json
 
 app = Flask(__name__)
-from datetime import datetime
 
 BOT_START_TIME = datetime.now()
 
@@ -70,14 +69,6 @@ def topbar():
 
     now = datetime.now(
         ZoneInfo("Asia/Jakarta")
-    )
-
-    tanggal = now.strftime(
-        "%d-%m-%Y"
-    )
-
-    jam = now.strftime(
-        "%H:%M:%S WIB"
     )
 
     return f"""
@@ -332,9 +323,6 @@ def home():
         })
 
         balance=exchange.fetch_balance()
-        print("FREE:", balance["free"].get("IDR", 0))
-        print("USED:", balance["used"].get("IDR", 0))
-        print("TOTAL:", balance["total"].get("IDR", 0))
         open_order_count = 0
 
         try:
@@ -345,8 +333,6 @@ def home():
             pass
         manual_positions = 0
 
-        bot_symbols = {
-            t["symbol"].split("/")[0]
             for t in trader.active_trades
         }
         for coin, amount in balance["total"].items():
@@ -382,8 +368,7 @@ def home():
 
             if amount <= 0:
                 continue
-
-            print("COIN:", coin, amount) 
+ 
             try:
                 ticker = exchange.fetch_ticker(f"{coin}/IDR")
                 price = ticker["last"]
