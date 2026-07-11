@@ -1052,11 +1052,11 @@ def monitor_trade(trade):
 
         if (hold_hours >= config.TIMEOUT_WEAK_HOURS
             and current_profit < config.TIMEOUT_WEAK_PROFIT):
-        if trade["timeout_weak_highest"] == 0:
-            trade["timeout_weak_highest"] = current_price
+            if trade["timeout_weak_highest"] == 0:
+                trade["timeout_weak_highest"] = current_price
 
-        if current_price > trade["timeout_weak_highest"]:
-            trade["timeout_weak_highest"] = current_price
+            if current_price > trade["timeout_weak_highest"]:
+                trade["timeout_weak_highest"] = current_price
 
             weak_score = get_total_weak_score(
                     symbol,
