@@ -144,6 +144,38 @@ def load_trades():
                 print("LOAD ERROR:", str(e))
                 active_trades = []
 
+def verify_order(order_info, symbol, side):
+
+    try:
+        status = order_info.get("status", "")
+
+        filled = float(order_info.get("filled", 0))
+
+        remaining = float(order_info.get("remaining", 0))
+
+        print(
+            f"[VERIFY {side}] "
+            f"{symbol} | "
+            f"Status={status} | "
+            f"Filled={filled} | "
+            f"Remaining={remaining}"
+        )
+
+        return {
+            "status": status,
+            "filled": filled,
+            "remaining": remaining
+        }
+
+    except Exception as e:
+
+        print(
+            f"VERIFY {side} ERROR:",
+            str(e)
+        )
+
+        return None
+
 def get_trade_amount(balance):
 
     try:
@@ -238,6 +270,14 @@ def buy_coin(symbol, signal_type=None, score=None):
                     order["id"],
                     symbol
                 )
+                verify = verify_order(
+                    order_info,
+                    symbol,
+                    "BUY"
+                    )
+
+                if not verify:
+                    return
 
                 base_coin = symbol.split("/")[0].lower()
                 receive_key = f"receive_{base_coin}"
@@ -390,6 +430,14 @@ def sell_coin(trade, sell_reason=None):
             amount,
             sell_price
         )
+        verify = verify_order(
+            order_info,
+            symbol,
+            "SELL"
+        )
+
+        if not verify:
+            return None
 
         print("SELL ORDER:", symbol)
 
