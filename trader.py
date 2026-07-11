@@ -326,7 +326,9 @@ def buy_coin(symbol, signal_type=None, score=None):
                 "timeout_weak_notified": False,
                 "timeout_weak_last_score": 0,
                 "timeout_weak_last_notify": 0,
-
+                "timeout_mode": "",
+                "timeout_highest_profit": 0.0,
+                "timeout_lowest_profit": 0.0,
                 "sl_hold_last_score": 0,
                 "sl_hold_last_notify": 0,
                 "sl_cooldown_until": 0,
