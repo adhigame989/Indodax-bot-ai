@@ -21,7 +21,6 @@ exchange = ccxt.indodax({
 active_trades = []
 TRADES_FILE = "/data/active_trades.json"
 coin_cooldown = {}
-ignored_partials = {}
 
 def get_sl_weak_score(symbol):
     try:
