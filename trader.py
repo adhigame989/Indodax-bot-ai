@@ -1113,8 +1113,11 @@ def monitor_trade(trade):
             )
             print(
                 f"TIMEOUT TRACK | "
+                f"{display_symbol} | "
+                f"Now={current_profit:.2f}% | "
                 f"High={trade['timeout_highest_profit']:.2f}% | "
-                f"Low={trade['timeout_lowest_profit']:.2f}%"
+                f"Low={trade['timeout_lowest_profit']:.2f}% | "
+                f"DD={drawdown:.2f}%"
             )
 
         if (
