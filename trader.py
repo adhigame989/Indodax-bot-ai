@@ -237,6 +237,15 @@ def buy_coin(symbol, signal_type=None, score=None):
                     order["id"],
                     symbol
                 )
+                if order_info["status"] == "closed":
+                    break
+
+                print(
+                    f"WAIT BUY FILL: {symbol} | "
+                    f"Status={order_info['status']}"
+                )
+
+                time.sleep(5)
 
                 base_coin = symbol.split("/")[0].lower()
                 receive_key = f"receive_{base_coin}"
@@ -250,20 +259,6 @@ def buy_coin(symbol, signal_type=None, score=None):
                 actual_trade_amount = actual_amount * buy_price
 
                 print("ACTUAL AMOUNT:", actual_amount)
-
-                if order_info["status"] != "closed":
-                    exchange.cancel_order(
-                        order["id"],
-                        symbol,
-                        {"side": "buy"}
-                    )
-
-                    print("BUY CANCELLED:", symbol)
-                    return
-
-            except Exception as e:
-                print("BUY CHECK ERROR:", str(e))
-                return
 
             tp_price = buy_price * (1 + (config.TAKE_PROFIT / 100))
             sl_price = buy_price * (1 - (config.STOP_LOSS / 100))
