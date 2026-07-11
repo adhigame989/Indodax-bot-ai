@@ -288,6 +288,7 @@ def buy_coin(symbol, signal_type=None, score=None):
                 "timeout_weak_notified": False,
                 "timeout_weak_last_score": 0,
                 "timeout_weak_last_notify": 0,
+                "timeout_weak_highest": 0,
 
                 "sl_hold_last_score": 0,
                 "sl_hold_last_notify": 0,
@@ -1049,9 +1050,13 @@ def monitor_trade(trade):
 
         current_profit = trade.get("profit_percent",0)
 
-        if (
-            hold_hours >= config.TIMEOUT_WEAK_HOURS
+        if (hold_hours >= config.TIMEOUT_WEAK_HOURS
             and current_profit < config.TIMEOUT_WEAK_PROFIT):
+        if trade["timeout_weak_highest"] == 0:
+            trade["timeout_weak_highest"] = current_price
+
+        if current_price > trade["timeout_weak_highest"]:
+            trade["timeout_weak_highest"] = current_price
 
             weak_score = get_total_weak_score(
                     symbol,
@@ -1077,6 +1082,27 @@ def monitor_trade(trade):
                         f"{result['pl_label']}: Rp {abs(result['profit_idr']):,.0f} ({result['profit_percent']:.2f}%)"
                     )
             else:
+                drawdown = (
+                    (trade["timeout_weak_highest"] - current_price)
+                    / trade["timeout_weak_highest"]) * 100
+
+                if drawdown >= config.TIMEOUT_WEAK_DRAWDOWN:
+
+                    print("TIMEOUT WEAK DRAWDOWN SELL:", symbol)
+
+                    result = sell_coin(trade, "TIMEOUT_WEAK_DRAWDOWN")
+
+                    if result:
+                        telegram_bot.send_telegram(
+                            f"📉 TIMEOUT WEAK DRAWDOWN SELL\n\n"
+                            f"Coin: {display_symbol}\n"
+                            f"Drawdown: {drawdown:.2f}%\n"
+                            f"Sell Price: Rp {result['sell_price']:,.2f}\n"
+                            f"Hasil Jual: Rp {result['sell_value']:,.0f}\n"
+                            f"{result['pl_label']}: Rp {abs(result['profit_idr']):,.0f} ({result['profit_percent']:.2f}%)"
+                        )
+
+                    return
 
                 last_score = trade.get("timeout_weak_last_score", 0)
                 last_notify = trade.get("timeout_weak_last_notify", 0)
