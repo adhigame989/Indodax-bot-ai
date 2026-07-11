@@ -329,6 +329,9 @@ def buy_coin(symbol, signal_type=None, score=None):
                 "timeout_mode": "",
                 "timeout_highest_profit": 0.0,
                 "timeout_lowest_profit": 0.0,
+                "timeout_last_logged_high": 0.0,
+                "timeout_last_logged_low": 0.0,
+                "timeout_last_logged_dd": 0.0,
                 "sl_hold_last_score": 0,
                 "sl_hold_last_notify": 0,
                 "sl_cooldown_until": 0,
@@ -1115,14 +1118,30 @@ def monitor_trade(trade):
                 trade["timeout_highest_profit"]
                 - current_profit
             )
-            print(
-                f"TIMEOUT TRACK | "
-                f"{display_symbol} | "
-                f"Now={current_profit:.2f}% | "
-                f"High={trade['timeout_highest_profit']:.2f}% | "
-                f"Low={trade['timeout_lowest_profit']:.2f}% | "
-                f"DD={drawdown:.2f}%"
-            )
+
+            need_log = False
+
+            if trade["timeout_highest_profit"] > trade.get("timeout_last_logged_high", 0):
+                trade["timeout_last_logged_high"] = trade["timeout_highest_profit"]
+                need_log = True
+
+            if trade["timeout_lowest_profit"] < trade.get("timeout_last_logged_low", current_profit):
+                trade["timeout_last_logged_low"] = trade["timeout_lowest_profit"]
+                need_log = True
+
+            if abs(drawdown - trade.get("timeout_last_logged_dd", 0)) >= 0.2:
+                trade["timeout_last_logged_dd"] = drawdown
+                need_log = True
+
+            if need_log:
+                print(
+                    f"TIMEOUT TRACK | "
+                    f"{display_symbol} | "
+                    f"Now={current_profit:.2f}% | "
+                    f"High={trade['timeout_highest_profit']:.2f}% | "
+                    f"Low={trade['timeout_lowest_profit']:.2f}% | "
+                    f"DD={drawdown:.2f}%"
+                )
 
         if (
             hold_hours >= config.TIMEOUT_WEAK_HOURS
