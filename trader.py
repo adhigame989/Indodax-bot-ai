@@ -176,6 +176,45 @@ def verify_order(order_info, symbol, side):
 
         return None
 
+def verify_wallet_trade(trade):
+
+    try:
+
+        symbol = trade["symbol"]
+
+        base_coin = symbol.split("/")[0]
+
+        balance = exchange.fetch_balance()
+
+        wallet_amount = (
+            balance["free"].get(base_coin, 0)
+            or
+            balance["free"].get(base_coin.lower(), 0)
+        )
+
+        trade_amount = trade["amount"]
+
+        diff = abs(wallet_amount - trade_amount)
+
+        print(
+            f"[VERIFY WALLET] "
+            f"{symbol} | "
+            f"Wallet={wallet_amount:.8f} | "
+            f"Trade={trade_amount:.8f} | "
+            f"Diff={diff:.8f}"
+        )
+
+        return diff
+
+    except Exception as e:
+
+        print(
+            "VERIFY WALLET ERROR:",
+            str(e)
+        )
+
+        return None
+
 def get_trade_amount(balance):
 
     try:
@@ -353,6 +392,7 @@ def buy_coin(symbol, signal_type=None, score=None):
                 cooldown = 300
 
             active_trades.append(trade)
+            verify_wallet_trade(trade)
             coin_cooldown[symbol] = {"start": time.time(),"duration": cooldown}
             save_trades()
 
@@ -469,6 +509,8 @@ def sell_coin(trade, sell_reason=None):
                 if trade in active_trades:
                     active_trades.remove(trade)
 
+            if trade in active_trades:
+                verify_wallet_trade(trade)
             save_trades()
 
         except Exception as e:
