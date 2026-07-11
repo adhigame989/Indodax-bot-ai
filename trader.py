@@ -1135,6 +1135,7 @@ def monitor_trade(trade):
             trade["timeout_weak_notified"] = False
             trade["timeout_weak_last_score"] = 0
             trade["timeout_weak_last_notify"] = 0
+            trade["timeout_weak_highest"] = 0
 
             save_trades()
 
