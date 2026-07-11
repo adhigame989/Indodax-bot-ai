@@ -428,9 +428,6 @@ def sell_coin(trade, sell_reason=None):
             sell_price
         )
 
-        if not verify:
-            return None
-
         print("SELL ORDER:", symbol)
 
         time.sleep(10)
@@ -440,7 +437,7 @@ def sell_coin(trade, sell_reason=None):
             
             verify = verify_order(order_info,symbol,"SELL")
             if not verify:
-                return none
+                return None
             
             filled_amount=float(order_info.get("filled",0))
             remaining_amount=float(order_info.get("remaining",0))
