@@ -1094,6 +1094,28 @@ def monitor_trade(trade):
         hold_hours = hold_seconds / 3600
 
         current_profit = trade.get("profit_percent",0)
+        # ===== Timeout Engine V2 =====
+
+        if trade.get("timeout_mode", "") == "":
+
+            trade["timeout_highest_profit"] = current_profit
+            trade["timeout_lowest_profit"] = current_profit
+        if hold_hours >= config.TIMEOUT_WEAK_HOURS:
+
+            trade["timeout_highest_profit"] = max(
+                trade.get("timeout_highest_profit", current_profit),
+                current_profit
+            )
+
+            trade["timeout_lowest_profit"] = min(
+                trade.get("timeout_lowest_profit", current_profit),
+                current_profit
+            )
+            print(
+                f"TIMEOUT TRACK | "
+                f"High={trade['timeout_highest_profit']:.2f}% | "
+                f"Low={trade['timeout_lowest_profit']:.2f}%"
+            )
 
         if (
             hold_hours >= config.TIMEOUT_WEAK_HOURS
