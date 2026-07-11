@@ -1111,6 +1111,10 @@ def monitor_trade(trade):
                 trade.get("timeout_lowest_profit", current_profit),
                 current_profit
             )
+            drawdown = (
+                trade["timeout_highest_profit"]
+                - current_profit
+            )
             print(
                 f"TIMEOUT TRACK | "
                 f"{display_symbol} | "
