@@ -1169,22 +1169,37 @@ def monitor_trade(trade):
                     )
             else:
 
-                last_score = trade.get("timeout_weak_last_score", 0)
+                highest = trade.get("timeout_highest_profit", current_profit)
+                lowest = trade.get("timeout_lowest_profit", current_profit)
+                drawdown = highest - current_profit
+
+                last_score = trade.get("timeout_weak_last_score", -1)
                 last_notify = trade.get("timeout_weak_last_notify", 0)
 
-                score_changed = weak_score != last_score
-                enough_time = (time.time() - last_notify) >= 900   # 15 menit
+                score_changed = (weak_score != last_score)
+                enough_time = (time.time() - last_notify) >= 900
 
-                if score_changed and enough_time:
+                if score_changed or enough_time:
 
-                    print("TIMEOUT WEAK HOLD:", symbol)
+                    print(
+                        f"TIMEOUT WEAK HOLD | "
+                        f"{display_symbol} | "
+                        f"Now={current_profit:.2f}% | "
+                        f"High={highest:.2f}% | "
+                        f"Low={lowest:.2f}% | "
+                        f"DD={drawdown:.2f}% | "
+                        f"Weak={weak_score}/6"
+                    )
 
                     telegram_bot.send_telegram(
                         f"⏳ TIMEOUT WEAK HOLD\n\n"
                         f"Coin: {display_symbol}\n"
                         f"Hold: {hold_hours:.1f}h\n"
+                        f"Now: {current_profit:.2f}%\n"
+                        f"Highest: {highest:.2f}%\n"
+                        f"Lowest: {lowest:.2f}%\n"
+                        f"Drawdown: {drawdown:.2f}%\n"
                         f"Weak Score: {weak_score}/6\n"
-                        f"Profit: {current_profit:.2f}%\n"
                         f"Status: Continue Holding"
                     )
 
@@ -1192,7 +1207,7 @@ def monitor_trade(trade):
                     trade["timeout_weak_last_score"] = weak_score
                     trade["timeout_weak_last_notify"] = time.time()
 
-                save_trades()
+                    save_trades()
 
             return
         if trade.get("timeout_weak_notified", False):
