@@ -345,7 +345,6 @@ def buy_coin(symbol, signal_type=None, score=None):
                 cooldown = 300
 
             active_trades.append(trade)
-            verify_wallet_trade(trade)
             coin_cooldown[symbol] = {"start": time.time(),"duration": cooldown}
             save_trades()
 
@@ -423,11 +422,6 @@ def sell_coin(trade, sell_reason=None):
             amount,
             sell_price
         )
-        verify = verify_order(
-            order_info,
-            symbol,
-            "SELL"
-        )
 
         if not verify:
             return None
@@ -438,6 +432,11 @@ def sell_coin(trade, sell_reason=None):
 
         try:
             order_info=exchange.fetch_order(order["id"],symbol)
+            
+            verify = verify_order(order_info,symbol,"SELL")
+            if not verify:
+                return none
+            
             filled_amount=float(order_info.get("filled",0))
             remaining_amount=float(order_info.get("remaining",0))
 
